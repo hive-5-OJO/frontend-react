@@ -10,7 +10,7 @@ const LoginPage = () => {
       title="로그인"
       footer={
         <p className="mt-6 text-center text-sm text-gray-500">
-          처음 오셨나요?{' '}
+          처음 오셨나요?{'  '}
           <span
             onClick={() => navigate('/signup')}
             className="text-main-blue cursor-pointer font-bold transition-colors duration-200 hover:text-[#4F63D9] hover:underline"
