@@ -1,8 +1,8 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @font-face {
-  font-family: "Pretendard";
-  src: url("/fonts/PretendardVariable.woff2") format("woff2-variations");
+  font-family: 'Pretendard';
+  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
   font-weight: 100 900;
 }
 
@@ -22,8 +22,14 @@
 
   /* 5. 기본 폰트패밀리 */
   --font-sans:
-    "Pretendard", "Pretendard Variable", -apple-system, BlinkMacSystemFont,
-    system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
-    "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", sans-serif;
+    'Pretendard', 'Pretendard Variable', -apple-system, BlinkMacSystemFont,
+    system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo',
+    'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', sans-serif;
+}
+
+@layer components {
+  .input {
+    @apply mb-4 w-full rounded-lg border border-[#E2E8F0] px-4 py-2 text-sm focus:ring-2 focus:ring-[#5E72E4] focus:outline-none;
+  }
 }
