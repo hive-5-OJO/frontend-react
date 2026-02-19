@@ -1,0 +1,35 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+}
+
+@theme {
+  /* 1. 메인 브랜드 컬러 (이미지의 블루/보라 계열) */
+  --color-main-blue: #5e72e4; /* 상단 배경 및 포인트 컬러 */
+  --color-sidebar-bg: #ffffff; /* 사이드바 배경 */
+  --color-content-bg: #f9fafb; /* 메인 콘텐츠 영역 배경 회색 */
+
+  /* 2. 강조 및 상태 컬러 */
+
+  /* 3. 그림자 (카드 스타일) */
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+  /* 4. 사이드바 너비 정의 (원하는 대로 조절 가능) */
+  --spacing-sidebar: 280px;
+
+  /* 5. 기본 폰트패밀리 */
+  --font-sans:
+    'Pretendard', 'Pretendard Variable', -apple-system, BlinkMacSystemFont,
+    system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo',
+    'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', sans-serif;
+}
+
+@layer components {
+  .input {
+    @apply mb-4 w-full rounded-lg border border-[#E2E8F0] px-4 py-2 text-sm focus:ring-2 focus:ring-[#5E72E4] focus:outline-none;
+  }
+}
