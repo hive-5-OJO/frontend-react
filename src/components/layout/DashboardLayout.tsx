@@ -20,9 +20,9 @@ const DashboardLayout = ({ children }: Props) => {
         {/* Main 영역 */}
         <div className="flex min-h-0 flex-1 flex-col px-8">
           <Header />
-          <div className="no-scrollbar flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-hidden">
             {/* 실제 메인 섹션 */}
-            <main className="mx-16 mt-6">{children}</main>
+            <main className="mx-8 h-full">{children}</main>
           </div>
         </div>
       </div>
