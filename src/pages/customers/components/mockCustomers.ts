@@ -63,7 +63,7 @@ const makeDate = (yearStart = 2019, yearEnd = 2024, idx = 0) => {
 };
 
 const mockCustomers: C[] = [];
-for (let i = 1; i <= 50; i += 1) {
+for (let i = 1; i <= 100; i += 1) {
   const fn = firstNames[i % firstNames.length];
   const ln = lastNames[i % lastNames.length];
   const name = `${fn}${ln}`;
