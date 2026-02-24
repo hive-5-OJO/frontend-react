@@ -12,18 +12,18 @@ const Sidebar = () => {
   const hoverStyle = 'hover:bg-gray-100';
 
   return (
-    <aside className="bg-section-bg h-full w-64 rounded-xl pb-6 shadow-sm">
-      <div className="mb-3 flex h-20 items-center justify-center pt-5">
+    <aside className="bg-section-bg flex h-full w-64 flex-col rounded-xl pb-6 shadow-sm">
+      <div className="mb-3 flex h-20 flex-shrink-0 items-center justify-center pt-5">
         <img src={logo} alt="logo" className="h-15" />
       </div>
 
       {/* 구분선 */}
-      <div className="flex items-center">
+      <div className="flex flex-shrink-0 items-center">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300/60 to-gray-300"></div>
         <div className="h-px flex-1 bg-gradient-to-r from-gray-300 via-gray-300/60 to-transparent"></div>
       </div>
 
-      <nav className="space-y-2 p-4">
+      <nav className="flex-1 space-y-2 p-4">
         {/* 대시보드 */}
         <NavLink
           to="/"

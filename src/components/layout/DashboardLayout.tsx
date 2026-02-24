@@ -13,16 +13,16 @@ const DashboardLayout = ({ children }: Props) => {
 
       <div className="relative flex h-full">
         {/* Sidebar */}
-        <div className="my-6 ml-6">
+        <div className="my-6 ml-6 flex">
           <Sidebar />
         </div>
 
         {/* Main 영역 */}
         <div className="flex min-h-0 flex-1 flex-col px-8">
           <Header />
-          <div className="flex-1 overflow-hidden">
+          <div className="scrollbar-hide flex-1 overflow-y-auto pt-4 pb-6">
             {/* 실제 메인 섹션 */}
-            <main className="mx-8 h-full">{children}</main>
+            <main className="mx-8">{children}</main>
           </div>
         </div>
       </div>
