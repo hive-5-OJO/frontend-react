@@ -9,6 +9,7 @@ type C = {
   consultFrequency: 'high' | 'medium' | 'low';
   consultCategory: string;
   isVip: boolean;
+  isNewCustomer?: boolean;
 };
 
 const firstNames = [
@@ -62,8 +63,20 @@ const makeDate = (yearStart = 2019, yearEnd = 2024, idx = 0) => {
   return `${year}-${mm}-${dd}`;
 };
 
+// 최근 30일 이내 날짜 생성 (신규 가입자용)
+const makeRecentDate = () => {
+  const today = new Date('2026-02-10'); // 기준일
+  const daysAgo = Math.floor(Math.random() * 30); // 0~29일 전
+  const date = new Date(today);
+  date.setDate(date.getDate() - daysAgo);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const mockCustomers: C[] = [];
-for (let i = 1; i <= 50; i += 1) {
+for (let i = 1; i <= 100; i += 1) {
   const fn = firstNames[i % firstNames.length];
   const ln = lastNames[i % lastNames.length];
   const name = `${fn}${ln}`;
@@ -74,17 +87,23 @@ for (let i = 1; i <= 50; i += 1) {
     i % 3 === 0 ? 'high' : i % 3 === 1 ? 'medium' : 'low';
   const consultCategory = consultCategories[i % consultCategories.length];
   const isVip = i % 5 === 0;
+  
+  // 처음 5명을 신규 가입자로 설정
+  const isNewCustomer = i <= 5;
+  const joinedAt = isNewCustomer ? makeRecentDate() : makeDate(2019, 2024, i);
+  
   mockCustomers.push({
     id: i,
     name,
     phone,
     email,
-    joinedAt: makeDate(2019, 2024, i),
+    joinedAt,
     service,
-    period: `${makeDate(2019, 2024, i)} ~ 현재`,
+    period: `${joinedAt} ~ 현재`,
     consultFrequency,
     consultCategory,
     isVip,
+    isNewCustomer,
   });
 }
 

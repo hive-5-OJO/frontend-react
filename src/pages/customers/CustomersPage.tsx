@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import CustomerTable from './components/CustomerTable';
 import mockCustomers from './components/mockCustomers';
 import CustomerFilter from './components/CustomerFilter';
 import CustomerSearch from './components/CustomerSearch';
 import Pagination from './components/Pagination';
 import DashboardLayout from '../../components/layout/DashboardLayout';
+import CustomerDetailSlide from './components/CustomerDetail/CustomerDetailSlide';
 
 interface Filters {
   isVip?: boolean | null;
@@ -18,30 +19,33 @@ interface SortField {
   order: 'asc' | 'desc';
 }
 
+interface Customer {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  joinedAt: string;
+  service?: string;
+  period?: string;
+  consultFrequency?: 'high' | 'medium' | 'low' | number | string;
+  consultCategory?: string;
+  isVip?: boolean;
+}
+
 const CustomersPage = () => {
   const [page, setPage] = useState(1);
-  const [pageSizeAuto, setPageSizeAuto] = useState<number>(10);
+  const pageSizeAuto = 12;
   const [pageSizeManual, setPageSizeManual] = useState<number | null>(null);
   const [filters, setFilters] = useState<Filters>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [sorts, setSorts] = useState<SortField[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   const pageSize = pageSizeManual ?? pageSizeAuto;
-
-  // 반응형 페이지 사이즈 계산 (데스크탑 기준 조정) - 자동값만 업데이트
-  useEffect(() => {
-    const calc = () => {
-      const w = window.innerWidth;
-      if (w >= 1440) setPageSizeAuto(12);
-      else if (w >= 1280) setPageSizeAuto(10);
-      else if (w >= 1024) setPageSizeAuto(8);
-      else setPageSizeAuto(6);
-    };
-
-    calc();
-    window.addEventListener('resize', calc);
-    return () => window.removeEventListener('resize', calc);
-  }, []);
 
   // 필터 변경 시 페이지 1로 리셋하는 최적화 콜백
   const handleFiltersChange = (newFilters: Filters) => {
@@ -89,6 +93,16 @@ const CustomersPage = () => {
     setSearchTerm('');
     setSorts([]);
     setPage(1);
+  };
+
+  const handleCustomerClick = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsDetailOpen(true);
+  };
+
+  const handleCloseDetail = () => {
+    setIsDetailOpen(false);
+    setTimeout(() => setSelectedCustomer(null), 300); // 애니메이션 후 상태 초기화
   };
 
   // 필터링 로직
@@ -192,26 +206,24 @@ const CustomersPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex h-full flex-col gap-6 p-6">
+      <div className="flex flex-col gap-6 pb-6">
         {/* 필터 및 검색 섹션 */}
-        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-          {/* 헤더 */}
-          <div className="mb-6">
-            <h1 className="text-4xl font-bold text-gray-900">고객 목록</h1>
-            <p className="mt-2 text-base text-gray-500">
-              고객 정보를 한눈에 관리하고 상담 현황을 추적하세요
-            </p>
-          </div>
-
-          {/* 필터 헤더 */}
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h3 className="text-sm font-semibold text-gray-700">
-                필터 & 검색
-              </h3>
-              <div className="flex items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1 text-xs text-indigo-600">
+        <div className="flex-shrink-0 rounded-xl border border-gray-100 bg-white shadow-sm">
+          {/* 헤더 - 항상 표시 */}
+          <div className="p-6 pb-4">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-900">고객 목록</h1>
+                <p className="mt-2 text-base text-gray-500">
+                  고객 정보를 한눈에 관리하고 상담 현황을 추적하세요
+                </p>
+              </div>
+              <button
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              >
                 <svg
-                  className="h-3.5 w-3.5"
+                  className={`h-4 w-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -220,113 +232,144 @@ const CustomersPage = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    d="M19 9l-7 7-7-7"
                   />
                 </svg>
-                <span>클릭 순서대로 다중 정렬 적용</span>
+                {isFilterOpen ? '필터 접기' : '필터 펼치기'}
+              </button>
+            </div>
+
+            {/* 필터 헤더 */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h3 className="text-sm font-semibold text-gray-700">
+                  필터 & 검색
+                </h3>
+                {isFilterOpen && (
+                  <div className="flex items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1 text-xs text-indigo-600">
+                    <svg
+                      className="h-3.5 w-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>클릭 순서대로 다중 정렬 적용</span>
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-indigo-600">
+                    {filteredTotal}
+                  </p>
+                  <p className="text-xs text-gray-500">명의 고객</p>
+                </div>
+                {(Object.keys(filters).some((k) => filters[k as keyof Filters]) ||
+                  searchTerm ||
+                  sorts.length > 0) && (
+                  <button
+                    onClick={handleClearAll}
+                    className="text-xs font-medium text-gray-500 transition hover:text-red-600"
+                  >
+                    전체 초기화
+                  </button>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-2xl font-bold text-indigo-600">
-                  {filteredTotal}
-                </p>
-                <p className="text-xs text-gray-500">명의 고객</p>
-              </div>
-              {(Object.keys(filters).some((k) => filters[k as keyof Filters]) ||
-                searchTerm ||
-                sorts.length > 0) && (
-                <button
-                  onClick={handleClearAll}
-                  className="text-xs font-medium text-gray-500 transition hover:text-red-600"
-                >
-                  전체 초기화
-                </button>
+          </div>
+
+          {/* 필터 내용 - 접을 수 있음 */}
+          {isFilterOpen && (
+            <div className="space-y-4 px-6 pb-6">
+              <CustomerFilter
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+              />
+              <CustomerSearch
+                searchTerm={searchTerm}
+                onSearchChange={handleSearchChange}
+              />
+
+              {/* 정렬 상태 표시 */}
+              {sorts.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4">
+                  <div className="py-1 text-xs font-medium text-gray-500">
+                    정렬:
+                  </div>
+                  {sorts.map((sort, idx) => (
+                    <div key={sort.field} className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setSorts(sorts.filter((_, i) => i !== idx));
+                        }}
+                        className="inline-flex items-center gap-2 rounded-full border border-indigo-300 bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-200"
+                      >
+                        <span>
+                          {sort.field === 'name' && '이름'}
+                          {sort.field === 'service' && '서비스'}
+                          {sort.field === 'period' && '이용기간'}
+                          {sort.field === 'frequency' && '상담빈도'}
+                          {sort.field === 'category' && '상담 카테고리'}
+                          {sort.field === 'isVip' && 'VIP 여부'}
+                          <span className="ml-1 font-bold">
+                            {sort.order === 'asc' ? '↑' : '↓'}
+                          </span>
+                        </span>
+                        <svg
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                      {idx < sorts.length - 1 && (
+                        <div className="text-xs text-gray-400">→</div>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    onClick={handleClearSort}
+                    className="ml-2 text-xs font-medium text-gray-500 transition hover:text-gray-700"
+                  >
+                    초기화
+                  </button>
+                </div>
               )}
             </div>
-          </div>
-
-          <div className="space-y-4">
-            <CustomerFilter
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-            />
-            <CustomerSearch
-              searchTerm={searchTerm}
-              onSearchChange={handleSearchChange}
-            />
-
-            {/* 정렬 상태 표시 */}
-            {sorts.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4">
-                <div className="py-1 text-xs font-medium text-gray-500">
-                  정렬:
-                </div>
-                {sorts.map((sort, idx) => (
-                  <div key={sort.field} className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        setSorts(sorts.filter((_, i) => i !== idx));
-                      }}
-                      className="inline-flex items-center gap-2 rounded-full border border-indigo-300 bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-200"
-                    >
-                      <span>
-                        {sort.field === 'name' && '이름'}
-                        {sort.field === 'service' && '서비스'}
-                        {sort.field === 'period' && '이용기간'}
-                        {sort.field === 'frequency' && '상담빈도'}
-                        {sort.field === 'category' && '상담 카테고리'}
-                        {sort.field === 'isVip' && 'VIP 여부'}
-                        <span className="ml-1 font-bold">
-                          {sort.order === 'asc' ? '↑' : '↓'}
-                        </span>
-                      </span>
-                      <svg
-                        className="h-3.5 w-3.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                    {idx < sorts.length - 1 && (
-                      <div className="text-xs text-gray-400">→</div>
-                    )}
-                  </div>
-                ))}
-                <button
-                  onClick={handleClearSort}
-                  className="ml-2 text-xs font-medium text-gray-500 transition hover:text-gray-700"
-                >
-                  초기화
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
-        {/* 테이블 컨테이너 (flex-1로 남은 공간 차지, 스크롤 활성화) */}
-        <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-          <div
-            className="flex-1"
-            style={{ overflowY: 'overlay', scrollBehavior: 'smooth' }}
+        {/* 테이블 컨테이너 (12명 고정 높이) */}
+        <div className="flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+          <div 
+            className="table-scroll overflow-y-auto scroll-smooth"
+            style={{ height: '589px' }}
           >
             <CustomerTable
               data={pageData}
               startIndex={start}
               sorts={sorts}
               onSort={handleSort}
+              onCustomerClick={handleCustomerClick}
             />
           </div>
 
           {/* 페이지네이션 (고정) */}
-          <div className="flex items-center justify-between border-t border-gray-100 bg-white px-6 py-4">
+          <div className="flex flex-shrink-0 items-center justify-between border-t border-gray-100 bg-white px-6 py-4 rounded-b-xl">
             <div className="flex items-center gap-4">
               {/* 표시 정보 */}
               <div className="text-sm text-gray-600">
@@ -390,6 +433,13 @@ const CustomersPage = () => {
           </div>
         </div>
       </div>
+
+      {/* 고객 상세 슬라이드 */}
+      <CustomerDetailSlide
+        customer={selectedCustomer}
+        isOpen={isDetailOpen}
+        onClose={handleCloseDetail}
+      />
     </DashboardLayout>
   );
 };
