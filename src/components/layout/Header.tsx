@@ -2,9 +2,24 @@ import headerMascot from '../../assets/images/header-mascot.png';
 import adminIcon from '../../assets/icons/admin-icon.svg';
 import logoutIcon from '../../assets/icons/logout-icon.svg';
 
-const Header = () => {
+interface Props {
+  onMenuClick: () => void;
+}
+
+const Header = ({ onMenuClick }: Props) => {
   return (
     <header className="bg-main-blue relative mr-10 flex h-20 items-center px-8 text-white">
+      {/* 햄버거 메뉴 버튼 (모바일만) */}
+      <button
+        onClick={onMenuClick}
+        className="mr-4 flex flex-col gap-1 md:hidden"
+        aria-label="메뉴 열기"
+      >
+        <span className="h-0.5 w-6 bg-white"></span>
+        <span className="h-0.5 w-6 bg-white"></span>
+        <span className="h-0.5 w-6 bg-white"></span>
+      </button>
+
       <div className="absolute left-1/2 -translate-x-1/2">
         <img src={headerMascot} alt="penguin" className="h-16" />
       </div>

@@ -116,26 +116,26 @@ const RFMTab = ({ rfmData }: Props) => {
       </div>
 
       {/* 차트 그리드 */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="rounded-lg bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-bold text-gray-900">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
+        <div className="rounded-lg bg-white p-4 shadow-sm md:p-6">
+          <h3 className="mb-3 text-base font-bold text-gray-900 md:mb-4 md:text-lg">
             RFM 종합 분석
           </h3>
-          <div style={{ height: '300px', width: '100%', position: 'relative' }}>
+          <div style={{ height: '250px', width: '100%', position: 'relative' }}>
             <Radar data={radarData} options={radarOptions} />
           </div>
         </div>
 
-        <div className="rounded-lg bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-bold text-gray-900">항목별 점수</h3>
-          <div style={{ height: '300px', width: '100%', position: 'relative' }}>
+        <div className="rounded-lg bg-white p-4 shadow-sm md:p-6">
+          <h3 className="mb-3 text-base font-bold text-gray-900 md:mb-4 md:text-lg">항목별 점수</h3>
+          <div style={{ height: '250px', width: '100%', position: 'relative' }}>
             <Bar data={barData} options={barOptions} />
           </div>
         </div>
       </div>
 
       {/* RFM 상세 지표 */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-3">
         {/* Recency */}
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <div className="mb-3 flex items-center justify-between">

@@ -84,7 +84,7 @@ const LTVTab = ({ ltvData }: Props) => {
       </div>
 
       {/* 주요 지표 카드 */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-3">
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <div className="rounded-full bg-vip-100 p-2">
@@ -172,7 +172,7 @@ const LTVTab = ({ ltvData }: Props) => {
       </div>
 
       {/* 상세 분석 */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
         {/* 이탈 위험도 */}
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <h3 className="mb-4 text-lg font-bold text-gray-900">

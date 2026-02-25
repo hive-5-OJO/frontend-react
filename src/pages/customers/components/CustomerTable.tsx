@@ -232,19 +232,19 @@ const CustomerTable = ({
                   {baseIndex + idx + 1}
                 </td>
                 <td className="px-4 py-3 text-center text-sm font-medium text-gray-900">
-                  {customer.name}
+                  <div className="truncate">{customer.name}</div>
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
-                  {customer.service ?? '-'}
+                  <div className="truncate">{customer.service ?? '-'}</div>
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
-                  {customer.period ?? customer.joinedAt ?? '-'}
+                  <div className="truncate">{customer.period ?? customer.joinedAt ?? '-'}</div>
                 </td>
                 <td className="px-4 py-3 text-center">
                   {renderConsultBadge(customer.consultFrequency)}
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
-                  {customer.consultCategory ?? '-'}
+                  <div className="truncate">{customer.consultCategory ?? '-'}</div>
                 </td>
                 <td className="px-4 py-3 text-center">
                   {customer.isVip ? (

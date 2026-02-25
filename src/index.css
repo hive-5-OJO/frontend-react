@@ -344,3 +344,41 @@
 .table-scroll::-webkit-scrollbar-thumb:hover {
   background-color: rgba(99, 102, 241, 0.5);
 }
+
+
+/* 반응형 유틸리티 */
+@media (max-width: 768px) {
+  .table-scroll {
+    scrollbar-width: none;
+  }
+  
+  .table-scroll::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* 텍스트 오버플로우 처리 */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  h3 {
+    font-size: 1.125rem;
+  }
+}

@@ -136,12 +136,12 @@ const CustomerDetailSlide = ({
 
       {/* 슬라이드 패널 */}
       <div
-        className={`fixed top-0 right-0 z-50 flex h-full transform items-center transition-transform duration-500 ease-out ${
+        className={`fixed top-0 right-0 z-50 flex h-full w-full transform items-center transition-transform duration-500 ease-out md:w-4/5 lg:w-3/4 xl:w-[55%] ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
-        style={{ width: '55%', padding: '24px 0' }}
+        style={{ padding: '12px 0 12px 0' }}
       >
-        <div className="flex h-full w-full flex-col overflow-hidden rounded-l-2xl bg-gray-50 shadow-2xl">
+        <div className="flex h-full w-full flex-col overflow-hidden rounded-l-xl bg-gray-50 shadow-2xl md:rounded-l-2xl">
           <CustomerDetailHeader
             customer={customer}
             featureData={featureData}
@@ -154,7 +154,7 @@ const CustomerDetailSlide = ({
           />
 
           {/* 내용 */}
-          <div className="scrollbar-hide flex-1 overflow-y-auto p-8">
+          <div className="scrollbar-hide flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
             {activeTab === 'info' && (
               <InfoTab customer={customer} featureData={featureData} />
             )}
