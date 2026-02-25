@@ -5,6 +5,7 @@ import CustomerFilter from './components/CustomerFilter';
 import CustomerSearch from './components/CustomerSearch';
 import Pagination from './components/Pagination';
 import DashboardLayout from '../../components/layout/DashboardLayout';
+import CustomerDetailSlide from './components/CustomerDetail/CustomerDetailSlide';
 
 interface Filters {
   isVip?: boolean | null;
@@ -18,13 +19,30 @@ interface SortField {
   order: 'asc' | 'desc';
 }
 
+interface Customer {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  joinedAt: string;
+  service?: string;
+  period?: string;
+  consultFrequency?: 'high' | 'medium' | 'low' | number | string;
+  consultCategory?: string;
+  isVip?: boolean;
+}
+
 const CustomersPage = () => {
   const [page, setPage] = useState(1);
-  const [pageSizeAuto, setPageSizeAuto] = useState<number>(10);
+  const [pageSizeAuto, setPageSizeAuto] = useState<number>(12);
   const [pageSizeManual, setPageSizeManual] = useState<number | null>(null);
   const [filters, setFilters] = useState<Filters>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [sorts, setSorts] = useState<SortField[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   const pageSize = pageSizeManual ?? pageSizeAuto;
@@ -75,6 +93,16 @@ const CustomersPage = () => {
     setSearchTerm('');
     setSorts([]);
     setPage(1);
+  };
+
+  const handleCustomerClick = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsDetailOpen(true);
+  };
+
+  const handleCloseDetail = () => {
+    setIsDetailOpen(false);
+    setTimeout(() => setSelectedCustomer(null), 300); // 애니메이션 후 상태 초기화
   };
 
   // 필터링 로직
@@ -336,11 +364,12 @@ const CustomersPage = () => {
               startIndex={start}
               sorts={sorts}
               onSort={handleSort}
+              onCustomerClick={handleCustomerClick}
             />
           </div>
 
           {/* 페이지네이션 (고정) */}
-          <div className="flex items-center justify-between border-t border-gray-100 bg-white px-6 py-4">
+          <div className="flex flex-shrink-0 items-center justify-between border-t border-gray-100 bg-white px-6 py-4 rounded-b-xl">
             <div className="flex items-center gap-4">
               {/* 표시 정보 */}
               <div className="text-sm text-gray-600">
@@ -404,6 +433,13 @@ const CustomersPage = () => {
           </div>
         </div>
       </div>
+
+      {/* 고객 상세 슬라이드 */}
+      <CustomerDetailSlide
+        customer={selectedCustomer}
+        isOpen={isDetailOpen}
+        onClose={handleCloseDetail}
+      />
     </DashboardLayout>
   );
 };

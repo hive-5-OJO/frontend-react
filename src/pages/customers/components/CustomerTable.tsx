@@ -21,6 +21,7 @@ interface Props {
   startIndex?: number;
   sorts?: SortField[];
   onSort?: (field: string) => void;
+  onCustomerClick?: (customer: Customer) => void;
 }
 
 const consultStyle = {
@@ -57,7 +58,13 @@ const SortIndicator = ({
   );
 };
 
-const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort }: Props) => {
+const CustomerTable = ({
+  data,
+  startIndex = 0,
+  sorts = [],
+  onSort,
+  onCustomerClick,
+}: Props) => {
   const rows = data;
   const baseIndex = startIndex ?? 0;
 
@@ -82,7 +89,7 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort }: Props) => {
     'cursor-pointer px-4 py-4 text-center text-xs font-semibold text-gray-700 hover:bg-indigo-100 select-none';
 
   return (
-    <div className="flex h-full w-full flex-col overflow-auto">
+    <div className="relative h-full w-full">
       <table className="w-full table-fixed text-sm">
         <colgroup>
           <col className="w-20" />
@@ -218,7 +225,8 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort }: Props) => {
             rows.map((customer, idx) => (
               <tr
                 key={customer.id}
-                className="border-b border-gray-100 hover:bg-indigo-50/30"
+                className="cursor-pointer border-b border-gray-100 transition hover:bg-indigo-50/30"
+                onClick={() => onCustomerClick?.(customer)}
               >
                 <td className="px-4 py-3 text-center text-sm text-gray-500">
                   {baseIndex + idx + 1}
