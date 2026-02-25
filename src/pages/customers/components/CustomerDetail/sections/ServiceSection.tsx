@@ -12,7 +12,7 @@ const ServiceSection = ({ customer, featureData }: Props) => {
       <h3 className="mb-4 text-lg font-bold text-gray-900">이용 서비스</h3>
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">현재 요금제:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -21,7 +21,7 @@ const ServiceSection = ({ customer, featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">월 요금:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -30,7 +30,7 @@ const ServiceSection = ({ customer, featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">부가 서비스:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -39,7 +39,7 @@ const ServiceSection = ({ customer, featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">상태:</span>
             <span
@@ -48,7 +48,7 @@ const ServiceSection = ({ customer, featureData }: Props) => {
                   ? 'text-gray-600'
                   : featureData.lifecycle.isDormantFlag
                     ? 'text-orange-600'
-                    : 'text-green-600'
+                    : 'text-success-600'
               }`}
             >
               {getStatusLabel(

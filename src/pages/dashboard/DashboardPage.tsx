@@ -59,7 +59,7 @@ const DashboardPage = () => {
         <div className="bg-section-bg shadow-card flex flex-col justify-center gap-1 rounded-xl p-6">
           <p className="text-md font-semibold text-gray-500">신규 고객</p>
           <p className="my-1 text-2xl font-bold">850 명</p>
-          <div className="mt-1 flex items-center text-xs text-yellow-500">
+          <div className="mt-1 flex items-center text-xs text-warning-500">
             <img src={decreaseIcon} alt="increase" className="h-5 w-5" />
             <p className="flex gap-3 text-base font-bold">
               5.2%{' '}

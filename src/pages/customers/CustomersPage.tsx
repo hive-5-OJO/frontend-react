@@ -211,16 +211,16 @@ const CustomersPage = () => {
         <div className="flex-shrink-0 rounded-xl border border-gray-100 bg-white shadow-sm">
           {/* 헤더 - 항상 표시 */}
           <div className="p-6 pb-4">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900">고객 목록</h1>
-                <p className="mt-2 text-base text-gray-500">
+                <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">고객 목록</h1>
+                <p className="mt-1 text-sm text-gray-500 md:mt-2 md:text-base">
                   고객 정보를 한눈에 관리하고 상담 현황을 추적하세요
                 </p>
               </div>
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                className="flex w-fit items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
               >
                 <svg
                   className={`h-4 w-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
@@ -240,15 +240,15 @@ const CustomersPage = () => {
             </div>
 
             {/* 필터 헤더 */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-wrap items-center gap-2 md:gap-3">
                 <h3 className="text-sm font-semibold text-gray-700">
                   필터 & 검색
                 </h3>
                 {isFilterOpen && (
-                  <div className="flex items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1 text-xs text-indigo-600">
+                  <div className="flex items-center gap-1.5 rounded-md bg-primary-50 px-2 py-1 text-xs text-primary-600">
                     <svg
-                      className="h-3.5 w-3.5"
+                      className="h-3.5 w-3.5 flex-shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -260,13 +260,14 @@ const CustomersPage = () => {
                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    <span>클릭 순서대로 다중 정렬 적용</span>
+                    <span className="hidden sm:inline">클릭 순서대로 다중 정렬 적용</span>
+                    <span className="sm:hidden">다중 정렬</span>
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 md:gap-4">
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-indigo-600">
+                  <p className="text-xl font-bold text-primary-600 md:text-2xl">
                     {filteredTotal}
                   </p>
                   <p className="text-xs text-gray-500">명의 고객</p>
@@ -276,7 +277,7 @@ const CustomersPage = () => {
                   sorts.length > 0) && (
                   <button
                     onClick={handleClearAll}
-                    className="text-xs font-medium text-gray-500 transition hover:text-red-600"
+                    className="text-xs font-medium text-gray-500 transition hover:text-error-600"
                   >
                     전체 초기화
                   </button>
@@ -309,7 +310,7 @@ const CustomersPage = () => {
                         onClick={() => {
                           setSorts(sorts.filter((_, i) => i !== idx));
                         }}
-                        className="inline-flex items-center gap-2 rounded-full border border-indigo-300 bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-200"
+                        className="inline-flex items-center gap-2 rounded-full border border-primary-300 bg-primary-100 px-2.5 py-1 text-xs font-medium text-primary-700 transition hover:bg-primary-200"
                       >
                         <span>
                           {sort.field === 'name' && '이름'}
@@ -355,10 +356,11 @@ const CustomersPage = () => {
 
         {/* 테이블 컨테이너 (12명 고정 높이) */}
         <div className="flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-          <div 
-            className="table-scroll overflow-y-auto scroll-smooth"
-            style={{ height: '589px' }}
-          >
+          <div className="overflow-x-auto">
+            <div 
+              className="table-scroll overflow-y-auto scroll-smooth"
+              style={{ height: '589px', minWidth: '800px' }}
+            >
             <CustomerTable
               data={pageData}
               startIndex={start}
@@ -366,11 +368,12 @@ const CustomersPage = () => {
               onSort={handleSort}
               onCustomerClick={handleCustomerClick}
             />
+            </div>
           </div>
 
           {/* 페이지네이션 (고정) */}
-          <div className="flex flex-shrink-0 items-center justify-between border-t border-gray-100 bg-white px-6 py-4 rounded-b-xl">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-3 border-t border-gray-100 bg-white px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6 md:py-4">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4">
               {/* 표시 정보 */}
               <div className="text-sm text-gray-600">
                 <span className="font-semibold">{start + 1}</span>
@@ -379,7 +382,7 @@ const CustomersPage = () => {
                   {Math.min(end, filteredTotal)}
                 </span>
                 <span className="mx-1 text-gray-400">/</span>
-                <span className="font-semibold text-indigo-600">
+                <span className="font-semibold text-primary-600">
                   {filteredTotal}
                 </span>
                 <span className="ml-1 text-gray-500">명</span>
@@ -395,7 +398,7 @@ const CustomersPage = () => {
                     );
                     setPage(1);
                   }}
-                  className="appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2 pr-8 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                  className="appearance-none rounded-lg border border-gray-200 bg-white px-3 py-2 pr-8 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none md:px-4"
                 >
                   <option value="">자동</option>
                   <option value="5">5개/페이지</option>
@@ -421,7 +424,7 @@ const CustomersPage = () => {
                 </div>
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center justify-center md:justify-end">
               <Pagination
                 currentPage={filteredCurrentPage}
                 totalPages={filteredTotalPages}

@@ -11,7 +11,7 @@ const ConsultSection = ({ featureData }: Props) => {
       <h3 className="mb-4 text-lg font-bold text-gray-900">상담 요약</h3>
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">전체 상담:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -20,15 +20,15 @@ const ConsultSection = ({ featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">최근 7일:</span>
             <span
               className={`ml-2 text-sm font-semibold ${
                 featureData.consultation.last7dConsultCount >= 5
-                  ? 'text-red-600'
+                  ? 'text-error-600'
                   : featureData.consultation.last7dConsultCount >= 3
-                    ? 'text-orange-600'
+                    ? 'text-warning-600'
                     : 'text-gray-900'
               }`}
             >
@@ -37,7 +37,7 @@ const ConsultSection = ({ featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">최근 30일:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -46,7 +46,7 @@ const ConsultSection = ({ featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">월 평균:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -55,7 +55,7 @@ const ConsultSection = ({ featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">마지막 상담:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -67,7 +67,7 @@ const ConsultSection = ({ featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">주요 카테고리:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -76,7 +76,7 @@ const ConsultSection = ({ featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">야간 상담:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -85,7 +85,7 @@ const ConsultSection = ({ featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">주말 상담:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -94,14 +94,14 @@ const ConsultSection = ({ featureData }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-red-600"></span>
+          <span className="h-2 w-2 rounded-full bg-error-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">불만 상담:</span>
             <span
               className={`ml-2 text-sm font-semibold ${
                 featureData.consultation.totalComplaintCount > 0
-                  ? 'text-red-600'
-                  : 'text-green-600'
+                  ? 'text-error-600'
+                  : 'text-success-600'
               }`}
             >
               {featureData.consultation.totalComplaintCount}건

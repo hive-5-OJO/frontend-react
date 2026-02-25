@@ -4,7 +4,11 @@ import dashboardIcon from '../../assets/icons/dashboard-icon.svg';
 import customerIcon from '../../assets/icons/customers-icon.svg';
 import analysisIcon from '../../assets/icons/analysis-icon.svg';
 
-const Sidebar = () => {
+interface Props {
+  onClose?: () => void;
+}
+
+const Sidebar = ({ onClose }: Props) => {
   const baseStyle =
     'flex items-center gap-3 font-md rounded-lg px-4 py-4 text-md transition-colors';
 
@@ -12,10 +16,22 @@ const Sidebar = () => {
   const hoverStyle = 'hover:bg-gray-100';
 
   return (
-    <aside className="bg-section-bg flex h-full w-64 flex-col rounded-xl pb-6 shadow-sm">
+    <aside className="bg-section-bg relative flex h-full w-64 flex-col pb-6 shadow-lg md:rounded-xl">
+      {/* 로고 영역 */}
       <div className="mb-3 flex h-20 flex-shrink-0 items-center justify-center pt-5">
-        <img src={logo} alt="logo" className="h-15" />
+        <img src={logo} alt="logo" className="h-12 md:h-15" />
       </div>
+
+      {/* 닫기 버튼 (모바일만) - 절대 위치 */}
+      <button
+        onClick={onClose}
+        className="absolute right-4 top-6 text-gray-500 transition-colors hover:text-gray-700 md:hidden"
+        aria-label="메뉴 닫기"
+      >
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
 
       {/* 구분선 */}
       <div className="flex flex-shrink-0 items-center">
@@ -28,6 +44,7 @@ const Sidebar = () => {
         <NavLink
           to="/"
           end
+          onClick={onClose}
           className={({ isActive }) =>
             `${baseStyle} ${isActive ? activeStyle : hoverStyle}`
           }
@@ -39,6 +56,7 @@ const Sidebar = () => {
         {/* 고객 관리 */}
         <NavLink
           to="/customers"
+          onClick={onClose}
           className={({ isActive }) =>
             `${baseStyle} ${isActive ? activeStyle : hoverStyle}`
           }
@@ -50,6 +68,7 @@ const Sidebar = () => {
         {/* 분석 */}
         <NavLink
           to="/analysis"
+          onClick={onClose}
           className={({ isActive }) =>
             `${baseStyle} ${isActive ? activeStyle : hoverStyle}`
           }

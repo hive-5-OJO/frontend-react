@@ -15,9 +15,9 @@ interface Props {
 
 const InfoTab = ({ customer, featureData }: Props) => {
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
       {/* 왼쪽 컬럼 */}
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <ServiceSection customer={customer} featureData={featureData} />
         <LifecycleSection featureData={featureData} />
         <PaymentSection featureData={featureData} />
@@ -25,7 +25,7 @@ const InfoTab = ({ customer, featureData }: Props) => {
       </div>
 
       {/* 오른쪽 컬럼 */}
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <ConsultSection featureData={featureData} />
         <ConsultTimelineSection />
         <ContactSection customer={customer} />

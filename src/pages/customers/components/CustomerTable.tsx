@@ -25,12 +25,12 @@ interface Props {
 }
 
 const consultStyle = {
-  high: 'bg-red-100 text-red-600',
-  medium: 'bg-yellow-100 text-yellow-600',
-  low: 'bg-blue-100 text-blue-600',
+  high: 'bg-error-100 text-error-600',
+  medium: 'bg-warning-100 text-warning-600',
+  low: 'bg-info-100 text-info-600',
 };
 
-const vipStyle = 'bg-purple-100 text-purple-600';
+const vipStyle = 'bg-vip-100 text-vip-600';
 
 const SortIndicator = ({
   field,
@@ -46,11 +46,11 @@ const SortIndicator = ({
 
   return (
     <span className="ml-1 inline-flex items-center gap-1">
-      <span className="text-sm font-bold text-indigo-600">
+      <span className="text-sm font-bold text-primary-600">
         {sort.order === 'asc' ? '↑' : '↓'}
       </span>
       {sorts!.length > 1 && (
-        <span className="rounded bg-indigo-600 px-1 py-0.5 text-[10px] font-bold text-white">
+        <span className="rounded bg-primary-600 px-1 py-0.5 text-[10px] font-bold text-white">
           {index + 1}
         </span>
       )}
@@ -86,7 +86,7 @@ const CustomerTable = ({
   };
 
   const headerClass =
-    'cursor-pointer px-4 py-4 text-center text-xs font-semibold text-gray-700 hover:bg-indigo-100 select-none';
+    'cursor-pointer px-4 py-4 text-center text-xs font-semibold text-gray-700 hover:bg-primary-100 select-none';
 
   return (
     <div className="relative h-full w-full">
@@ -100,7 +100,7 @@ const CustomerTable = ({
           <col />
           <col />
         </colgroup>
-        <thead className="sticky top-0 z-10 border-b border-gray-200 bg-indigo-50">
+        <thead className="sticky top-0 z-10 border-b border-gray-200 bg-primary-50">
           <tr>
             <th className="px-4 py-4 text-center text-xs font-semibold text-gray-700">
               구분
@@ -225,26 +225,26 @@ const CustomerTable = ({
             rows.map((customer, idx) => (
               <tr
                 key={customer.id}
-                className="cursor-pointer border-b border-gray-100 transition hover:bg-indigo-50/30"
+                className="cursor-pointer border-b border-gray-100 transition hover:bg-primary-50/30"
                 onClick={() => onCustomerClick?.(customer)}
               >
                 <td className="px-4 py-3 text-center text-sm text-gray-500">
                   {baseIndex + idx + 1}
                 </td>
                 <td className="px-4 py-3 text-center text-sm font-medium text-gray-900">
-                  {customer.name}
+                  <div className="truncate">{customer.name}</div>
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
-                  {customer.service ?? '-'}
+                  <div className="truncate">{customer.service ?? '-'}</div>
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
-                  {customer.period ?? customer.joinedAt ?? '-'}
+                  <div className="truncate">{customer.period ?? customer.joinedAt ?? '-'}</div>
                 </td>
                 <td className="px-4 py-3 text-center">
                   {renderConsultBadge(customer.consultFrequency)}
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
-                  {customer.consultCategory ?? '-'}
+                  <div className="truncate">{customer.consultCategory ?? '-'}</div>
                 </td>
                 <td className="px-4 py-3 text-center">
                   {customer.isVip ? (

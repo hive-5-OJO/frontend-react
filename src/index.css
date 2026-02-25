@@ -1,54 +1,310 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
 @import 'tailwindcss';
 
-@font-face {
-  font-family: 'Pretendard';
-  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
-  font-weight: 100 900;
-}
-
 @theme {
-  /* 1. 메인 브랜드 컬러 (이미지의 블루/보라 계열) */
-  --color-main-blue: #5e72e4; /* 상단 배경 및 포인트 컬러 */
-  --color-section-bg: #ffffff; /* 섹션 배경 */
-  --color-content-bg: #f9fafb; /* 배경 회색 */
+  /* 1. 메인 브랜드 컬러 */
+  --color-main-blue: #5e72e4;
+  --color-section-bg: #ffffff;
+  --color-content-bg: #f9fafb;
 
-  /* 2. 강조 및 상태 컬러 */
+  /* 2. Primary 컬러 (Indigo - 주요 액션 및 강조) */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
 
-  /* 3. 그림자 (카드 스타일) */
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+  /* 3. 상태 컬러 */
+  --color-success-100: #d1fae5;
+  --color-success-600: #10b981;
+  --color-success-700: #059669;
+  
+  --color-warning-100: #fef3c7;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #f59e0b;
+  --color-warning-700: #d97706;
+  
+  --color-error-100: #fee2e2;
+  --color-error-600: #ef4444;
+  --color-error-700: #dc2626;
+  
+  --color-info-100: #dbeafe;
+  --color-info-600: #3b82f6;
+  --color-info-700: #2563eb;
 
-  /* 4. 사이드바 너비 정의 */
+  /* 4. VIP 및 특수 상태 */
+  --color-vip-50: #faf5ff;
+  --color-vip-100: #f3e8ff;
+  --color-vip-200: #e9d5ff;
+  --color-vip-600: #9333ea;
+  --color-vip-800: #6b21a8;
+  --color-vip-900: #581c87;
+  
+  --color-new-100: #dbeafe;
+  --color-new-700: #1d4ed8;
+
+  /* 5. Gray Scale */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  /* 6. Spacing */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  --spacing-2xl: 3rem;      /* 48px */
   --spacing-sidebar: 280px;
 
-  /* 5. 기본 폰트패밀리 */
+  /* 7. Typography */
   --font-sans:
     'Pretendard', 'Pretendard Variable', -apple-system, BlinkMacSystemFont,
     system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo',
     'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji',
     'Segoe UI Symbol', sans-serif;
+  
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.875rem;     /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;     /* 18px */
+  --font-size-xl: 1.25rem;      /* 20px */
+  --font-size-2xl: 1.5rem;      /* 24px */
+  --font-size-3xl: 1.875rem;    /* 30px */
+  --font-size-4xl: 2.25rem;     /* 36px */
+
+  /* 8. Transitions */
+  --transition-fast: 150ms;
+  --transition-base: 300ms;
+  --transition-slow: 500ms;
+
+  /* 9. Color Aliases (backward compatibility) */
+  --color-indigo-50: var(--color-primary-50);
+  --color-indigo-100: var(--color-primary-100);
+  --color-indigo-200: var(--color-primary-200);
+  --color-indigo-300: var(--color-primary-300);
+  --color-indigo-500: var(--color-primary-500);
+  --color-indigo-600: var(--color-primary-600);
+  --color-indigo-700: var(--color-primary-700);
+  --color-indigo-800: var(--color-primary-800);
+  --color-indigo-900: var(--color-primary-900);
 }
 
-@layer components {
-  .input {
-    @apply mb-4 w-full rounded-lg border border-[#E2E8F0] px-4 py-2 text-sm focus:ring-2 focus:ring-[#5E72E4] focus:outline-none;
-  }
+/* Component Styles */
+.input {
+  margin-bottom: 1rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-gray-200);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  transition: border-color 150ms, box-shadow 150ms;
+}
 
-  /* 셀렉트 박스 드롭다운 스타일 */
-  select {
-    @apply cursor-pointer;
-  }
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-500);
+}
 
-  select option {
-    @apply bg-white py-2 px-4 text-sm text-gray-700 hover:bg-indigo-50;
-  }
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 150ms;
+}
 
-  select option:checked {
-    @apply bg-indigo-100 text-indigo-700 font-medium;
-  }
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
 
-  select option:hover {
-    @apply bg-indigo-50;
-  }
+.btn-primary {
+  background-color: var(--color-primary-600);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-700);
+}
+
+.btn-secondary {
+  border: 1px solid var(--color-gray-300);
+  background-color: white;
+  color: var(--color-gray-700);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-gray-50);
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.btn-lg {
+  padding: 0.625rem 1.25rem;
+  font-size: 1rem;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-primary {
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-700);
+}
+
+.badge-success {
+  background-color: var(--color-success-100);
+  color: var(--color-success-700);
+}
+
+.badge-warning {
+  background-color: var(--color-warning-100);
+  color: var(--color-warning-700);
+}
+
+.badge-error {
+  background-color: var(--color-error-100);
+  color: var(--color-error-700);
+}
+
+.badge-vip {
+  background-color: var(--color-vip-100);
+  color: var(--color-vip-600);
+}
+
+.badge-new {
+  background-color: var(--color-new-100);
+  color: var(--color-new-700);
+}
+
+/* Cards */
+.card {
+  border-radius: 0.5rem;
+  background-color: white;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+}
+
+/* Section Bullet Points */
+.section-bullet {
+  height: 0.5rem;
+  width: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background-color: var(--color-primary-600);
+}
+
+.section-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-label {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+}
+
+.section-value {
+  margin-left: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+/* Insight Box */
+.insight-box {
+  border-radius: 0.5rem;
+  border: 2px solid var(--color-primary-200);
+  background-color: var(--color-primary-50);
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.insight-title {
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-primary-900);
+}
+
+.insight-content {
+  font-size: 0.875rem;
+  color: var(--color-primary-800);
+}
+
+.insight-content > * + * {
+  margin-top: 0.5rem;
+}
+
+/* Status Colors */
+.status-active {
+  background-color: var(--color-success-100);
+  color: var(--color-success-700);
+}
+
+.status-dormant {
+  background-color: var(--color-warning-100);
+  color: var(--color-warning-700);
+}
+
+.status-terminated {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+/* Consultation Frequency Badges */
+.consult-high {
+  background-color: var(--color-error-100);
+  color: var(--color-error-600);
+}
+
+.consult-medium {
+  background-color: var(--color-warning-100);
+  color: var(--color-warning-600);
+}
+
+.consult-low {
+  background-color: var(--color-info-100);
+  color: var(--color-info-600);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -87,4 +343,42 @@
 
 .table-scroll::-webkit-scrollbar-thumb:hover {
   background-color: rgba(99, 102, 241, 0.5);
+}
+
+
+/* 반응형 유틸리티 */
+@media (max-width: 768px) {
+  .table-scroll {
+    scrollbar-width: none;
+  }
+  
+  .table-scroll::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* 텍스트 오버플로우 처리 */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  h3 {
+    font-size: 1.125rem;
+  }
 }
