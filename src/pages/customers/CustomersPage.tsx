@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import CustomerTable from './components/CustomerTable';
 import mockCustomers from './components/mockCustomers';
 import CustomerFilter from './components/CustomerFilter';
@@ -34,7 +34,7 @@ interface Customer {
 
 const CustomersPage = () => {
   const [page, setPage] = useState(1);
-  const [pageSizeAuto, setPageSizeAuto] = useState<number>(12);
+  const pageSizeAuto = 12;
   const [pageSizeManual, setPageSizeManual] = useState<number | null>(null);
   const [filters, setFilters] = useState<Filters>({});
   const [searchTerm, setSearchTerm] = useState('');

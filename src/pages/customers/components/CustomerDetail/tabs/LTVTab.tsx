@@ -34,8 +34,8 @@ const LTVTab = ({ ltvData }: Props) => {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: function (value: any) {
-            return formatNumber(value) + '원';
+          callback: function (value: string | number) {
+            return formatNumber(Number(value)) + '원';
           },
         },
       },
@@ -46,13 +46,13 @@ const LTVTab = ({ ltvData }: Props) => {
       },
       tooltip: {
         callbacks: {
-          label: function (context: any) {
-            return formatNumber(context.parsed.y) + '원';
+          label: function (context: { parsed: { y: number | null } }) {
+            return formatNumber(context.parsed.y || 0) + '원';
           },
         },
       },
     },
-  };
+  } as const;
 
   return (
     <div className="space-y-6">
