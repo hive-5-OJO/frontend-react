@@ -7,6 +7,7 @@ import {
   getRFMSegment,
 } from '../utils';
 import { Radar, Bar } from 'react-chartjs-2';
+import type { ChartOptions } from 'chart.js';
 
 interface Props {
   rfmData: RFMScore;
@@ -35,7 +36,9 @@ const RFMTab = ({ rfmData }: Props) => {
     ],
   };
 
-  const radarOptions = {
+  const radarOptions: ChartOptions<'radar'> = {
+    maintainAspectRatio: false,
+    responsive: true,
     scales: {
       r: {
         beginAtZero: true,
@@ -73,7 +76,8 @@ const RFMTab = ({ rfmData }: Props) => {
     ],
   };
 
-  const barOptions = {
+  const barOptions: ChartOptions<'bar'> = {
+    maintainAspectRatio: false,
     scales: {
       y: {
         beginAtZero: true,
@@ -117,19 +121,15 @@ const RFMTab = ({ rfmData }: Props) => {
           <h3 className="mb-4 text-lg font-bold text-gray-900">
             RFM 종합 분석
           </h3>
-          <div className="flex items-center justify-center">
-            <div className="w-full max-w-sm">
-              <Radar data={radarData} options={radarOptions} />
-            </div>
+          <div style={{ height: '300px', width: '100%', position: 'relative' }}>
+            <Radar data={radarData} options={radarOptions} />
           </div>
         </div>
 
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <h3 className="mb-4 text-lg font-bold text-gray-900">항목별 점수</h3>
-          <div className="flex items-center justify-center">
-            <div className="w-full">
-              <Bar data={barData} options={barOptions} />
-            </div>
+          <div style={{ height: '300px', width: '100%', position: 'relative' }}>
+            <Bar data={barData} options={barOptions} />
           </div>
         </div>
       </div>
@@ -140,7 +140,7 @@ const RFMTab = ({ rfmData }: Props) => {
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900">Recency</h3>
-            <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-bold text-indigo-600">
+            <span className="rounded-full bg-primary-100 px-3 py-1 text-sm font-bold text-primary-600">
               {recencyScore}/5
             </span>
           </div>
@@ -164,7 +164,7 @@ const RFMTab = ({ rfmData }: Props) => {
             </div>
             <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-200">
               <div
-                className="h-full bg-indigo-600 transition-all"
+                className="h-full bg-primary-600 transition-all"
                 style={{ width: `${(recencyScore / 5) * 100}%` }}
               ></div>
             </div>
@@ -175,7 +175,7 @@ const RFMTab = ({ rfmData }: Props) => {
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900">Frequency</h3>
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-bold text-blue-600">
+            <span className="rounded-full bg-info-100 px-3 py-1 text-sm font-bold text-info-600">
               {frequencyScore}/5
             </span>
           </div>
@@ -200,7 +200,7 @@ const RFMTab = ({ rfmData }: Props) => {
             </div>
             <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-200">
               <div
-                className="h-full bg-blue-600 transition-all"
+                className="h-full bg-info-600 transition-all"
                 style={{ width: `${(frequencyScore / 5) * 100}%` }}
               ></div>
             </div>
@@ -245,12 +245,12 @@ const RFMTab = ({ rfmData }: Props) => {
       </div>
 
       {/* 세그먼트별 추천 액션 */}
-      <div className="rounded-lg border-2 border-indigo-200 bg-indigo-50 p-6 shadow-sm">
-        <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-indigo-900">
+      <div className="rounded-lg border-2 border-primary-200 bg-primary-50 p-6 shadow-sm">
+        <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-primary-900">
           <span>💡</span>
           <span>추천 마케팅 전략</span>
         </h3>
-        <div className="space-y-2 text-sm text-indigo-800">
+        <div className="space-y-2 text-sm text-primary-800">
           {segment.label === 'Champions' && (
             <>
               <p>• 최우수 고객입니다. VIP 프로그램 제공을 권장합니다.</p>
@@ -287,11 +287,11 @@ const RFMTab = ({ rfmData }: Props) => {
           )}
           {segment.label === 'Lost' && (
             <>
-              <p className="text-red-700">
+              <p className="text-error-700">
                 • 이탈한 고객입니다. 재활성화 캠페인이 필요합니다.
               </p>
-              <p className="text-red-700">• 윈백 프로모션을 진행하세요.</p>
-              <p className="text-red-700">
+              <p className="text-error-700">• 윈백 프로모션을 진행하세요.</p>
+              <p className="text-error-700">
                 • 이탈 사유를 파악하고 개선하세요.
               </p>
             </>

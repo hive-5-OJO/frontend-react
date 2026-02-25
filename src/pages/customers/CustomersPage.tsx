@@ -213,7 +213,7 @@ const CustomersPage = () => {
           <div className="p-6 pb-4">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900">고객 목록</h1>
+                <h1 className="text-3xl font-bold text-gray-900">고객 목록</h1>
                 <p className="mt-2 text-base text-gray-500">
                   고객 정보를 한눈에 관리하고 상담 현황을 추적하세요
                 </p>
@@ -246,7 +246,7 @@ const CustomersPage = () => {
                   필터 & 검색
                 </h3>
                 {isFilterOpen && (
-                  <div className="flex items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1 text-xs text-indigo-600">
+                  <div className="flex items-center gap-1.5 rounded-md bg-primary-50 px-2 py-1 text-xs text-primary-600">
                     <svg
                       className="h-3.5 w-3.5"
                       fill="none"
@@ -266,7 +266,7 @@ const CustomersPage = () => {
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-indigo-600">
+                  <p className="text-2xl font-bold text-primary-600">
                     {filteredTotal}
                   </p>
                   <p className="text-xs text-gray-500">명의 고객</p>
@@ -276,7 +276,7 @@ const CustomersPage = () => {
                   sorts.length > 0) && (
                   <button
                     onClick={handleClearAll}
-                    className="text-xs font-medium text-gray-500 transition hover:text-red-600"
+                    className="text-xs font-medium text-gray-500 transition hover:text-error-600"
                   >
                     전체 초기화
                   </button>
@@ -309,7 +309,7 @@ const CustomersPage = () => {
                         onClick={() => {
                           setSorts(sorts.filter((_, i) => i !== idx));
                         }}
-                        className="inline-flex items-center gap-2 rounded-full border border-indigo-300 bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-200"
+                        className="inline-flex items-center gap-2 rounded-full border border-primary-300 bg-primary-100 px-2.5 py-1 text-xs font-medium text-primary-700 transition hover:bg-primary-200"
                       >
                         <span>
                           {sort.field === 'name' && '이름'}
@@ -379,7 +379,7 @@ const CustomersPage = () => {
                   {Math.min(end, filteredTotal)}
                 </span>
                 <span className="mx-1 text-gray-400">/</span>
-                <span className="font-semibold text-indigo-600">
+                <span className="font-semibold text-primary-600">
                   {filteredTotal}
                 </span>
                 <span className="ml-1 text-gray-500">명</span>
@@ -395,7 +395,7 @@ const CustomersPage = () => {
                     );
                     setPage(1);
                   }}
-                  className="appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2 pr-8 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                  className="appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2 pr-8 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
                 >
                   <option value="">자동</option>
                   <option value="5">5개/페이지</option>

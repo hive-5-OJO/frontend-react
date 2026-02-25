@@ -10,7 +10,7 @@ const ContactSection = ({ customer }: Props) => {
       <h3 className="mb-4 text-lg font-bold text-gray-900">연락처 정보</h3>
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">전화번호:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
@@ -19,7 +19,7 @@ const ContactSection = ({ customer }: Props) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+          <span className="h-2 w-2 rounded-full bg-primary-600"></span>
           <div className="flex-1">
             <span className="text-sm text-gray-600">이메일:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">

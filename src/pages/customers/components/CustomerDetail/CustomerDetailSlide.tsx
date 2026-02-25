@@ -10,6 +10,8 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  RadarController,
+  ArcElement,
 } from 'chart.js';
 import type { CustomerDetailSlideProps, TabType, CustomerFeature, RFMScore, LTVData } from './types';
 import CustomerDetailHeader from './CustomerDetailHeader';
@@ -29,6 +31,8 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  RadarController,
+  ArcElement,
 );
 
 const CustomerDetailSlide = ({

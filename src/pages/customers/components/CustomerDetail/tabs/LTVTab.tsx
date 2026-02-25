@@ -87,9 +87,9 @@ const LTVTab = ({ ltvData }: Props) => {
       <div className="grid grid-cols-3 gap-6">
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
-            <div className="rounded-full bg-purple-100 p-2">
+            <div className="rounded-full bg-vip-100 p-2">
               <svg
-                className="h-5 w-5 text-purple-600"
+                className="h-5 w-5 text-vip-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -112,9 +112,9 @@ const LTVTab = ({ ltvData }: Props) => {
 
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
-            <div className="rounded-full bg-blue-100 p-2">
+            <div className="rounded-full bg-info-100 p-2">
               <svg
-                className="h-5 w-5 text-blue-600"
+                className="h-5 w-5 text-info-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -193,10 +193,10 @@ const LTVTab = ({ ltvData }: Props) => {
                 <span
                   className={`text-sm font-semibold ${
                     daysUntilChurn < 30
-                      ? 'text-red-600'
+                      ? 'text-error-600'
                       : daysUntilChurn < 90
-                        ? 'text-orange-600'
-                        : 'text-green-600'
+                        ? 'text-warning-600'
+                        : 'text-success-600'
                   }`}
                 >
                   {daysUntilChurn}일
@@ -206,10 +206,10 @@ const LTVTab = ({ ltvData }: Props) => {
                 <div
                   className={`h-full transition-all ${
                     daysUntilChurn < 30
-                      ? 'bg-red-600'
+                      ? 'bg-error-600'
                       : daysUntilChurn < 90
-                        ? 'bg-orange-600'
-                        : 'bg-green-600'
+                        ? 'bg-warning-600'
+                        : 'bg-success-600'
                   }`}
                   style={{
                     width: `${Math.min(100, (daysUntilChurn / 365) * 100)}%`,
@@ -220,16 +220,16 @@ const LTVTab = ({ ltvData }: Props) => {
             <div className="rounded-lg bg-gray-50 p-4">
               <p className="text-sm text-gray-700">
                 {daysUntilChurn < 30 ? (
-                  <span className="text-red-600">
+                  <span className="text-error-600">
                     ⚠️ 이탈 위험이 매우 높습니다. 즉각적인 리텐션 활동이
                     필요합니다.
                   </span>
                 ) : daysUntilChurn < 90 ? (
-                  <span className="text-orange-600">
+                  <span className="text-warning-600">
                     ⚠️ 이탈 위험이 있습니다. 고객 관리가 필요합니다.
                   </span>
                 ) : (
-                  <span className="text-green-600">
+                  <span className="text-success-600">
                     ✓ 안정적인 고객입니다. 현재 관계를 유지하세요.
                   </span>
                 )}
@@ -261,25 +261,25 @@ const LTVTab = ({ ltvData }: Props) => {
                 <span className="text-gray-500">LOW</span>
               </div>
               <div className="flex h-3 w-full overflow-hidden rounded-full">
-                <div className="w-1/5 bg-purple-600"></div>
-                <div className="w-1/5 bg-indigo-600"></div>
-                <div className="w-1/5 bg-blue-600"></div>
-                <div className="w-1/5 bg-green-600"></div>
+                <div className="w-1/5 bg-vip-600"></div>
+                <div className="w-1/5 bg-primary-600"></div>
+                <div className="w-1/5 bg-info-600"></div>
+                <div className="w-1/5 bg-success-600"></div>
                 <div className="w-1/5 bg-gray-400"></div>
               </div>
             </div>
             <div className="rounded-lg bg-gray-50 p-4">
               <p className="text-sm text-gray-700">
                 {ltvData.ltvGrade === 'TOP_10' ? (
-                  <span className="text-purple-600">
+                  <span className="text-vip-600">
                     ⭐ 최상위 고객입니다. VIP 대우와 특별 관리가 필요합니다.
                   </span>
                 ) : ltvData.ltvGrade === 'TOP_20' ? (
-                  <span className="text-indigo-600">
+                  <span className="text-primary-600">
                     ⭐ 우수 고객입니다. 지속적인 관계 유지가 중요합니다.
                   </span>
                 ) : ltvData.ltvGrade === 'TOP_30' ? (
-                  <span className="text-blue-600">
+                  <span className="text-info-600">
                     상위 고객입니다. 업셀링 기회를 모색하세요.
                   </span>
                 ) : (
@@ -324,7 +324,7 @@ const LTVTab = ({ ltvData }: Props) => {
             </>
           )}
           {daysUntilChurn < 60 && (
-            <p className="text-red-700">
+            <p className="text-error-700">
               ⚠️ 이탈 예정일이 임박했습니다. 리텐션 캠페인을 즉시 실행하세요.
             </p>
           )}
