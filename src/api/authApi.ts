@@ -8,6 +8,11 @@ export const authApi = {
     return response.data;
   },
 
+  googleLogin: async (code: string): Promise<LoginResponse> => {
+    const response = await axiosInstance.post<LoginResponse>('/api/auth/google', { code });
+    return response.data;
+  },
+
   logout: async (): Promise<void> => {
     // 백엔드에서 refreshToken 쿠키 삭제
     await axiosInstance.post('/api/auth/logout');

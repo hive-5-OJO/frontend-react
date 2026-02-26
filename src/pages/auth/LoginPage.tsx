@@ -4,10 +4,12 @@ import GoogleIcon from '../../assets/icons/google.svg';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/auth/AuthLayout';
 import { useLogin } from '../../hooks/useLogin';
+import { useGoogleLogin } from '../../hooks/useGoogleLogin';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login, isLoading, error } = useLogin();
+  const { handleGoogleLogin } = useGoogleLogin();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -83,7 +85,11 @@ const LoginPage = () => {
         <div className="h-px flex-1 bg-gradient-to-r from-gray-300 via-gray-300/60 to-transparent"></div>
       </div>
 
-      <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] py-2 text-sm font-semibold transition hover:bg-gray-50">
+      <button
+        onClick={handleGoogleLogin}
+        type="button"
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] py-2 text-sm font-semibold transition hover:bg-gray-50"
+      >
         <img src={GoogleIcon} alt="google" className="h-4 w-4" />
         Google
       </button>
