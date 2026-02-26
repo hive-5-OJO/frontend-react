@@ -1,9 +1,28 @@
+import { useState, FormEvent } from 'react';
 import GoogleIcon from '../../assets/icons/google.svg';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/auth/AuthLayout';
+import { useLogin } from '../../hooks/useLogin';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login, isLoading, error } = useLogin();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      return;
+    }
+
+    try {
+      await login({ email, password });
+    } catch (err) {
+      // 에러는 useLogin 훅에서 처리
+    }
+  };
 
   return (
     <AuthLayout
@@ -20,13 +39,41 @@ const LoginPage = () => {
         </p>
       }
     >
-      <input type="email" placeholder="이메일" className="input" />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
 
-      <input type="password" placeholder="비밀번호" className="input" />
+        <input
+          type="email"
+          placeholder="이메일"
+          className="input"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
+          required
+        />
 
-      <button className="bg-main-blue w-full rounded-lg py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#4F63D9] hover:shadow active:translate-y-0">
-        로그인
-      </button>
+        <input
+          type="password"
+          placeholder="비밀번호"
+          className="input"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="bg-main-blue w-full rounded-lg py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#4F63D9] hover:shadow active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isLoading ? '로그인 중...' : '로그인'}
+        </button>
+      </form>
 
       {/* 구분선 */}
       <div className="my-4 flex items-center">
