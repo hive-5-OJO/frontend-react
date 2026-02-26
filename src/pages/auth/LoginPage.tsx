@@ -19,7 +19,7 @@ const LoginPage = () => {
 
     try {
       await login({ email, password });
-    } catch (err) {
+    } catch {
       // 에러는 useLogin 훅에서 처리
     }
   };

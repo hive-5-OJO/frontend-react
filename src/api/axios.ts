@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import type { InternalAxiosRequestConfig } from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -30,7 +31,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
+  (error: AxiosError) => {
     return Promise.reject(error);
   }
 );
@@ -38,11 +39,11 @@ axiosInstance.interceptors.request.use(
 // Response interceptor - 토큰 만료 처리
 let isRefreshing = false;
 let failedQueue: Array<{
-  resolve: (value?: any) => void;
-  reject: (reason?: any) => void;
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
 }> = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: AxiosError | null, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -55,8 +56,8 @@ const processQueue = (error: any, token: string | null = null) => {
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     // 401 에러이고 재시도하지 않은 경우
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -79,7 +80,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         // refreshToken은 httpOnly 쿠키로 자동 전송됨
-        const response = await axios.post(
+        const response = await axios.post<{ accessToken: string }>(
           `${API_URL}/api/auth/refresh`,
           {},
           { withCredentials: true }
@@ -96,7 +97,7 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         // 리프레시 실패시 로그아웃
-        processQueue(refreshError, null);
+        processQueue(refreshError as AxiosError, null);
         setAccessToken(null);
         
         // 로그인 페이지로 리다이렉트
