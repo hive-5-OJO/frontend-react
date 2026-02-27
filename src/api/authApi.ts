@@ -8,8 +8,11 @@ export const authApi = {
     return response.data;
   },
 
-  googleLogin: async (code: string): Promise<LoginResponse> => {
-    const response = await axiosInstance.post<LoginResponse>('/api/auth/google', { code });
+  googleLogin: async (code: string, redirectUri: string): Promise<LoginResponse> => {
+    const response = await axiosInstance.post<LoginResponse>('/api/auth/google', {
+      code,
+      redirectUri,
+    });
     return response.data;
   },
 
