@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { authApi } from '../api/authApi';
 import { useAuthStore } from '../store/authStore';
 
-const REDIRECT_URI = 'http://localhost:5173/oauth/google/callback';
 
 export const useGoogleLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
-
+  
   const handleGoogleLogin = () => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const REDIRECT_URI = 'http://localhost:5173/oauth/google/callback';
     const scope = 'email profile';
     
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
@@ -26,11 +26,10 @@ export const useGoogleLogin = () => {
       // 디버깅: 백엔드로 보내는 데이터 확인
       console.log('=== Google Login Debug ===');
       console.log('Code:', code);
-      console.log('Redirect URI:', REDIRECT_URI);
-      console.log('Request body:', { code, redirectUri: REDIRECT_URI });
+      console.log('Request body:', { code });
       
-      // 백엔드에 code와 redirectUri를 함께 전달
-      const response = await authApi.googleLogin(code, REDIRECT_URI);
+      // 백엔드에 code를 전달
+      const response = await authApi.googleLogin(code);
       
       const user = {
         adminId: response.adminId,
