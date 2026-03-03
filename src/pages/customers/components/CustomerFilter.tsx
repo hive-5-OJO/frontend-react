@@ -20,9 +20,9 @@ interface Props {
 
 const getFrequencyLabel = (val: string | null) => {
   const map: { [key: string]: string } = {
-    high: '높음',
-    medium: '중간',
-    low: '낮음',
+    high: 'HIGH',
+    medium: 'MEDIUM',
+    low: 'LOW',
   };
   return map[val || ''] || '';
 };
@@ -152,9 +152,9 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">상담 빈도</SelectItem>
-            <SelectItem value="high">높음</SelectItem>
-            <SelectItem value="medium">중간</SelectItem>
-            <SelectItem value="low">낮음</SelectItem>
+            <SelectItem value="high">HIGH</SelectItem>
+            <SelectItem value="medium">MEDIUM</SelectItem>
+            <SelectItem value="low">LOW</SelectItem>
           </SelectContent>
         </Select>
       </div>
