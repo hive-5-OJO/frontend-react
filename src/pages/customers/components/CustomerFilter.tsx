@@ -1,3 +1,11 @@
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui';
+
 interface Filters {
   isVip?: boolean | null;
   service?: string | null;
@@ -62,6 +70,13 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
     onFiltersChange({ ...filters, consultFrequency: val });
   };
 
+  const vipValue =
+    filters.isVip === null || filters.isVip === undefined
+      ? 'all'
+      : filters.isVip
+        ? 'yes'
+        : 'no';
+
   const hasActiveFilters =
     filters.isVip !== null ||
     filters.isVip !== undefined ||
@@ -74,132 +89,74 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
       {/* 필터 선택 섹션 */}
       <div className="flex flex-wrap gap-3">
         {/* VIP 필터 */}
-        <div className="relative">
-          <select
-            value={
-              filters.isVip === null || filters.isVip === undefined
-                ? ''
-                : filters.isVip
-                  ? 'yes'
-                  : 'no'
-            }
-            onChange={(e) => {
-              if (e.target.value === '') handleVipChange(null);
-              else handleVipChange(e.target.value === 'yes');
-            }}
-            className="appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2 pr-8 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-          >
-            <option value="">VIP 여부</option>
-            <option value="yes">VIP만</option>
-            <option value="no">일반 고객</option>
-          </select>
-          <div className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-gray-400">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              />
-            </svg>
-          </div>
-        </div>
+        <Select
+          value={vipValue}
+          onValueChange={(val) => {
+            if (val === 'all') handleVipChange(null);
+            else handleVipChange(val === 'yes');
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="VIP 여부" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">VIP 여부</SelectItem>
+            <SelectItem value="yes">VIP만</SelectItem>
+            <SelectItem value="no">일반 고객</SelectItem>
+          </SelectContent>
+        </Select>
 
         {/* 서비스 필터 */}
-        <div className="relative">
-          <select
-            value={filters.service || ''}
-            onChange={(e) => handleServiceChange(e.target.value || null)}
-            className="appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2 pr-8 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-          >
-            <option value="">서비스</option>
+        <Select
+          value={filters.service || 'all'}
+          onValueChange={(val) => handleServiceChange(val === 'all' ? null : val)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="서비스" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">서비스</SelectItem>
             {services.map((s) => (
-              <option key={s} value={s}>
+              <SelectItem key={s} value={s}>
                 {s}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-          <div className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-gray-400">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              />
-            </svg>
-          </div>
-        </div>
+          </SelectContent>
+        </Select>
 
         {/* 상담 카테고리 필터 */}
-        <div className="relative">
-          <select
-            value={filters.consultCategory || ''}
-            onChange={(e) => handleCategoryChange(e.target.value || null)}
-            className="appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2 pr-8 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-          >
-            <option value="">상담 카테고리</option>
+        <Select
+          value={filters.consultCategory || 'all'}
+          onValueChange={(val) => handleCategoryChange(val === 'all' ? null : val)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="상담 카테고리" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">상담 카테고리</SelectItem>
             {consultCategories.map((c) => (
-              <option key={c} value={c}>
+              <SelectItem key={c} value={c}>
                 {c}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-          <div className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-gray-400">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              />
-            </svg>
-          </div>
-        </div>
+          </SelectContent>
+        </Select>
 
         {/* 상담 빈도 필터 */}
-        <div className="relative">
-          <select
-            value={filters.consultFrequency || ''}
-            onChange={(e) => handleFrequencyChange(e.target.value || null)}
-            className="appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2 pr-8 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-          >
-            <option value="">상담 빈도</option>
-            <option value="high">높음</option>
-            <option value="medium">중간</option>
-            <option value="low">낮음</option>
-          </select>
-          <div className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-gray-400">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              />
-            </svg>
-          </div>
-        </div>
+        <Select
+          value={filters.consultFrequency || 'all'}
+          onValueChange={(val) => handleFrequencyChange(val === 'all' ? null : val)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="상담 빈도" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">상담 빈도</SelectItem>
+            <SelectItem value="high">높음</SelectItem>
+            <SelectItem value="medium">중간</SelectItem>
+            <SelectItem value="low">낮음</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* 선택된 필터 태그 표시 */}
@@ -211,18 +168,8 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
               className="inline-flex items-center gap-2 rounded-full border border-purple-300 bg-purple-100 px-3 py-1 text-sm text-purple-700 transition hover:bg-purple-200"
             >
               <span>VIP</span>
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}
@@ -232,18 +179,8 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
               className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-gray-100 px-3 py-1 text-sm text-gray-700 transition hover:bg-gray-200"
             >
               <span>일반 고객</span>
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}
@@ -253,18 +190,8 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
               className="inline-flex items-center gap-2 rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-sm text-blue-700 transition hover:bg-blue-200"
             >
               <span>{filters.service}</span>
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}
@@ -274,18 +201,8 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
               className="inline-flex items-center gap-2 rounded-full border border-green-300 bg-green-100 px-3 py-1 text-sm text-green-700 transition hover:bg-green-200"
             >
               <span>{filters.consultCategory}</span>
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}
@@ -294,21 +211,9 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
               onClick={() => handleFrequencyChange(null)}
               className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition ${getFrequencyColor(filters.consultFrequency)}`}
             >
-              <span>
-                상담 빈도: {getFrequencyLabel(filters.consultFrequency)}
-              </span>
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <span>상담 빈도: {getFrequencyLabel(filters.consultFrequency)}</span>
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}

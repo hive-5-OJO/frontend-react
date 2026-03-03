@@ -1,4 +1,4 @@
-import DashboardLayout from '../../components/layout/DashboardLayout';
+import { DashboardLayout } from '@/widgets/dashboard-layout';
 
 const AnalysisPage = () => {
   return (
