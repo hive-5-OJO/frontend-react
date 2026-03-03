@@ -36,7 +36,7 @@ const Sidebar = ({ onClose }: Props) => {
         aria-label="메뉴 닫기"
       />
 
-      <Divider variant="gradient" className="mb-4" />
+      <Divider variant="gradient" />
 
       <nav className="flex-1 space-y-2 p-4">
         <NavLink
