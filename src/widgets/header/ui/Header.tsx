@@ -42,6 +42,7 @@ const Header = ({ onMenuClick }: Props) => {
           className="text-white hover:bg-white/20"
           icon={<Icon src={logoutIcon} alt="logout" size="sm" />}
           tooltip="로그아웃"
+          tooltipPosition="bottom"
           aria-label="로그아웃"
           onClick={logout}
         />
