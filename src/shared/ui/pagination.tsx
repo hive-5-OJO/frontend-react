@@ -66,11 +66,12 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
       >
         {showFirstLast && (
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => onPageChange(1)}
             disabled={currentPage === 1}
             aria-label="First page"
+            className="h-8 w-8 p-0"
           >
             <svg
               className="h-4 w-4"
@@ -89,11 +90,12 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
         )}
 
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           aria-label="Previous page"
+          className="h-8 w-8 p-0"
         >
           <svg
             className="h-4 w-4"
@@ -115,7 +117,7 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
             return (
               <span
                 key={`ellipsis-${index}`}
-                className="px-2 text-gray-500"
+                className="flex h-8 w-8 items-center justify-center text-sm text-gray-400"
               >
                 ...
               </span>
@@ -125,11 +127,15 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
           return (
             <Button
               key={page}
-              variant={currentPage === page ? 'primary' : 'outline'}
+              variant={currentPage === page ? 'primary' : 'ghost'}
               size="sm"
               onClick={() => onPageChange(page as number)}
               aria-label={`Page ${page}`}
               aria-current={currentPage === page ? 'page' : undefined}
+              className={cn(
+                'h-8 w-8 p-0',
+                currentPage === page && 'font-semibold'
+              )}
             >
               {page}
             </Button>
@@ -137,11 +143,12 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
         })}
 
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           aria-label="Next page"
+          className="h-8 w-8 p-0"
         >
           <svg
             className="h-4 w-4"
@@ -160,11 +167,12 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
 
         {showFirstLast && (
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => onPageChange(totalPages)}
             disabled={currentPage === totalPages}
             aria-label="Last page"
+            className="h-8 w-8 p-0"
           >
             <svg
               className="h-4 w-4"
