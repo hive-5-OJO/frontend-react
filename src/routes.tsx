@@ -1,43 +1,54 @@
 import { createBrowserRouter } from 'react-router-dom';
-// import RootLayout from './components/layout/RootLayout';
-import LoginPage from './pages/auth/LoginPage';
-import SignupPage from './pages/auth/SignupPage';
-import DashboardPage from './pages/dashboard/DashboardPage';
-import CustomersPage from './pages/customers/CustomersPage';
-import AnalysisPage from './pages/analysis/AnalysisPage';
+import LoginPage from '@/pages/auth/LoginPage';
+import SignupPage from '@/pages/auth/SignupPage';
+import DashboardPage from '@/pages/dashboard/DashboardPage';
+import CustomersPage from '@/pages/customers/CustomersPage';
+import AnalysisPage from '@/pages/analysis/AnalysisPage';
+import UIShowcasePage from '@/pages/ui-showcase/UIShowcasePage';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
+import { ROUTES } from '@/shared/constants/routes';
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
+    path: ROUTES.LOGIN,
     element: <LoginPage />,
   },
   {
-    path: '/signup',
+    path: ROUTES.SIGNUP,
     element: <SignupPage />,
   },
   {
-    path: '/',
-    children: [
-      {
-        index: true, // 기본 경로 (/) 일 때 대시보드 표시
-        // element: <Navigate to="/login" replace />,
-        element: <DashboardPage />,
-      },
-      {
-        path: 'customers',
-        children: [
-          { index: true, element: <CustomersPage /> },
-          // { path: ":id", element: <CustomerDetailPage /> },
-        ],
-      },
-      {
-        path: 'analysis',
-        children: [
-          { index: true, element: <AnalysisPage /> },
-          // { path: "cohort", element: <CohortPage /> },
-          // { path: "rfm", element: <RFMPage /> },
-        ],
-      },
-    ],
+    path: '/ui',
+    element: <UIShowcasePage />,
+  },
+  {
+    path: ROUTES.HOME,
+    element: (
+      <ErrorBoundary>
+        {/* <ProtectedRoute> */}
+          <DashboardPage />
+        {/* </ProtectedRoute> */}
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: ROUTES.CUSTOMERS,
+    element: (
+      <ErrorBoundary>
+        {/* <ProtectedRoute> */}
+          <CustomersPage />
+        {/* </ProtectedRoute> */}
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: ROUTES.ANALYSIS,
+    element: (
+      <ErrorBoundary>
+        {/* <ProtectedRoute> */}
+          <AnalysisPage />
+        {/* </ProtectedRoute> */}
+      </ErrorBoundary>
+    ),
   },
 ]);

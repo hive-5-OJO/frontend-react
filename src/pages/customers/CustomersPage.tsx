@@ -1,11 +1,21 @@
 import { useState } from 'react';
-import CustomerTable from './components/CustomerTable';
-import mockCustomers from './components/mockCustomers';
+import { CustomerTable } from '@/widgets/customer-table';
+import { CustomerDetailSlide } from '@/widgets/customer-detail';
+import { DashboardLayout } from '@/widgets/dashboard-layout';
+import {
+  Pagination,
+  Button,
+  PageHeader,
+  SearchInput,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui';
 import CustomerFilter from './components/CustomerFilter';
-import CustomerSearch from './components/CustomerSearch';
-import Pagination from './components/Pagination';
-import DashboardLayout from '../../components/layout/DashboardLayout';
-import CustomerDetailSlide from './components/CustomerDetail/CustomerDetailSlide';
+import mockCustomers from './components/mockCustomers';
+import type { Customer } from '@/entities/customer/model/types';
 
 interface Filters {
   isVip?: boolean | null;
@@ -19,19 +29,6 @@ interface SortField {
   order: 'asc' | 'desc';
 }
 
-interface Customer {
-  id: number;
-  name: string;
-  phone: string;
-  email: string;
-  joinedAt: string;
-  service?: string;
-  period?: string;
-  consultFrequency?: 'high' | 'medium' | 'low' | number | string;
-  consultCategory?: string;
-  isVip?: boolean;
-}
-
 const CustomersPage = () => {
   const [page, setPage] = useState(1);
   const pageSizeAuto = 12;
@@ -39,15 +36,12 @@ const CustomersPage = () => {
   const [filters, setFilters] = useState<Filters>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [sorts, setSorts] = useState<SortField[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null,
-  );
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   const pageSize = pageSizeManual ?? pageSizeAuto;
 
-  // 필터 변경 시 페이지 1로 리셋하는 최적화 콜백
   const handleFiltersChange = (newFilters: Filters) => {
     setFilters(newFilters);
     setPage(1);
@@ -61,39 +55,22 @@ const CustomersPage = () => {
   const handleSort = (field: string) => {
     setSorts((prev) => {
       const existingIndex = prev.findIndex((s) => s.field === field);
-
       if (existingIndex !== -1) {
         const existing = prev[existingIndex];
-
         if (existing.order === 'asc') {
-          // asc → desc로 변경
           const updated = [...prev];
           updated[existingIndex] = { ...existing, order: 'desc' };
           return updated;
         }
-
-        // desc → 제거
         return prev.filter((s) => s.field !== field);
       }
-
-      // 새로운 정렬 추가 (다중 정렬)
       return [...prev, { field, order: 'asc' }];
     });
-
     setPage(1);
   };
 
-  const handleClearSort = () => {
-    setSorts([]);
-    setPage(1);
-  };
-
-  const handleClearAll = () => {
-    setFilters({});
-    setSearchTerm('');
-    setSorts([]);
-    setPage(1);
-  };
+  const handleClearSort = () => { setSorts([]); setPage(1); };
+  const handleClearAll = () => { setFilters({}); setSearchTerm(''); setSorts([]); setPage(1); };
 
   const handleCustomerClick = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -102,163 +79,106 @@ const CustomersPage = () => {
 
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
-    setTimeout(() => setSelectedCustomer(null), 300); // 애니메이션 후 상태 초기화
+    setTimeout(() => setSelectedCustomer(null), 300);
   };
 
-  // 필터링 로직
   const filteredData = mockCustomers.filter((customer) => {
-    // VIP 필터
     if (filters.isVip !== null && filters.isVip !== undefined) {
       if (customer.isVip !== filters.isVip) return false;
     }
-    // 서비스 필터
-    if (filters.service) {
-      if (customer.service !== filters.service) return false;
-    }
-    // 상담 카테고리 필터
-    if (filters.consultCategory) {
-      if (customer.consultCategory !== filters.consultCategory) return false;
-    }
-    // 상담 빈도 필터
-    if (filters.consultFrequency) {
-      if (customer.consultFrequency !== filters.consultFrequency) return false;
-    }
-    // 검색어 필터
+    if (filters.service && customer.service !== filters.service) return false;
+    if (filters.consultCategory && customer.consultCategory !== filters.consultCategory) return false;
+    if (filters.consultFrequency && customer.consultFrequency !== filters.consultFrequency) return false;
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       if (
         !customer.name.toLowerCase().includes(term) &&
         !customer.phone.includes(term) &&
         !customer.email.toLowerCase().includes(term)
-      ) {
-        return false;
-      }
+      ) return false;
     }
     return true;
   });
 
-  // 다중 정렬 로직
   const sortedData = (() => {
     if (sorts.length === 0) return filteredData;
-
-    const getSortValue = (
-      customer: (typeof mockCustomers)[0],
-      field: string,
-    ): string | number => {
+    const getSortValue = (c: (typeof mockCustomers)[0], field: string): string | number => {
       switch (field) {
-        case 'name':
-          return customer.name;
-        case 'service':
-          return customer.service || '';
-        case 'period':
-          return customer.period || customer.joinedAt || '';
+        case 'name': return c.name;
+        case 'service': return c.service || '';
+        case 'period': return c.period || c.joinedAt || '';
         case 'frequency': {
-          const freqOrder: { [key: string]: number } = {
-            high: 3,
-            medium: 2,
-            low: 1,
-          };
-          return freqOrder[customer.consultFrequency as string] || 0;
+          const freqOrder: Record<string, number> = { high: 3, medium: 2, low: 1 };
+          return freqOrder[c.consultFrequency as string] || 0;
         }
-        case 'category':
-          return customer.consultCategory || '';
-        case 'isVip':
-          return customer.isVip ? 1 : 0;
-        default:
-          return '';
+        case 'category': return c.consultCategory || '';
+        case 'isVip': return c.isVip ? 1 : 0;
+        default: return '';
       }
     };
-
-    const sorted = [...filteredData].sort((a, b) => {
+    return [...filteredData].sort((a, b) => {
       for (const sort of sorts) {
         const aVal = getSortValue(a, sort.field);
         const bVal = getSortValue(b, sort.field);
-
-        let compareResult = 0;
-
+        let cmp = 0;
         if (typeof aVal === 'string' && typeof bVal === 'string') {
-          compareResult = aVal.localeCompare(bVal, 'ko-KR');
+          cmp = aVal.localeCompare(bVal, 'ko-KR');
         } else {
-          compareResult = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+          cmp = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
         }
-
-        if (compareResult !== 0) {
-          return sort.order === 'asc' ? compareResult : -compareResult;
-        }
+        if (cmp !== 0) return sort.order === 'asc' ? cmp : -cmp;
       }
-
       return 0;
     });
-
-    return sorted;
   })();
 
   const filteredTotal = sortedData.length;
   const filteredTotalPages = Math.max(1, Math.ceil(filteredTotal / pageSize));
-
-  // 현재 페이지 안전 계산 (필터링 및 정렬된 데이터 기준)
   const filteredCurrentPage = Math.max(1, Math.min(page, filteredTotalPages));
-
-  // 현재 페이지에 맞는 데이터 슬라이스
   const start = (filteredCurrentPage - 1) * pageSize;
   const end = start + pageSize;
   const pageData = sortedData.slice(start, end);
 
+  const hasActiveFilters =
+    Object.keys(filters).some((k) => filters[k as keyof Filters]) || searchTerm || sorts.length > 0;
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6 pb-6">
-        {/* 필터 및 검색 섹션 */}
+        {/* 필터 섹션 */}
         <div className="flex-shrink-0 rounded-xl border border-gray-100 bg-white shadow-sm">
-          {/* 헤더 - 항상 표시 */}
           <div className="p-6 pb-4">
-            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">고객 목록</h1>
-                <p className="mt-1 text-sm text-gray-500 md:mt-2 md:text-base">
-                  고객 정보를 한눈에 관리하고 상담 현황을 추적하세요
-                </p>
-              </div>
-              <button
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="flex w-fit items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-              >
-                <svg
-                  className={`h-4 w-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-                {isFilterOpen ? '필터 접기' : '필터 펼치기'}
-              </button>
-            </div>
-
-            {/* 필터 헤더 */}
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                <h3 className="text-sm font-semibold text-gray-700">
-                  필터 & 검색
-                </h3>
-                {isFilterOpen && (
-                  <div className="flex items-center gap-1.5 rounded-md bg-primary-50 px-2 py-1 text-xs text-primary-600">
+            <PageHeader
+              title="고객 목록"
+              description="고객 정보를 한눈에 관리하고 상담 현황을 추적하세요"
+              actions={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  leftIcon={
                     <svg
-                      className="h-3.5 w-3.5 flex-shrink-0"
+                      className={`h-4 w-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  }
+                >
+                  {isFilterOpen ? '필터 접기' : '필터 펼치기'}
+                </Button>
+              }
+            />
+
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                <h3 className="text-sm font-semibold text-gray-700">필터 & 검색</h3>
+                {isFilterOpen && (
+                  <div className="flex items-center gap-1.5 rounded-md bg-primary-50 px-2 py-1 text-xs text-primary-600">
+                    <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span className="hidden sm:inline">클릭 순서대로 다중 정렬 적용</span>
                     <span className="sm:hidden">다중 정렬</span>
@@ -267,18 +187,11 @@ const CustomersPage = () => {
               </div>
               <div className="flex items-center gap-3 md:gap-4">
                 <div className="text-right">
-                  <p className="text-xl font-bold text-primary-600 md:text-2xl">
-                    {filteredTotal}
-                  </p>
+                  <p className="text-xl font-bold text-primary-600 md:text-2xl">{filteredTotal}</p>
                   <p className="text-xs text-gray-500">명의 고객</p>
                 </div>
-                {(Object.keys(filters).some((k) => filters[k as keyof Filters]) ||
-                  searchTerm ||
-                  sorts.length > 0) && (
-                  <button
-                    onClick={handleClearAll}
-                    className="text-xs font-medium text-gray-500 transition hover:text-error-600"
-                  >
+                {hasActiveFilters && (
+                  <button onClick={handleClearAll} className="text-xs font-medium text-gray-500 transition hover:text-error-600">
                     전체 초기화
                   </button>
                 )}
@@ -286,30 +199,23 @@ const CustomersPage = () => {
             </div>
           </div>
 
-          {/* 필터 내용 - 접을 수 있음 */}
           {isFilterOpen && (
             <div className="space-y-4 px-6 pb-6">
-              <CustomerFilter
-                filters={filters}
-                onFiltersChange={handleFiltersChange}
-              />
-              <CustomerSearch
-                searchTerm={searchTerm}
-                onSearchChange={handleSearchChange}
+              <CustomerFilter filters={filters} onFiltersChange={handleFiltersChange} />
+              <SearchInput
+                placeholder="고객 이름 검색"
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                onClear={() => handleSearchChange('')}
               />
 
-              {/* 정렬 상태 표시 */}
               {sorts.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4">
-                  <div className="py-1 text-xs font-medium text-gray-500">
-                    정렬:
-                  </div>
+                  <div className="py-1 text-xs font-medium text-gray-500">정렬:</div>
                   {sorts.map((sort, idx) => (
                     <div key={sort.field} className="flex items-center gap-2">
                       <button
-                        onClick={() => {
-                          setSorts(sorts.filter((_, i) => i !== idx));
-                        }}
+                        onClick={() => setSorts(sorts.filter((_, i) => i !== idx))}
                         className="inline-flex items-center gap-2 rounded-full border border-primary-300 bg-primary-100 px-2.5 py-1 text-xs font-medium text-primary-700 transition hover:bg-primary-200"
                       >
                         <span>
@@ -319,33 +225,16 @@ const CustomersPage = () => {
                           {sort.field === 'frequency' && '상담빈도'}
                           {sort.field === 'category' && '상담 카테고리'}
                           {sort.field === 'isVip' && 'VIP 여부'}
-                          <span className="ml-1 font-bold">
-                            {sort.order === 'asc' ? '↑' : '↓'}
-                          </span>
+                          <span className="ml-1 font-bold">{sort.order === 'asc' ? '↑' : '↓'}</span>
                         </span>
-                        <svg
-                          className="h-3.5 w-3.5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
+                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
-                      {idx < sorts.length - 1 && (
-                        <div className="text-xs text-gray-400">→</div>
-                      )}
+                      {idx < sorts.length - 1 && <div className="text-xs text-gray-400">→</div>}
                     </div>
                   ))}
-                  <button
-                    onClick={handleClearSort}
-                    className="ml-2 text-xs font-medium text-gray-500 transition hover:text-gray-700"
-                  >
+                  <button onClick={handleClearSort} className="ml-2 text-xs font-medium text-gray-500 transition hover:text-gray-700">
                     초기화
                   </button>
                 </div>
@@ -354,90 +243,63 @@ const CustomersPage = () => {
           )}
         </div>
 
-        {/* 테이블 컨테이너 (12명 고정 높이) */}
+        {/* 테이블 */}
         <div className="flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <div 
-              className="table-scroll overflow-y-auto scroll-smooth"
-              style={{ height: '589px', minWidth: '800px' }}
-            >
-            <CustomerTable
-              data={pageData}
-              startIndex={start}
-              sorts={sorts}
-              onSort={handleSort}
-              onCustomerClick={handleCustomerClick}
-            />
+            <div className="table-scroll overflow-y-auto scroll-smooth" style={{ height: '589px', minWidth: '800px' }}>
+              <CustomerTable
+                data={pageData}
+                startIndex={start}
+                sorts={sorts}
+                onSort={handleSort}
+                onCustomerClick={handleCustomerClick}
+              />
             </div>
           </div>
 
-          {/* 페이지네이션 (고정) */}
           <div className="flex flex-col gap-3 border-t border-gray-100 bg-white px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6 md:py-4">
             <div className="flex flex-wrap items-center gap-3 md:gap-4">
-              {/* 표시 정보 */}
               <div className="text-sm text-gray-600">
                 <span className="font-semibold">{start + 1}</span>
                 <span className="mx-1 text-gray-400">-</span>
-                <span className="font-semibold">
-                  {Math.min(end, filteredTotal)}
-                </span>
+                <span className="font-semibold">{Math.min(end, filteredTotal)}</span>
                 <span className="mx-1 text-gray-400">/</span>
-                <span className="font-semibold text-primary-600">
-                  {filteredTotal}
-                </span>
+                <span className="font-semibold text-primary-600">{filteredTotal}</span>
                 <span className="ml-1 text-gray-500">명</span>
               </div>
-
-              {/* 페이지 사이즈 선택 */}
-              <div className="relative">
-                <select
-                  value={pageSizeManual ?? ''}
-                  onChange={(e) => {
-                    setPageSizeManual(
-                      e.target.value ? parseInt(e.target.value, 10) : null,
-                    );
-                    setPage(1);
-                  }}
-                  className="appearance-none rounded-lg border border-gray-200 bg-white px-3 py-2 pr-8 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none md:px-4"
-                >
-                  <option value="">자동</option>
-                  <option value="5">5개/페이지</option>
-                  <option value="10">10개/페이지</option>
-                  <option value="15">15개/페이지</option>
-                  <option value="20">20개/페이지</option>
-                  <option value="50">50개/페이지</option>
-                </select>
-                <div className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-gray-400">
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                    />
-                  </svg>
-                </div>
-              </div>
+              <Select
+                value={pageSizeManual?.toString() ?? 'auto'}
+                onValueChange={(val) => {
+                  setPageSizeManual(val === 'auto' ? null : parseInt(val, 10));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger size="sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">자동</SelectItem>
+                  <SelectItem value="5">5개/페이지</SelectItem>
+                  <SelectItem value="10">10개/페이지</SelectItem>
+                  <SelectItem value="15">15개/페이지</SelectItem>
+                  <SelectItem value="20">20개/페이지</SelectItem>
+                  <SelectItem value="50">50개/페이지</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex items-center justify-center md:justify-end">
               <Pagination
                 currentPage={filteredCurrentPage}
                 totalPages={filteredTotalPages}
-                onChange={(p) =>
-                  setPage(Math.max(1, Math.min(p, filteredTotalPages)))
-                }
+                onPageChange={(p) => setPage(Math.max(1, Math.min(p, filteredTotalPages)))}
+                maxVisible={5}
+                showFirstLast
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* 고객 상세 슬라이드 */}
       <CustomerDetailSlide
         customer={selectedCustomer}
         isOpen={isDetailOpen}

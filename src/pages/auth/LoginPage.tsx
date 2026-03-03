@@ -1,9 +1,39 @@
-import GoogleIcon from '../../assets/icons/google.svg';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthLayout from '../../components/auth/AuthLayout';
+import AuthLayout from '@/components/auth/AuthLayout';
+import { useLogin } from '@/features/auth/login/model/useLogin';
+import { useGoogleLogin } from '@/features/auth/google-auth/useGoogleLogin';
+import { useToast } from '@/shared/hooks';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Divider } from '@/shared/ui/divider';
+import { Icon } from '@/shared/ui/icon';
+import GoogleIcon from '@/assets/icons/google.svg';
+import { ROUTES } from '@/shared/constants/routes';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login, isLoading, error } = useLogin();
+  const { handleGoogleLogin } = useGoogleLogin();
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      toast.warning('입력 오류', '이메일과 비밀번호를 입력해주세요.');
+      return;
+    }
+
+    try {
+      await login({ email, password });
+      toast.success('로그인 성공', '환영합니다!');
+    } catch {
+      toast.error('로그인 실패', error || '이메일 또는 비밀번호를 확인해주세요.');
+    }
+  };
 
   return (
     <AuthLayout
@@ -12,7 +42,7 @@ const LoginPage = () => {
         <p className="mt-6 text-center text-sm text-gray-500">
           처음 오셨나요?{'  '}
           <span
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate(ROUTES.SIGNUP)}
             className="text-main-blue cursor-pointer font-bold transition-colors duration-200 hover:text-[#4F63D9] hover:underline"
           >
             회원가입
@@ -20,25 +50,45 @@ const LoginPage = () => {
         </p>
       }
     >
-      <input type="email" placeholder="이메일" className="input" />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>
+        )}
 
-      <input type="password" placeholder="비밀번호" className="input" />
+        <Input
+          type="email"
+          placeholder="이메일"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
+          required
+        />
 
-      <button className="bg-main-blue w-full rounded-lg py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#4F63D9] hover:shadow active:translate-y-0">
-        로그인
-      </button>
+        <Input
+          type="password"
+          placeholder="비밀번호"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
+          required
+        />
 
-      {/* 구분선 */}
-      <div className="my-4 flex items-center">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300/60 to-gray-300"></div>
-        <span className="px-3 text-xs text-gray-400">or</span>
-        <div className="h-px flex-1 bg-gradient-to-r from-gray-300 via-gray-300/60 to-transparent"></div>
-      </div>
+        <Button type="submit" variant="primary" fullWidth isLoading={isLoading}>
+          {isLoading ? '로그인 중...' : '로그인'}
+        </Button>
+      </form>
 
-      <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] py-2 text-sm font-semibold transition hover:bg-gray-50">
-        <img src={GoogleIcon} alt="google" className="h-4 w-4" />
+      <Divider text="or" variant="gradient" className="my-4" />
+
+      <Button
+        type="button"
+        variant="secondary"
+        fullWidth
+        onClick={handleGoogleLogin}
+        leftIcon={<Icon src={GoogleIcon} alt="google" size="sm" />}
+      >
         Google
-      </button>
+      </Button>
     </AuthLayout>
   );
 };
