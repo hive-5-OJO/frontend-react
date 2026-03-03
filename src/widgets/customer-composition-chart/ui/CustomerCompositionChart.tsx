@@ -1,7 +1,7 @@
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Card, CardContent } from '@/shared/ui';
-import { customerCompositionData } from '../mockDashboardData';
+import { customerCompositionData } from '@/pages/dashboard/mockDashboardData';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 

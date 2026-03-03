@@ -2,12 +2,12 @@ import { DashboardLayout } from '@/widgets/dashboard-layout';
 import { Icon, MetricCard } from '@/shared/ui';
 import increaseIcon from '@/assets/icons/increase-icon.svg';
 import decreaseIcon from '@/assets/icons/decrease-icon.svg';
-import CustomerTrendChart from './components/CustomerTrendChart';
-import CustomerCompositionChart from './components/CustomerCompositionChart';
-import ConsultCategoryCard from './components/ConsultCategoryCard';
-import ConsultTimeCard from './components/ConsultTimeCard';
-import OutboundCard from './components/OutboundCard';
-import SatisfactionCard from './components/SatisfactionCard';
+import CustomerTrendChart from '@/widgets/customer-trend-chart/ui/CustomerTrendChart';
+import CustomerCompositionChart from '@/widgets/customer-composition-chart/ui/CustomerCompositionChart';
+import ConsultCategoryCard from '@/widgets/consult-category-card/ui/ConsultCategoryCard';
+import ConsultTimeCard from '@/widgets/consult-time-card/ui/ConsultTimeCard';
+import OutboundCard from '@/widgets/outbound-card/ui/OutboundCard';
+import SatisfactionCard from '@/widgets/satisfaction-card/ui/SatisfactionCard';
 
 const DashboardPage = () => {
   return (

@@ -9,7 +9,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Card, CardContent } from '@/shared/ui';
-import { customerTrendData, monthlySummary } from '../mockDashboardData';
+import { customerTrendData, monthlySummary } from '@/pages/dashboard/mockDashboardData';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 

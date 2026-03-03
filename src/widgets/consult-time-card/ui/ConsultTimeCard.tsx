@@ -8,7 +8,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Card, CardContent } from '@/shared/ui';
-import { consultTimeData } from '../mockDashboardData';
+import { consultTimeData } from '@/pages/dashboard/mockDashboardData';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 

@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/shared/ui';
-import { consultCategoryData } from '../mockDashboardData';
+import { consultCategoryData } from '@/pages/dashboard/mockDashboardData';
 
 const colors = ['bg-blue-500', 'bg-indigo-500', 'bg-red-500', 'bg-amber-500'];
 
