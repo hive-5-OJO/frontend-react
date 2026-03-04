@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/lib/utils';
 
 const toastVariants = cva(
-  'pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-lg border p-4 shadow-lg transition-all',
+  'pointer-events-auto flex w-full items-start gap-3 rounded-lg border p-4 shadow-lg transition-all',
   {
     variants: {
       variant: {
@@ -41,7 +41,7 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
         {...props}
       >
         {icon && <div className="flex-shrink-0">{icon}</div>}
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           {title && <div className="font-semibold">{title}</div>}
           {description && (
             <div className="mt-1 text-sm opacity-90">{description}</div>

@@ -27,7 +27,7 @@ const ToastContainer = React.forwardRef<HTMLDivElement, ToastContainerProps>(
       <div
         ref={ref}
         className={cn(
-          'pointer-events-none fixed z-50 flex flex-col gap-2',
+          'pointer-events-none fixed z-50 flex w-[400px] flex-col gap-2',
           positionClasses[position],
           className
         )}

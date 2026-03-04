@@ -89,74 +89,82 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
       {/* 필터 선택 섹션 */}
       <div className="flex flex-wrap gap-3">
         {/* VIP 필터 */}
-        <Select
-          value={vipValue}
-          onValueChange={(val) => {
-            if (val === 'all') handleVipChange(null);
-            else handleVipChange(val === 'yes');
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="VIP 여부" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">VIP 여부</SelectItem>
-            <SelectItem value="yes">VIP만</SelectItem>
-            <SelectItem value="no">일반 고객</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="w-[140px]">
+          <Select
+            value={vipValue}
+            onValueChange={(val) => {
+              if (val === 'all') handleVipChange(null);
+              else handleVipChange(val === 'yes');
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="VIP 여부" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">VIP 여부</SelectItem>
+              <SelectItem value="yes">VIP만</SelectItem>
+              <SelectItem value="no">일반 고객</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* 서비스 필터 */}
-        <Select
-          value={filters.service || 'all'}
-          onValueChange={(val) => handleServiceChange(val === 'all' ? null : val)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="서비스" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">서비스</SelectItem>
-            {services.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="w-[140px]">
+          <Select
+            value={filters.service || 'all'}
+            onValueChange={(val) => handleServiceChange(val === 'all' ? null : val)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="서비스" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">서비스</SelectItem>
+              {services.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* 상담 카테고리 필터 */}
-        <Select
-          value={filters.consultCategory || 'all'}
-          onValueChange={(val) => handleCategoryChange(val === 'all' ? null : val)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="상담 카테고리" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">상담 카테고리</SelectItem>
-            {consultCategories.map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="w-[160px]">
+          <Select
+            value={filters.consultCategory || 'all'}
+            onValueChange={(val) => handleCategoryChange(val === 'all' ? null : val)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="상담 카테고리" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">상담 카테고리</SelectItem>
+              {consultCategories.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* 상담 빈도 필터 */}
-        <Select
-          value={filters.consultFrequency || 'all'}
-          onValueChange={(val) => handleFrequencyChange(val === 'all' ? null : val)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="상담 빈도" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">상담 빈도</SelectItem>
-            <SelectItem value="high">HIGH</SelectItem>
-            <SelectItem value="medium">MEDIUM</SelectItem>
-            <SelectItem value="low">LOW</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="w-[140px]">
+          <Select
+            value={filters.consultFrequency || 'all'}
+            onValueChange={(val) => handleFrequencyChange(val === 'all' ? null : val)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="상담 빈도" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">상담 빈도</SelectItem>
+              <SelectItem value="high">HIGH</SelectItem>
+              <SelectItem value="medium">MEDIUM</SelectItem>
+              <SelectItem value="low">LOW</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* 선택된 필터 태그 표시 */}
