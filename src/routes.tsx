@@ -3,7 +3,9 @@ import LoginPage from '@/pages/auth/LoginPage';
 import SignupPage from '@/pages/auth/SignupPage';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 import CustomersPage from '@/pages/customers/CustomersPage';
-import AnalysisPage from '@/pages/analysis/AnalysisPage';
+import RFMAnalysisPage from '@/pages/analysis/RFMAnalysisPage';
+import CohortAnalysisPage from '@/pages/analysis/CohortAnalysisPage';
+import RegionalAnalysisPage from '@/pages/analysis/RegionalAnalysisPage';
 import UIShowcasePage from '@/pages/ui-showcase/UIShowcasePage';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { ROUTES } from '@/shared/constants/routes';
@@ -42,11 +44,31 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.ANALYSIS,
+    path: ROUTES.ANALYSIS_RFM,
     element: (
       <ErrorBoundary>
         {/* <ProtectedRoute> */}
-          <AnalysisPage />
+          <RFMAnalysisPage />
+        {/* </ProtectedRoute> */}
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: ROUTES.ANALYSIS_COHORT,
+    element: (
+      <ErrorBoundary>
+        {/* <ProtectedRoute> */}
+          <CohortAnalysisPage />
+        {/* </ProtectedRoute> */}
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: ROUTES.ANALYSIS_REGIONAL,
+    element: (
+      <ErrorBoundary>
+        {/* <ProtectedRoute> */}
+          <RegionalAnalysisPage />
         {/* </ProtectedRoute> */}
       </ErrorBoundary>
     ),

@@ -1,6 +1,7 @@
 ---
 inclusion: auto
 priority: high
+description: "CRM 대시보드 프로젝트의 FSD 아키텍처, import 경로, UI 컴포넌트 사용법 등 핵심 규칙과 컨벤션"
 ---
 
 # 프로젝트 컨텍스트
@@ -104,4 +105,4 @@ import { useAuthStore } from '@/entities/user';
 
 전체 가이드는 프로젝트 루트의 `PROJECT_GUIDE.md` 파일을 참조하세요.
 
-#[[file:PROJECT_GUIDE.md]]
+
