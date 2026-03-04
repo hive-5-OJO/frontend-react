@@ -346,7 +346,7 @@ const CohortAnalysisPage = () => {
             <svg className="mb-4 h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <p className="text-lg font-medium text-gray-500">필터를 설정하고 조회하기를 눌러주세요</p>
+            <p className="text-lg font-medium text-gray-500">분석 기준을 설정하고 조회하기를 눌러주세요</p>
             <p className="mt-1 text-sm text-gray-400">분석 결과가 이곳에 표시됩니다</p>
           </div>
         )}
