@@ -110,6 +110,15 @@ const Sidebar = ({ onClose }: Props) => {
               >
                 <span>코호트 분석</span>
               </NavLink>
+              <NavLink
+                to={ROUTES.ANALYSIS_REGIONAL}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `${subItemStyle} ${isActive ? activeStyle : hoverStyle}`
+                }
+              >
+                <span>지역 기반 분석</span>
+              </NavLink>
             </div>
           )}
         </div>

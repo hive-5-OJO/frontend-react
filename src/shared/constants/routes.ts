@@ -6,5 +6,6 @@ export const ROUTES = {
   ANALYSIS: '/analysis',
   ANALYSIS_RFM: '/analysis/rfm',
   ANALYSIS_COHORT: '/analysis/cohort',
+  ANALYSIS_REGIONAL: '/analysis/regional',
   GOOGLE_CALLBACK: '/oauth/google/callback',
 } as const;

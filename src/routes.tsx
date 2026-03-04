@@ -5,6 +5,7 @@ import DashboardPage from '@/pages/dashboard/DashboardPage';
 import CustomersPage from '@/pages/customers/CustomersPage';
 import RFMAnalysisPage from '@/pages/analysis/RFMAnalysisPage';
 import CohortAnalysisPage from '@/pages/analysis/CohortAnalysisPage';
+import RegionalAnalysisPage from '@/pages/analysis/RegionalAnalysisPage';
 import UIShowcasePage from '@/pages/ui-showcase/UIShowcasePage';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { ROUTES } from '@/shared/constants/routes';
@@ -58,6 +59,16 @@ export const router = createBrowserRouter([
       <ErrorBoundary>
         {/* <ProtectedRoute> */}
           <CohortAnalysisPage />
+        {/* </ProtectedRoute> */}
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: ROUTES.ANALYSIS_REGIONAL,
+    element: (
+      <ErrorBoundary>
+        {/* <ProtectedRoute> */}
+          <RegionalAnalysisPage />
         {/* </ProtectedRoute> */}
       </ErrorBoundary>
     ),
