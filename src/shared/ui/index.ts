@@ -72,6 +72,8 @@ export { Radio } from './radio';
 export type { RadioProps } from './radio';
 
 // Molecule Components
+export { MonthPicker } from './month-picker';
+export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from './popover';
 export { FormSelect } from './form-select';
 export { FormField } from './form-field';
 export type { FormFieldProps } from './form-field';

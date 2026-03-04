@@ -23,7 +23,7 @@ export const FormSelect = ({
   className = '',
 }: FormSelectProps) => {
   return (
-    <div className={`flex-1 min-w-[200px] ${className}`}>
+    <div className={className}>
       {label && (
         <label className="mb-1.5 block text-sm font-medium text-gray-700">{label}</label>
       )}
