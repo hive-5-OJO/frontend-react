@@ -72,6 +72,7 @@ export { Radio } from './radio';
 export type { RadioProps } from './radio';
 
 // Molecule Components
+export { FormSelect } from './form-select';
 export { FormField } from './form-field';
 export type { FormFieldProps } from './form-field';
 
