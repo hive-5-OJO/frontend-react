@@ -6,6 +6,7 @@ import CustomersPage from '@/pages/customers/CustomersPage';
 import RFMAnalysisPage from '@/pages/analysis/RFMAnalysisPage';
 import CohortAnalysisPage from '@/pages/analysis/CohortAnalysisPage';
 import RegionalAnalysisPage from '@/pages/analysis/RegionalAnalysisPage';
+import NotFoundPage from '@/pages/not-found/NotFoundPage';
 import UIShowcasePage from '@/pages/ui-showcase/UIShowcasePage';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { ROUTES } from '@/shared/constants/routes';
@@ -72,5 +73,9 @@ export const router = createBrowserRouter([
         {/* </ProtectedRoute> */}
       </ErrorBoundary>
     ),
+  },
+  {
+    path: '*',
+    element: <NotFoundPage />,
   },
 ]);
