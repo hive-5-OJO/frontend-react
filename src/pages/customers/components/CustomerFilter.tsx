@@ -63,19 +63,18 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
   const [selectedParentCategory, setSelectedParentCategory] = useState<number | null>(null);
   const parentCategories = getParentCategories();
 
-  // 필터가 변경되면 선택된 대분류 업데이트
+  // 필터의 consultCategory가 외부에서 초기화될 때만 대분류도 초기화
   useEffect(() => {
     if (filters.consultCategory) {
-      const childCategories = parentCategories.flatMap(parent => 
+      const allChildCategories = parentCategories.flatMap(parent => 
         getChildCategories(parent.id)
       );
-      const selectedChild = childCategories.find(child => child.id === filters.consultCategory);
-      if (selectedChild?.parentId) {
+      const selectedChild = allChildCategories.find(child => child.id === filters.consultCategory);
+      if (selectedChild?.parentId && selectedChild.parentId !== selectedParentCategory) {
         setSelectedParentCategory(selectedChild.parentId);
       }
-    } else {
-      setSelectedParentCategory(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.consultCategory]);
 
   const handleClearFilters = () => {
@@ -94,7 +93,7 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
     } else {
       const parentId = parseInt(val, 10);
       setSelectedParentCategory(parentId);
-      // 대분류 선택 시 소분류 초기화
+      // 대분류만 선택하고 소분류는 초기화
       onFiltersChange({ ...filters, consultCategory: null });
     }
   };
@@ -222,6 +221,7 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
           {filters.consultCategory && (
             <button
               onClick={() => {
+                setSelectedParentCategory(null);
                 onFiltersChange({ ...filters, consultCategory: null });
               }}
               className="inline-flex items-center gap-2 rounded-full border border-green-300 bg-green-100 px-3 py-1 text-sm text-green-700 transition hover:bg-green-200"
