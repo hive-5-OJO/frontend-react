@@ -141,88 +141,166 @@ const switchVariants = cva(
 
 ---
 
-## 4. API 연동하기
+## 4. API 연동하기 (TanStack Query 사용)
 
 ### 구조:
 ```
 src/entities/[도메인]/
 ├── api/
-│   └── [도메인]Api.ts
+│   └── [도메인]Api.ts          # API 함수
 └── model/
-    └── types.ts
+    ├── types.ts                # 타입 정의
+    └── use[도메인]Queries.ts   # Query 훅
 ```
 
 ### 단계:
 1. 타입 정의 (`model/types.ts`)
 2. API 함수 작성 (`api/[도메인]Api.ts`)
-3. Feature 훅에서 사용
+3. Query 훅 작성 (`model/use[도메인]Queries.ts`)
+4. Feature에서 Mutation 훅 작성 (필요시)
 
-### 예시:
+### 예시 - Query (데이터 조회):
 ```typescript
-// entities/report/model/types.ts
-export interface Report {
-  id: string;
-  title: string;
-  createdAt: string;
-  data: Record<string, unknown>;
+// entities/customer/model/types.ts
+export interface Customer {
+  id: number;
+  name: string;
+  email: string;
 }
 
-export interface CreateReportRequest {
-  title: string;
-  type: string;
-}
+// entities/customer/api/customerApi.ts
+import axiosInstance from '@/shared/lib/axios/instance';
+import type { Customer } from '../model/types';
 
-// entities/report/api/reportApi.ts
-import { apiClient } from '@/shared/lib/axios/instance';
-import type { Report, CreateReportRequest } from '../model/types';
-
-export const reportApi = {
-  getReports: async (): Promise<Report[]> => {
-    const response = await apiClient.get('/reports');
+export const customerApi = {
+  getList: async (params: { page: number; size: number }): Promise<Customer[]> => {
+    const response = await axiosInstance.get('/api/customers', { params });
     return response.data;
   },
   
-  createReport: async (data: CreateReportRequest): Promise<Report> => {
-    const response = await apiClient.post('/reports', data);
+  getById: async (id: number): Promise<Customer> => {
+    const response = await axiosInstance.get(`/api/customers/${id}`);
     return response.data;
   },
 };
 
-// features/report/create-report/model/useCreateReport.ts
-import { useState } from 'react';
-import { reportApi } from '@/entities/report/api/reportApi';
-import { useToast } from '@/shared/hooks';
+// entities/customer/model/useCustomerQueries.ts
+import { useQuery } from '@tanstack/react-query';
+import { customerApi } from '../api/customerApi';
+import { queryKeys } from '@/shared/constants';
 
-export const useCreateReport = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { showToast } = useToast();
+export const useCustomerList = (params: { page: number; size: number }) => {
+  return useQuery({
+    queryKey: queryKeys.customer.list(params),
+    queryFn: () => customerApi.getList(params),
+  });
+};
 
-  const createReport = async (data: CreateReportRequest) => {
-    setIsLoading(true);
-    try {
-      const report = await reportApi.createReport(data);
-      showToast({ message: '리포트가 생성되었습니다.', type: 'success' });
-      return report;
-    } catch (error) {
-      showToast({ message: '리포트 생성에 실패했습니다.', type: 'error' });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+export const useCustomer = (id: number, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.customer.detail(id),
+    queryFn: () => customerApi.getById(id),
+    enabled, // 조건부 실행
+  });
+};
 
-  return { createReport, isLoading };
+// 컴포넌트에서 사용
+import { useCustomerList } from '@/entities/customer';
+
+const CustomersPage = () => {
+  const { data, isLoading, error } = useCustomerList({ page: 1, size: 10 });
+
+  if (isLoading) return <div>로딩 중...</div>;
+  if (error) return <div>에러 발생</div>;
+
+  return <div>{data?.map(customer => ...)}</div>;
 };
 ```
+
+### 예시 - Mutation (데이터 변경):
+```typescript
+// features/customer/create-customer/model/useCreateCustomer.ts
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { customerApi } from '@/entities/customer/api/customerApi';
+import { queryKeys } from '@/shared/constants';
+import { useToast } from '@/shared/hooks';
+
+export const useCreateCustomer = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: (data: CreateCustomerRequest) => customerApi.create(data),
+    onSuccess: () => {
+      // 고객 목록 쿼리 무효화 (자동 리페치)
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.customer.lists(),
+      });
+      toast.success('고객이 추가되었습니다.');
+    },
+    onError: (error) => {
+      toast.error('고객 추가에 실패했습니다.');
+    },
+  });
+};
+
+// 컴포넌트에서 사용
+import { useCreateCustomer } from '@/features/customer/create-customer';
+
+const CreateCustomerForm = () => {
+  const { mutate, isPending } = useCreateCustomer();
+
+  const handleSubmit = (data) => {
+    mutate(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* 폼 필드 */}
+      <Button type="submit" disabled={isPending}>
+        {isPending ? '추가 중...' : '추가'}
+      </Button>
+    </form>
+  );
+};
+```
+
+### Query Key 관리:
+```typescript
+// shared/constants/queryKeys.ts에서 중앙 관리
+export const queryKeys = {
+  customer: {
+    all: ['customer'] as const,
+    lists: () => [...queryKeys.customer.all, 'list'] as const,
+    list: (params: Record<string, unknown>) => [...queryKeys.customer.lists(), params] as const,
+    detail: (id: number) => [...queryKeys.customer.all, 'detail', id] as const,
+  },
+};
+```
+
+### TanStack Query 장점:
+- 자동 캐싱 및 리페칭
+- 로딩/에러 상태 자동 관리
+- 낙관적 업데이트 지원
+- DevTools로 디버깅 용이
+- 서버 상태와 클라이언트 상태 분리
 
 ---
 
 ## 5. Zustand 스토어 추가하기
 
+**주의**: Zustand는 UI 상태 관리에만 사용하세요. 서버 데이터는 TanStack Query를 사용합니다.
+
 ### 위치:
 ```
 src/entities/[도메인]/model/store.ts
 ```
+
+### 사용 사례:
+- UI 상태 (모달 열림/닫힘, 탭 선택 등)
+- 폼 상태 (임시 저장)
+- 전역 UI 설정 (테마, 언어 등)
+- 인증 상태 (토큰, 사용자 정보)
 
 ### 패턴:
 ```typescript
@@ -518,6 +596,9 @@ export function DataTable<T extends { id: string }>({ data, columns, onRowClick 
 - [ ] TypeScript 타입 정의 완료
 - [ ] 에러 처리 구현 (try-catch, toast 메시지)
 - [ ] 로딩 상태 처리
+- [ ] 서버 데이터는 TanStack Query 사용 (useQuery/useMutation)
+- [ ] UI 상태는 Zustand 사용
+- [ ] Query Key는 `queryKeys.ts`에서 관리
 - [ ] 반응형 디자인 적용
 - [ ] 접근성 고려 (ARIA 속성, 키보드 네비게이션)
 - [ ] 프로젝트 색상 시스템 사용
@@ -526,4 +607,4 @@ export function DataTable<T extends { id: string }>({ data, columns, onRowClick 
 
 ---
 
-**마지막 업데이트**: 2024-03-04
+**마지막 업데이트**: 2024-03-05
