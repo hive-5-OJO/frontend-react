@@ -176,13 +176,22 @@ const CustomersPage = () => {
               <div className="flex flex-wrap items-center gap-2 md:gap-3">
                 <h3 className="text-sm font-semibold text-gray-700">필터 & 검색</h3>
                 {isFilterOpen && (
-                  <div className="flex items-center gap-1.5 rounded-md bg-primary-50 px-2 py-1 text-xs text-primary-600">
-                    <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="hidden sm:inline">클릭 순서대로 다중 정렬 적용</span>
-                    <span className="sm:hidden">다중 정렬</span>
-                  </div>
+                  <>
+                    <div className="flex items-center gap-1.5 rounded-md bg-primary-50 px-2 py-1 text-xs text-primary-600">
+                      <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="hidden sm:inline">테이블 헤더 클릭으로 정렬 가능</span>
+                      <span className="sm:hidden">헤더 클릭 정렬</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 rounded-md bg-primary-50 px-2 py-1 text-xs text-primary-600">
+                      <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                      <span className="hidden sm:inline">클릭 순서대로 다중 정렬 적용</span>
+                      <span className="sm:hidden">다중 정렬</span>
+                    </div>
+                  </>
                 )}
               </div>
               <div className="flex items-center gap-3 md:gap-4">
