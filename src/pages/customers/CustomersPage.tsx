@@ -13,13 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui';
+import { getCategoryPath } from '@/shared/constants';
 import CustomerFilter from './components/CustomerFilter';
 import mockCustomers from './components/mockCustomers';
 import type { Customer } from '@/entities/customer/model/types';
 
 interface Filters {
   customerType?: string | null;
-  consultCategory?: string | null;
+  consultCategory?: number | null;
   consultFrequency?: string | null;
 }
 
@@ -85,7 +86,13 @@ const CustomersPage = () => {
     if (filters.customerType && customer.customerType !== filters.customerType) {
       return false;
     }
-    if (filters.consultCategory && customer.consultCategory !== filters.consultCategory) return false;
+    if (filters.consultCategory) {
+      // consultCategory는 이제 number (category ID)
+      // mock 데이터의 consultCategory는 string이므로 임시로 이름 비교
+      // 추후 백엔드 연동 시 ID로 비교
+      const categoryName = getCategoryPath(filters.consultCategory);
+      if (!customer.consultCategory?.includes(categoryName)) return false;
+    }
     if (filters.consultFrequency && customer.consultFrequency !== filters.consultFrequency) return false;
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();

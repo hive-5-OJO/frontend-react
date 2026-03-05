@@ -5,10 +5,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui';
+import { getParentCategories, getChildCategories, getCategoryPath } from '@/shared/constants';
+import { useState, useEffect } from 'react';
 
 interface Filters {
   customerType?: string | null;
-  consultCategory?: string | null;
+  consultCategory?: number | null;
   consultFrequency?: string | null;
 }
 
@@ -58,28 +60,51 @@ const getCustomerTypeColor = (val: string | null) => {
 };
 
 const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
-  const consultCategories = [
-    '기술 지원',
-    '계약/청구',
-    '기능 요청',
-    '성능 최적화',
-    '보안/권한',
-    '데이터 관리',
-    '통합/API',
-    '교육/교습',
-    '기타 문의',
-  ];
+  const [selectedParentCategory, setSelectedParentCategory] = useState<number | null>(null);
+  const parentCategories = getParentCategories();
+
+  // 필터가 변경되면 선택된 대분류 업데이트
+  useEffect(() => {
+    if (filters.consultCategory) {
+      const childCategories = parentCategories.flatMap(parent => 
+        getChildCategories(parent.id)
+      );
+      const selectedChild = childCategories.find(child => child.id === filters.consultCategory);
+      if (selectedChild?.parentId) {
+        setSelectedParentCategory(selectedChild.parentId);
+      }
+    } else {
+      setSelectedParentCategory(null);
+    }
+  }, [filters.consultCategory]);
 
   const handleClearFilters = () => {
     onFiltersChange({});
+    setSelectedParentCategory(null);
   };
 
   const handleCustomerTypeChange = (val: string | null) => {
     onFiltersChange({ ...filters, customerType: val });
   };
 
-  const handleCategoryChange = (val: string | null) => {
-    onFiltersChange({ ...filters, consultCategory: val });
+  const handleParentCategoryChange = (val: string) => {
+    if (val === 'all') {
+      setSelectedParentCategory(null);
+      onFiltersChange({ ...filters, consultCategory: null });
+    } else {
+      const parentId = parseInt(val, 10);
+      setSelectedParentCategory(parentId);
+      // 대분류 선택 시 소분류 초기화
+      onFiltersChange({ ...filters, consultCategory: null });
+    }
+  };
+
+  const handleChildCategoryChange = (val: string) => {
+    if (val === 'all') {
+      onFiltersChange({ ...filters, consultCategory: null });
+    } else {
+      onFiltersChange({ ...filters, consultCategory: parseInt(val, 10) });
+    }
   };
 
   const handleFrequencyChange = (val: string | null) => {
@@ -90,6 +115,10 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
     filters.customerType ||
     filters.consultCategory ||
     filters.consultFrequency;
+
+  const childCategories = selectedParentCategory 
+    ? getChildCategories(selectedParentCategory) 
+    : [];
 
   return (
     <div className="space-y-4">
@@ -115,25 +144,47 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
           </Select>
         </div>
 
-        {/* 상담 카테고리 필터 */}
+        {/* 상담 카테고리 대분류 필터 */}
         <div className="w-[160px]">
           <Select
-            value={filters.consultCategory || 'all'}
-            onValueChange={(val) => handleCategoryChange(val === 'all' ? null : val)}
+            value={selectedParentCategory?.toString() || 'all'}
+            onValueChange={handleParentCategoryChange}
           >
             <SelectTrigger>
               <SelectValue placeholder="상담 카테고리" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">상담 카테고리</SelectItem>
-              {consultCategories.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
+              {parentCategories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id.toString()}>
+                  {cat.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
+
+        {/* 상담 카테고리 소분류 필터 (대분류 선택 시에만 표시) */}
+        {selectedParentCategory && childCategories.length > 0 && (
+          <div className="w-[160px]">
+            <Select
+              value={filters.consultCategory?.toString() || 'all'}
+              onValueChange={handleChildCategoryChange}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="세부 카테고리" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">세부 카테고리</SelectItem>
+                {childCategories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id.toString()}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* 상담 빈도 필터 */}
         <div className="w-[140px]">
@@ -170,10 +221,12 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
           )}
           {filters.consultCategory && (
             <button
-              onClick={() => handleCategoryChange(null)}
+              onClick={() => {
+                onFiltersChange({ ...filters, consultCategory: null });
+              }}
               className="inline-flex items-center gap-2 rounded-full border border-green-300 bg-green-100 px-3 py-1 text-sm text-green-700 transition hover:bg-green-200"
             >
-              <span>{filters.consultCategory}</span>
+              <span>{getCategoryPath(filters.consultCategory)}</span>
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
