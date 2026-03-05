@@ -1,5 +1,6 @@
 import { StatusBadge, Badge } from '@/shared/ui';
 import type { Customer } from '@/entities/customer/model/types';
+import { maskPhone, maskEmail } from '@/shared/utils';
 
 interface SortField {
   field: string;
@@ -141,10 +142,10 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
                   <div className="truncate">{customer.name}</div>
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
-                  <div className="truncate">{customer.phone ?? '-'}</div>
+                  <div className="truncate">{maskPhone(customer.phone ?? '')}</div>
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
-                  <div className="truncate">{customer.email ?? '-'}</div>
+                  <div className="truncate">{maskEmail(customer.email ?? '')}</div>
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
                   <div className="truncate">{customer.period ?? customer.joinedAt ?? '-'}</div>
