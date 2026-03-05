@@ -1,4 +1,4 @@
-import { StatusBadge, Badge } from '@/shared/ui';
+import { Badge } from '@/shared/ui';
 import type { Customer } from '@/entities/customer/model/types';
 import { maskPhone, maskEmail } from '@/shared/utils';
 
@@ -43,41 +43,24 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
     } else if (typeof val === 'number') {
       variant = val >= 10 ? 'high' : val >= 5 ? 'medium' : 'low';
     }
-    return <StatusBadge variant={variant}>{variant.toUpperCase()}</StatusBadge>;
+    return <Badge variant={variant}>{variant.toUpperCase()}</Badge>;
   };
 
   const renderCustomerTypeBadge = (customer: Customer) => {
     const customerType = customer.customerType || 'normal';
     
-    const badgeConfig = {
-      vip: {
-        label: 'VIP',
-        className: 'border-purple-300 bg-purple-100 text-purple-700',
-      },
-      potential_vip: {
-        label: '잠재 VIP',
-        className: 'border-indigo-300 bg-indigo-100 text-indigo-700',
-      },
-      normal: {
-        label: '일반',
-        className: 'border-gray-300 bg-gray-100 text-gray-700',
-      },
-      churn_risk: {
-        label: '이탈 우려',
-        className: 'border-orange-300 bg-orange-100 text-orange-700',
-      },
-      churned: {
-        label: '이탈',
-        className: 'border-red-300 bg-red-100 text-red-700',
-      },
+    const labelMap: Record<string, string> = {
+      vip: 'VIP',
+      potential_vip: '잠재 VIP',
+      normal: '일반',
+      churn_risk: '이탈 우려',
+      churned: '이탈',
     };
 
-    const config = badgeConfig[customerType];
-    
     return (
-      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${config.className}`}>
-        {config.label}
-      </span>
+      <Badge variant={customerType as any}>
+        {labelMap[customerType]}
+      </Badge>
     );
   };
 

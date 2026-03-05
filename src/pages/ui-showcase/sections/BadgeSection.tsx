@@ -1,5 +1,4 @@
 import { Badge } from '@/shared/ui/badge';
-import { StatusBadge } from '@/shared/ui/status-badge';
 import { TrendIndicator } from '@/shared/ui/trend-indicator';
 import { Avatar } from '@/shared/ui/avatar';
 import { Spinner } from '@/shared/ui/spinner';
@@ -45,16 +44,16 @@ const BadgeSection = () => (
     </ShowcaseBlock>
 
     <ShowcaseBlock
-      title="StatusBadge"
-      description="아이콘 포함 가능한 상태 배지"
-      code={`<StatusBadge variant="high">HIGH</StatusBadge>\n<StatusBadge variant="vip" icon={<StarIcon />}>VIP</StatusBadge>`}
+      title="Badge with Icons"
+      description="아이콘 포함 가능한 배지"
+      code={`<Badge variant="high">HIGH</Badge>\n<Badge variant="vip"><StarIcon /> VIP</Badge>`}
     >
-      <StatusBadge variant="high">HIGH</StatusBadge>
-      <StatusBadge variant="medium">MEDIUM</StatusBadge>
-      <StatusBadge variant="low">LOW</StatusBadge>
-      <StatusBadge variant="vip" icon={<StarIcon />}>VIP</StatusBadge>
-      <StatusBadge variant="success">활성</StatusBadge>
-      <StatusBadge variant="default">기본</StatusBadge>
+      <Badge variant="high">HIGH</Badge>
+      <Badge variant="medium">MEDIUM</Badge>
+      <Badge variant="low">LOW</Badge>
+      <Badge variant="vip"><StarIcon /> VIP</Badge>
+      <Badge variant="success">활성</Badge>
+      <Badge variant="default">기본</Badge>
     </ShowcaseBlock>
 
     <ShowcaseBlock
