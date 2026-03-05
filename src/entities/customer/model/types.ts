@@ -10,9 +10,12 @@ export interface Customer {
   consultCategory?: string;
   isVip?: boolean;
   isNewCustomer?: boolean;
+  customerType?: CustomerType;
 }
 
 export type ConsultFrequency = 'high' | 'medium' | 'low';
+
+export type CustomerType = 'vip' | 'potential_vip' | 'normal' | 'churn_risk' | 'churned';
 
 export type TabType = 'info' | 'ltv' | 'rfm';
 
@@ -20,6 +23,14 @@ export const CONSULT_FREQUENCY_LABELS: Record<ConsultFrequency, string> = {
   high: '높음',
   medium: '중간',
   low: '낮음',
+};
+
+export const CUSTOMER_TYPE_LABELS: Record<CustomerType, string> = {
+  vip: 'VIP',
+  potential_vip: '잠재 VIP',
+  normal: '일반',
+  churn_risk: '이탈 우려',
+  churned: '이탈',
 };
 
 export interface RFMScore {

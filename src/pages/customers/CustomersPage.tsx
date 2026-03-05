@@ -18,8 +18,7 @@ import mockCustomers from './components/mockCustomers';
 import type { Customer } from '@/entities/customer/model/types';
 
 interface Filters {
-  isVip?: boolean | null;
-  service?: string | null;
+  customerType?: string | null;
   consultCategory?: string | null;
   consultFrequency?: string | null;
 }
@@ -83,10 +82,9 @@ const CustomersPage = () => {
   };
 
   const filteredData = mockCustomers.filter((customer) => {
-    if (filters.isVip !== null && filters.isVip !== undefined) {
-      if (customer.isVip !== filters.isVip) return false;
+    if (filters.customerType && customer.customerType !== filters.customerType) {
+      return false;
     }
-    if (filters.service && customer.service !== filters.service) return false;
     if (filters.consultCategory && customer.consultCategory !== filters.consultCategory) return false;
     if (filters.consultFrequency && customer.consultFrequency !== filters.consultFrequency) return false;
     if (searchTerm.trim()) {
@@ -105,14 +103,23 @@ const CustomersPage = () => {
     const getSortValue = (c: (typeof mockCustomers)[0], field: string): string | number => {
       switch (field) {
         case 'name': return c.name;
-        case 'service': return c.service || '';
+        case 'phone': return c.phone || '';
+        case 'email': return c.email || '';
         case 'period': return c.period || c.joinedAt || '';
         case 'frequency': {
           const freqOrder: Record<string, number> = { high: 3, medium: 2, low: 1 };
           return freqOrder[c.consultFrequency as string] || 0;
         }
-        case 'category': return c.consultCategory || '';
-        case 'isVip': return c.isVip ? 1 : 0;
+        case 'customerType': {
+          const typeOrder: Record<string, number> = { 
+            vip: 5, 
+            potential_vip: 4, 
+            normal: 3, 
+            churn_risk: 2, 
+            churned: 1 
+          };
+          return typeOrder[c.customerType || 'normal'] || 0;
+        }
         default: return '';
       }
     };
@@ -229,11 +236,11 @@ const CustomersPage = () => {
                       >
                         <span>
                           {sort.field === 'name' && '이름'}
-                          {sort.field === 'service' && '서비스'}
+                          {sort.field === 'phone' && '휴대폰 번호'}
+                          {sort.field === 'email' && '이메일'}
                           {sort.field === 'period' && '이용기간'}
                           {sort.field === 'frequency' && '상담빈도'}
-                          {sort.field === 'category' && '상담 카테고리'}
-                          {sort.field === 'isVip' && 'VIP 여부'}
+                          {sort.field === 'customerType' && '고객 분류'}
                           <span className="ml-1 font-bold">{sort.order === 'asc' ? '↑' : '↓'}</span>
                         </span>
                         <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

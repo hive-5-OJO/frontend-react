@@ -45,6 +45,41 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
     return <StatusBadge variant={variant}>{variant.toUpperCase()}</StatusBadge>;
   };
 
+  const renderCustomerTypeBadge = (customer: Customer) => {
+    const customerType = customer.customerType || 'normal';
+    
+    const badgeConfig = {
+      vip: {
+        label: 'VIP',
+        className: 'border-purple-300 bg-purple-100 text-purple-700',
+      },
+      potential_vip: {
+        label: '잠재 VIP',
+        className: 'border-indigo-300 bg-indigo-100 text-indigo-700',
+      },
+      normal: {
+        label: '일반',
+        className: 'border-gray-300 bg-gray-100 text-gray-700',
+      },
+      churn_risk: {
+        label: '이탈 우려',
+        className: 'border-orange-300 bg-orange-100 text-orange-700',
+      },
+      churned: {
+        label: '이탈',
+        className: 'border-red-300 bg-red-100 text-red-700',
+      },
+    };
+
+    const config = badgeConfig[customerType];
+    
+    return (
+      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${config.className}`}>
+        {config.label}
+      </span>
+    );
+  };
+
   const headerClass =
     'cursor-pointer px-4 py-4 text-center text-xs font-semibold text-gray-700 hover:bg-primary-100 select-none';
 
@@ -60,11 +95,11 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
             <th className="px-4 py-4 text-center text-xs font-semibold text-gray-700">구분</th>
             {[
               { field: 'name', label: '이름' },
-              { field: 'service', label: '서비스' },
+              { field: 'phone', label: '휴대폰 번호' },
+              { field: 'email', label: '이메일' },
               { field: 'period', label: '이용기간' },
               { field: 'frequency', label: '상담빈도' },
-              { field: 'category', label: '상담 카테고리' },
-              { field: 'isVip', label: 'VIP 여부' },
+              { field: 'customerType', label: '고객 분류' },
             ].map(({ field, label }) => (
               <th
                 key={field}
@@ -106,18 +141,16 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
                   <div className="truncate">{customer.name}</div>
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
-                  <div className="truncate">{customer.service ?? '-'}</div>
+                  <div className="truncate">{customer.phone ?? '-'}</div>
+                </td>
+                <td className="px-4 py-3 text-center text-sm text-gray-600">
+                  <div className="truncate">{customer.email ?? '-'}</div>
                 </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
                   <div className="truncate">{customer.period ?? customer.joinedAt ?? '-'}</div>
                 </td>
                 <td className="px-4 py-3 text-center">{renderConsultBadge(customer.consultFrequency)}</td>
-                <td className="px-4 py-3 text-center text-sm text-gray-600">
-                  <div className="truncate">{customer.consultCategory ?? '-'}</div>
-                </td>
-                <td className="px-4 py-3 text-center">
-                  {customer.isVip ? <Badge variant="vip">VIP</Badge> : <span className="text-sm text-gray-300">-</span>}
-                </td>
+                <td className="px-4 py-3 text-center">{renderCustomerTypeBadge(customer)}</td>
               </tr>
             ))
           )}
