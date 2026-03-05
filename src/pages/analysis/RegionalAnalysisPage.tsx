@@ -75,6 +75,18 @@ const RegionalAnalysisPage = () => {
 
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
+    // 맵 로드 후 한글 레이블로 변경
+    map.current.on('load', () => {
+      const style = map.current!.getStyle();
+      if (style?.layers) {
+        style.layers.forEach((layer) => {
+          if (layer.type === 'symbol' && (layer.layout as Record<string, unknown>)?.['text-field']) {
+            map.current!.setLayoutProperty(layer.id, 'text-field', ['coalesce', ['get', 'name_ko'], ['get', 'name']]);
+          }
+        });
+      }
+    });
+
     mockRegionalData.forEach((data) => {
       const el = document.createElement('div');
       el.className = 'custom-marker';
