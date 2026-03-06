@@ -1,5 +1,5 @@
 import type { Customer } from '@/entities/customer/model/types';
-import { Badge } from '@/shared/ui';
+import { Badge, Card, CardContent } from '@/shared/ui';
 import { CUSTOMER_TYPE_LABELS, type CustomerType } from '@/entities/customer/model/types';
 
 interface Props {
@@ -10,8 +10,8 @@ const InfoRow = ({ label, value, valueClassName }: { label: string; value: React
   <div className="flex items-center gap-2">
     <span className="h-2 w-2 rounded-full bg-primary-600"></span>
     <div className="flex-1">
-      <span className="text-sm text-gray-600">{label}:</span>
-      <span className={`ml-2 text-sm font-semibold ${valueClassName || 'text-gray-900'}`}>
+      <span className="text-base text-gray-600">{label}:</span>
+      <span className={`ml-2 text-base font-semibold ${valueClassName || 'text-gray-900'}`}>
         {value}
       </span>
     </div>
@@ -73,111 +73,120 @@ const InfoTab = ({ customer }: Props) => {
   return (
     <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
       {/* 인적 정보 */}
-      <div className="rounded-lg bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-bold text-gray-900">인적 정보</h3>
-        <div className="space-y-3">
-          <InfoRow label="이름" value={customer.name} />
-          <InfoRow label="성별" value={getGenderLabel(customer.gender)} />
-          <InfoRow label="생년월일" value={customer.birthDate || '-'} />
-          <InfoRow label="지역" value={customer.region || '-'} />
-          <InfoRow
-            label="상태"
-            value={getStatusLabel(customer.status)}
-            valueClassName={getStatusColor(customer.status)}
-          />
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-primary-600"></span>
-            <div className="flex-1">
-              <span className="text-sm text-gray-600">고객 분류:</span>
-              <span className="ml-2">
-                {customer.customerType ? (
-                  <Badge variant={customer.customerType as any}>
-                    {CUSTOMER_TYPE_LABELS[customer.customerType as CustomerType]}
-                  </Badge>
-                ) : (
-                  <span className="text-sm font-semibold text-gray-900">-</span>
-                )}
-              </span>
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="mb-4 text-lg font-bold text-gray-900">인적 정보</h3>
+          <div className="space-y-3">
+            <InfoRow label="이름" value={customer.name} />
+            <InfoRow label="성별" value={getGenderLabel(customer.gender)} />
+            <InfoRow label="생년월일" value={customer.birthDate || '-'} />
+            <InfoRow label="지역" value={customer.region || '-'} />
+            <InfoRow
+              label="상태"
+              value={getStatusLabel(customer.status)}
+              valueClassName={getStatusColor(customer.status)}
+            />
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-primary-600"></span>
+              <div className="flex-1">
+                <span className="text-base text-gray-600">고객 분류:</span>
+                <span className="ml-2">
+                  {customer.customerType ? (
+                    <Badge variant={customer.customerType as any}>
+                      {CUSTOMER_TYPE_LABELS[customer.customerType as CustomerType]}
+                    </Badge>
+                  ) : (
+                    <span className="text-base font-semibold text-gray-900">-</span>
+                  )}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* 연락처 정보 */}
-      <div className="rounded-lg bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-bold text-gray-900">연락처 정보</h3>
-        <div className="space-y-3">
-          <InfoRow label="전화번호" value={customer.phone} />
-          <InfoRow label="이메일" value={customer.email} />
-        </div>
-      </div>
+      {/* 연락처 정보 + 동의 정보 */}
+      <div className="space-y-4 md:space-y-6">
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="mb-4 text-lg font-bold text-gray-900">연락처 정보</h3>
+            <div className="space-y-3">
+              <InfoRow label="전화번호" value={customer.phone} />
+              <InfoRow label="이메일" value={customer.email} />
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* 동의 정보 */}
-      <div className="rounded-lg bg-white p-6 shadow-sm lg:col-span-2">
-        <h3 className="mb-4 text-lg font-bold text-gray-900">동의 정보</h3>
-        {customer.consent ? (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <InfoRow
-              label="개인정보 수집"
-              value={customer.consent.personalAccepted === 'Y' ? '동의' : '미동의'}
-              valueClassName={customer.consent.personalAccepted === 'Y' ? 'text-success-600' : 'text-gray-500'}
-            />
-            <InfoRow
-              label="마케팅 수신"
-              value={customer.consent.marketingAccepted === 'Y' ? '동의' : '미동의'}
-              valueClassName={customer.consent.marketingAccepted === 'Y' ? 'text-success-600' : 'text-gray-500'}
-            />
-            <InfoRow
-              label="전환 여부"
-              value={customer.consent.isConverted === 'Y' ? '전환됨' : '미전환'}
-              valueClassName={customer.consent.isConverted === 'Y' ? 'text-primary-600' : 'text-gray-500'}
-            />
-            <InfoRow
-              label="동의 일시"
-              value={customer.consent.acceptedAt?.replace('T', ' ') || '-'}
-            />
-            {customer.consent.expiresAt && (
-              <InfoRow label="만료 일시" value={customer.consent.expiresAt.replace('T', ' ')} />
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="mb-4 text-lg font-bold text-gray-900">동의 정보</h3>
+            {customer.consent ? (
+              <div className="space-y-3">
+                <InfoRow
+                  label="개인정보 수집"
+                  value={customer.consent.personalAccepted === 'Y' ? '동의' : '미동의'}
+                  valueClassName={customer.consent.personalAccepted === 'Y' ? 'text-success-600' : 'text-gray-500'}
+                />
+                <InfoRow
+                  label="마케팅 수신"
+                  value={customer.consent.marketingAccepted === 'Y' ? '동의' : '미동의'}
+                  valueClassName={customer.consent.marketingAccepted === 'Y' ? 'text-success-600' : 'text-gray-500'}
+                />
+                <InfoRow
+                  label="전환 여부"
+                  value={customer.consent.isConverted === 'Y' ? '전환됨' : '미전환'}
+                  valueClassName={customer.consent.isConverted === 'Y' ? 'text-primary-600' : 'text-gray-500'}
+                />
+                <InfoRow
+                  label="동의 일시"
+                  value={customer.consent.acceptedAt?.replace('T', ' ') || '-'}
+                />
+                {customer.consent.expiresAt && (
+                  <InfoRow label="만료 일시" value={customer.consent.expiresAt.replace('T', ' ')} />
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500">동의 정보가 없습니다.</p>
             )}
-          </div>
-        ) : (
-          <p className="text-sm text-gray-500">동의 정보가 없습니다.</p>
-        )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* 이용중인 서비스 */}
-      <div className="rounded-lg bg-white p-6 shadow-sm lg:col-span-2">
-        <h3 className="mb-4 text-lg font-bold text-gray-900">이용중인 서비스</h3>
-        {customer.subscriptions && customer.subscriptions.length > 0 ? (
-          <div className="space-y-3">
-            {customer.subscriptions.map((sub) => (
-              <div
-                key={sub.subscribeId}
-                className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3"
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-gray-900">
-                      {sub.product.productName}
+      <Card className="lg:col-span-2">
+        <CardContent className="p-6">
+          <h3 className="mb-4 text-lg font-bold text-gray-900">이용중인 서비스</h3>
+          {customer.subscriptions && customer.subscriptions.length > 0 ? (
+            <div className="space-y-3">
+              {customer.subscriptions.map((sub) => (
+                <div
+                  key={sub.subscribeId}
+                  className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3"
+                >
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-gray-900">
+                        {sub.product.productName}
+                      </span>
+                      <Badge variant={getSubscriptionStatusColor(sub.status) as any}>
+                        {getSubscriptionStatusLabel(sub.status)}
+                      </Badge>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {getProductTypeLabel(sub.product.productType)} · 시작일 {sub.startedAt.split('T')[0]}
                     </span>
-                    <Badge variant={getSubscriptionStatusColor(sub.status) as any}>
-                      {getSubscriptionStatusLabel(sub.status)}
-                    </Badge>
                   </div>
-                  <span className="text-xs text-gray-500">
-                    {getProductTypeLabel(sub.product.productType)} · 시작일 {sub.startedAt.split('T')[0]}
+                  <span className="text-sm font-bold text-gray-900">
+                    {sub.totalPrice.toLocaleString()}원
                   </span>
                 </div>
-                <span className="text-sm font-bold text-gray-900">
-                  {sub.totalPrice.toLocaleString()}원
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-gray-500">이용중인 서비스가 없습니다.</p>
-        )}
-      </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">이용중인 서비스가 없습니다.</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
