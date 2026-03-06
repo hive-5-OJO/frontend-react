@@ -111,3 +111,5 @@ export { Toaster } from './toaster';
 
 export { LoadingOverlay } from './loading-overlay';
 export type { LoadingOverlayProps } from './loading-overlay';
+
+export { FilterToggleButton } from './filter-toggle-button';
