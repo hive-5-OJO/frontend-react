@@ -1,106 +1,161 @@
-Frontend-react
+# OJO - CRM 어드민 대시보드
 
-npm create vite@latest . -- --template react-ts로 파일 생성함
-이후, 아래 2가지 설치 진행함
+통신사 고객 관리를 위한 어드민 대시보드 프론트엔드 프로젝트입니다.
+고객 데이터 조회, 분석, 인사이트 제공 등 내부 운영팀을 위한 백오피스 시스템입니다.
 
-1. npm install axios zod @tanstack/react-query zustand chart.js react-chartjs-2 mapbox-gl
-2. npm install -D tailwindcss @tailwindcss/vite
-   vite.congig.ts에 tailwindcss 추가함
+---
 
-# React + TypeScript + Vite
+## 기술 스택
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+| 분류 | 기술 |
+|------|------|
+| Framework | React 19 + TypeScript |
+| Build | Vite 7 |
+| Styling | Tailwind CSS 4 + shadcn/ui (Radix UI) |
+| 상태 관리 | Zustand (UI 상태), TanStack Query v5 (서버 상태) |
+| 차트 | Chart.js + react-chartjs-2 |
+| 지도 | Mapbox GL JS |
+| HTTP | Axios |
+| 라우팅 | React Router v7 |
+| Validation | Zod |
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 아키텍처
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
-
-## 📁 Project Structure
+[Feature-Sliced Design (FSD)](https://feature-sliced.design/) 기반으로 구성되어 있습니다.
 
 ```
 src/
-├── api/              # Axios 인스턴스 및 공통 API 호출 로직
-├── assets/           # 이미지, 아이콘, 폰트 등 정적 자원
-├── components/       # 재사용 가능한 UI 컴포넌트
-│   ├── common/       # Button, Input, Modal 등 (Atomic 디자인)
-│   └── layout/       # Sidebar, Header, RootLayout 등 공통 레이아웃
-├── constants/        # 환경변수, API 경로, 고정 메시지
-├── hooks/            # 커스텀 훅 (useAuth, useCustomerQuery 등)
-├── pages/            # 각 도메인별 페이지 컴포넌트
-│   ├── auth/         # 로그인, 회원가입 (Full-page)
-│   ├── dashboard/    # 메인 대시보드 (통계/인사이트)
-│   ├── customers/    # 고객 관리 (목록, 검색, 상세)
-│   └── analysis/     # 데이터 분석 (코호트, RFM 등)
-├── store/            # Zustand를 이용한 전역 상태 관리
-├── types/            # TypeScript 인터페이스 및 타입 정의
-├── utils/            # 날짜 포맷팅, 수치 계산 등 공통 유틸리티
-├── routes.tsx        # React Router를 이용한 경로 설정
-├── App.tsx           # RouterProvider 및 Provider 설정
-└── main.tsx          # 앱 엔트리 포인트
+├── pages/          # 라우트별 페이지
+├── widgets/        # 복합 UI 컴포넌트 (레이아웃, 테이블, 상세 패널 등)
+├── features/       # 비즈니스 기능 단위 (로그인, 필터링 등)
+├── entities/       # 도메인 모델 (user, customer)
+├── shared/         # 공통 UI, 훅, 유틸리티, 상수, API 클라이언트
+└── components/     # 레거시 컴포넌트 (인증 레이아웃, ErrorBoundary)
 ```
+
+---
+
+## 주요 기능
+
+### 인증
+- 이메일/비밀번호 로그인
+- Google OAuth 소셜 로그인
+- 인증 상태 기반 라우트 보호 (ProtectedRoute)
+
+### 대시보드
+- 핵심 지표 메트릭 카드 (현재 고객 수, 신규 활성 고객, 이탈 고객, 상담 건수)
+- 고객 추이 차트 (월별 고객 수 변화)
+- 고객 구성 차트 (고객 분류별 비율)
+- 상담 카테고리별 분포
+- 시간대별 상담 현황
+- 아웃바운드 현황
+- 고객 만족도 카드
+
+### 고객 관리
+- 고객 목록 테이블 (이름, 가입일, 고객분류, 상담빈도, 휴대폰번호, 이메일)
+- 다중 컬럼 정렬 (테이블 헤더 클릭, 클릭 순서대로 우선순위 적용)
+- 필터링 (고객분류 5단계, 상담빈도, 상담카테고리 대분류/소분류 2단계 선택, 가입기간)
+- 검색 (이름 기반)
+- 개인정보 마스킹 (휴대폰번호: `010-****-5678`, 이메일: `ex**le@domain.com`)
+- 고객 상세 슬라이드 패널 (4개 탭)
+  - **기본 정보** — 인적정보, 연락처, 동의정보
+  - **특성 정보** — 서비스/생애주기/결제/이용/상담 데이터 + AI 인사이트
+  - **RFM 분석** — Recency/Frequency/Monetary 점수, 레이더/바 차트, 세그먼트 분류, 마케팅 전략 추천
+  - **LTV 분석** — 고객 생애 가치, 예상 수익 추이 차트, 이탈 위험도, 가치 등급, LTV 향상 전략
+
+### 분석
+- **RFM 분석** — 고객 세분화 분석, 필터 및 검색 기능
+- **코호트 분석** — 가입 시기별 리텐션 분석, 월별 추이 차트
+- **지역별 분석** — Mapbox 지도 기반 지역별 고객 분포 시각화 (한글 레이블)
+
+### UI 시스템
+- shadcn/ui 기반 커스텀 디자인 시스템
+- 프로젝트 전용 색상 체계 (primary, secondary, error, success, warning, info)
+- 고객분류 전용 Badge variant (VIP, 잠재VIP, 일반, 이탈우려, 이탈)
+- 상담빈도 Badge (높음, 중간, 낮음)
+- UI 쇼케이스 페이지 (`/ui`)에서 전체 컴포넌트 확인 가능
+
+---
+
+## 시작하기
+
+### 사전 요구사항
+- Node.js 18+
+- npm
+
+### 설치 및 실행
+
+```bash
+# 의존성 설치
+npm install
+
+# 환경 변수 설정
+# .env 파일에서 API URL, Mapbox 토큰, Google OAuth 클라이언트 ID 설정
+
+# 개발 서버 실행
+npm run dev
+```
+
+### 스크립트
+
+| 명령어 | 설명 |
+|--------|------|
+| `npm run dev` | 개발 서버 실행 |
+| `npm run build` | 프로덕션 빌드 (TypeScript 체크 + Vite 빌드) |
+| `npm run preview` | 빌드 결과 미리보기 |
+| `npm run lint` | ESLint 실행 |
+
+### 환경 변수
+
+| 변수 | 설명 |
+|------|------|
+| `VITE_API_URL` | 백엔드 API 서버 주소 |
+| `VITE_MAPBOX_ACCESS_TOKEN` | Mapbox GL 액세스 토큰 |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth 클라이언트 ID |
+
+---
+
+## 배포
+
+### CI/CD
+- **GitHub Actions** 기반 자동 배포 파이프라인 구성
+- `main` 브랜치에 push 또는 PR 시 자동으로 빌드 및 배포 실행
+
+### 인프라
+- **호스팅**: AWS S3 정적 웹 호스팅
+- **백엔드**: AWS EC2 인스턴스에서 API 서버 운영
+- **배포 흐름**: `npm run build` → `dist/` 디렉토리를 S3 버킷에 동기화
+
+### 배포 파이프라인 요약
+
+```
+코드 Push/PR (main) → GitHub Actions 트리거
+  → npm install & npm run build
+  → dist/ → AWS S3 버킷 동기화 (public-read)
+```
+
+---
+
+## 협업
+
+### 브랜치 전략
+- `main` 브랜치를 기준으로 PR 기반 협업
+
+### 템플릿
+- **PR 템플릿** — 연관 이슈, 작업 내용, 테스트 결과, 변경사항 체크리스트
+- **이슈 템플릿** — 버그 리포트, 기능 요청, 유지보수 이슈
+
+---
+
+## 페이지 라우트
+
+| 경로 | 페이지 |
+|------|--------|
+| `/login` | 로그인 |
+| `/` | 대시보드 |
+| `/customers` | 고객 관리 |
+| `/analysis/rfm` | RFM 분석 |
+| `/analysis/cohort` | 코호트 분석 |
+| `/analysis/regional` | 지역별 분석 |
