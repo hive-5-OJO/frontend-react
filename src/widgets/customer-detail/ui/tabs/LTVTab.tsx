@@ -81,6 +81,44 @@ const LTVTab = ({ ltvData }: Props) => {
         </CardContent>
       </Card>
 
+      <Alert variant="default" className="border-2 border-purple-200 bg-purple-50">
+        <AlertDescription className="text-purple-800">
+          <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-purple-900">
+            <span>💡</span>
+            <span>LTV 향상 전략</span>
+          </h3>
+          <div className="space-y-2 text-sm">
+            {ltvData.ltvGrade === 'TOP_10' && (
+              <>
+                <p>• 최상위 고객입니다. 전담 매니저 배정을 고려하세요.</p>
+                <p>• 프리미엄 서비스 및 독점 혜택을 제공하세요.</p>
+              </>
+            )}
+            {ltvData.ltvGrade === 'TOP_20' && (
+              <>
+                <p>• 상위 고객입니다. VIP 프로그램 가입을 제안하세요.</p>
+                <p>• 고가 상품 추천으로 LTV를 증대시킬 수 있습니다.</p>
+              </>
+            )}
+            {daysUntilChurn < 60 && (
+              <p className="font-semibold text-error-700">
+                ⚠️ 이탈 예정일이 임박했습니다. 리텐션 캠페인을 즉시 실행하세요.
+              </p>
+            )}
+            {daysUntilChurn >= 60 && daysUntilChurn < 120 && (
+              <p className="text-warning-700">
+                • 이탈 예정일이 다가오고 있습니다. 사전 예방 조치를 취하세요.
+              </p>
+            )}
+            <p>
+              • 평균 주문 금액: {formatNumber(Math.round(ltvData.avgOrderValue))}원 - 고가 상품
+              추천으로 증대 가능
+            </p>
+            <p>• 정기적인 소통과 맞춤형 제안으로 고객 관계를 강화하세요.</p>
+          </div>
+        </AlertDescription>
+      </Alert>
+
       <Card>
         <CardContent className="p-6">
           <h3 className="mb-4 text-lg font-bold text-gray-900">예상 수익 추이</h3>
@@ -183,43 +221,6 @@ const LTVTab = ({ ltvData }: Props) => {
         </Card>
       </div>
 
-      <Alert variant="default" className="border-2 border-purple-200 bg-purple-50">
-        <AlertDescription className="text-purple-800">
-          <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-purple-900">
-            <span>💡</span>
-            <span>LTV 향상 전략</span>
-          </h3>
-          <div className="space-y-2 text-sm">
-            {ltvData.ltvGrade === 'TOP_10' && (
-              <>
-                <p>• 최상위 고객입니다. 전담 매니저 배정을 고려하세요.</p>
-                <p>• 프리미엄 서비스 및 독점 혜택을 제공하세요.</p>
-              </>
-            )}
-            {ltvData.ltvGrade === 'TOP_20' && (
-              <>
-                <p>• 상위 고객입니다. VIP 프로그램 가입을 제안하세요.</p>
-                <p>• 고가 상품 추천으로 LTV를 증대시킬 수 있습니다.</p>
-              </>
-            )}
-            {daysUntilChurn < 60 && (
-              <p className="font-semibold text-error-700">
-                ⚠️ 이탈 예정일이 임박했습니다. 리텐션 캠페인을 즉시 실행하세요.
-              </p>
-            )}
-            {daysUntilChurn >= 60 && daysUntilChurn < 120 && (
-              <p className="text-warning-700">
-                • 이탈 예정일이 다가오고 있습니다. 사전 예방 조치를 취하세요.
-              </p>
-            )}
-            <p>
-              • 평균 주문 금액: {formatNumber(Math.round(ltvData.avgOrderValue))}원 - 고가 상품
-              추천으로 증대 가능
-            </p>
-            <p>• 정기적인 소통과 맞춤형 제안으로 고객 관계를 강화하세요.</p>
-          </div>
-        </AlertDescription>
-      </Alert>
     </div>
   );
 };

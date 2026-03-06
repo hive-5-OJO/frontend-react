@@ -8,8 +8,10 @@ interface Props {
 const CustomerDetailTabs = ({ activeTab, onTabChange }: Props) => {
   const tabs: { id: TabType; label: string }[] = [
     { id: 'info', label: '기본 정보' },
+    { id: 'feature', label: '특성 정보' },
     { id: 'rfm', label: 'RFM 분석' },
     { id: 'ltv', label: 'LTV 분석' },
+    { id: 'consult', label: '상담 이력' },
   ];
 
   return (
