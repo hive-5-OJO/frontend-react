@@ -1,5 +1,5 @@
 import type { ConsultTimelineItem } from '@/entities/customer/model/types';
-import { Badge } from '@/shared/ui';
+import { Badge, Card, CardContent } from '@/shared/ui';
 import { getCategoryColor } from '@/shared/constants/consultCategories';
 
 interface Props {
@@ -34,37 +34,38 @@ const ConsultTab = ({ timeline }: Props) => {
             const catColor = getCategoryColor(item.category);
 
             return (
-              <div
-                key={idx}
-                className={`rounded-lg border-l-4 ${catColor.border} bg-white p-4 shadow-sm`}
-              >
-                <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className={`rounded ${catColor.bg} px-2 py-0.5 text-xs font-medium ${catColor.text}`}>
-                    {item.category}
-                  </span>
-                  <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${style.bg} ${style.text}`}>
-                    {style.label}
-                  </span>
-                  {satisfaction && (
-                    <Badge variant={satisfaction.variant}>{satisfaction.label}</Badge>
-                  )}
-                  <span className="ml-auto text-xs text-gray-500">{item.date}</span>
-                </div>
-                <p className="text-sm text-gray-800">{item.content}</p>
-                {item.promotionName && (
-                  <div className="mt-2 flex items-center gap-1.5">
-                    <span className="text-xs text-gray-500">연관 프로모션:</span>
-                    <span className="text-xs font-medium text-primary-600">{item.promotionName}</span>
+              <Card key={idx} className={`border-l-4 ${catColor.border}`}>
+                <CardContent className="p-4">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <span className={`rounded ${catColor.bg} px-2 py-0.5 text-xs font-medium ${catColor.text}`}>
+                      {item.category}
+                    </span>
+                    <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${style.bg} ${style.text}`}>
+                      {style.label}
+                    </span>
+                    {satisfaction && (
+                      <Badge variant={satisfaction.variant}>{satisfaction.label}</Badge>
+                    )}
+                    <span className="ml-auto text-xs text-gray-500">{item.date}</span>
                   </div>
-                )}
-              </div>
+                  <p className="text-sm text-gray-800">{item.content}</p>
+                  {item.promotionName && (
+                    <div className="mt-2 flex items-center gap-1.5">
+                      <span className="text-xs text-gray-500">연관 프로모션:</span>
+                      <span className="text-xs font-medium text-primary-600">{item.promotionName}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             );
           })}
         </div>
       ) : (
-        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">상담 이력이 없습니다.</p>
-        </div>
+        <Card>
+          <CardContent className="py-8 text-center">
+            <p className="text-sm text-gray-500">상담 이력이 없습니다.</p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

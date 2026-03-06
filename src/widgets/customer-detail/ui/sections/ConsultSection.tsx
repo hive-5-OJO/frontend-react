@@ -1,4 +1,5 @@
 import type { CustomerFeature } from '@/entities/customer/model/types';
+import { Card, CardContent } from '@/shared/ui';
 import { getCategoryLabel } from '../../utils';
 
 interface Props {
@@ -7,7 +8,8 @@ interface Props {
 
 const ConsultSection = ({ featureData }: Props) => {
   return (
-    <div className="rounded-lg bg-white p-6 shadow-sm">
+    <Card>
+      <CardContent className="p-6">
       <h3 className="mb-4 text-lg font-bold text-gray-900">상담 요약</h3>
       <div className="space-y-3">
         <div className="flex items-center gap-2">
@@ -109,7 +111,8 @@ const ConsultSection = ({ featureData }: Props) => {
           </div>
         </div>
       </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
