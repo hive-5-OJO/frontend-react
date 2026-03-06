@@ -45,6 +45,42 @@ export const CONSULT_CATEGORIES: ConsultCategory[] = [
 ];
 
 /**
+ * 상담 카테고리 대분류별 색상 스타일
+ */
+export const CONSULT_CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  '결제/청구': { bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-300' },
+  '품질/장애': { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-300' },
+  '요금제/상품': { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-300' },
+  '혜택/프로모션': { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-300' },
+  '가입/해지/변경': { bg: 'bg-teal-100', text: 'text-teal-700', border: 'border-teal-300' },
+  '기타': { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-300' },
+};
+
+const DEFAULT_CATEGORY_COLOR = { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-300' };
+
+/**
+ * 카테고리명으로 대분류 색상 가져오기
+ * 소분류명이 들어와도 대분류를 찾아서 색상 반환
+ */
+export const getCategoryColor = (categoryName: string) => {
+  // 대분류에서 직접 매칭
+  if (CONSULT_CATEGORY_COLORS[categoryName]) {
+    return CONSULT_CATEGORY_COLORS[categoryName];
+  }
+
+  // 소분류인 경우 대분류 찾기
+  const category = CONSULT_CATEGORIES.find(cat => cat.name === categoryName);
+  if (category?.parentId) {
+    const parent = getCategoryById(category.parentId);
+    if (parent) {
+      return CONSULT_CATEGORY_COLORS[parent.name] || DEFAULT_CATEGORY_COLOR;
+    }
+  }
+
+  return DEFAULT_CATEGORY_COLOR;
+};
+
+/**
  * 대분류 카테고리만 가져오기
  */
 export const getParentCategories = (): ConsultCategory[] => {
