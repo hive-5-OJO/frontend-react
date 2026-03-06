@@ -53,6 +53,14 @@ const CustomerDetailSlide = ({
   const [activeTab, setActiveTab] = useState<TabType>('info');
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // 고객이 변경되거나 슬라이드가 열릴 때 초기화
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab('info');
+      contentRef.current?.scrollTo(0, 0);
+    }
+  }, [customer, isOpen]);
+
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
     contentRef.current?.scrollTo(0, 0);
@@ -156,6 +164,7 @@ const CustomerDetailSlide = ({
       direction: 'OUT',
       content: 'VIP 고객 대상 특별 할인 프로모션 안내',
       promotionName: 'VIP 전용 30% 할인',
+      satisfactionScore: 3,
     },
     {
       date: '2026-01-28',
