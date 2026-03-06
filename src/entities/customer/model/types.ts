@@ -1,9 +1,39 @@
+export interface CustomerConsent {
+  personalAccepted: string;
+  marketingAccepted: string;
+  isConverted: string;
+  acceptedAt: string;
+  expiresAt: string | null;
+}
+
+export interface SubscriptionProduct {
+  planId: number;
+  productName: string;
+  productType: string;
+  price: number;
+}
+
+export interface Subscription {
+  subscribeId: number;
+  product: SubscriptionProduct;
+  quantity: number;
+  totalPrice: number;
+  startedAt: string;
+  status: string;
+}
+
 export interface Customer {
   id: number;
   name: string;
   phone: string;
   email: string;
   joinedAt: string;
+  gender?: string;
+  birthDate?: string;
+  region?: string;
+  status?: string;
+  consent?: CustomerConsent;
+  subscriptions?: Subscription[];
   service?: string;
   period?: string;
   consultFrequency?: ConsultFrequency | number | string;
@@ -17,7 +47,7 @@ export type ConsultFrequency = 'high' | 'medium' | 'low';
 
 export type CustomerType = 'vip' | 'potential_vip' | 'normal' | 'churn_risk' | 'churned';
 
-export type TabType = 'info' | 'ltv' | 'rfm';
+export type TabType = 'info' | 'feature' | 'rfm' | 'ltv' | 'consult';
 
 export const CONSULT_FREQUENCY_LABELS: Record<ConsultFrequency, string> = {
   high: '높음',
@@ -47,6 +77,15 @@ export interface LTVData {
   ltvGrade: string;
   expectedChurnDate: string;
   avgOrderValue: number;
+}
+
+export interface ConsultTimelineItem {
+  date: string;
+  category: string;
+  direction: 'IN' | 'OUT';
+  content: string;
+  promotionName?: string;
+  satisfactionScore?: number;
 }
 
 export interface CustomerFeature {
