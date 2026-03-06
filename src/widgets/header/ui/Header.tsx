@@ -12,7 +12,7 @@ const Header = ({ onMenuClick }: Props) => {
   const { logout } = useLogout();
 
   return (
-    <header className="bg-main-blue relative mr-10 flex h-20 items-center px-8 text-white">
+    <header className="bg-main-blue relative flex h-20 items-center px-8 text-white">
       {/* 햄버거 메뉴 버튼 (모바일만) */}
       <IconButton
         variant="ghost"

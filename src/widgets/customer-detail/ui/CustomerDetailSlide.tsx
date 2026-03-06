@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -13,14 +13,17 @@ import {
   RadarController,
   ArcElement,
 } from 'chart.js';
-import type { TabType, CustomerFeature, RFMScore, LTVData } from '@/entities/customer/model/types';
+import type { TabType, CustomerFeature, RFMScore, LTVData, ConsultTimelineItem } from '@/entities/customer/model/types';
 import type { Customer } from '@/entities/customer/model/types';
 import CustomerDetailHeader from './CustomerDetailHeader';
 import CustomerDetailTabs from './CustomerDetailTabs';
 import CustomerDetailFooter from './CustomerDetailFooter';
+import AIInsightSection from './sections/AIInsightSection';
 import InfoTab from './tabs/InfoTab';
+import FeatureTab from './tabs/FeatureTab';
 import RFMTab from './tabs/RFMTab';
 import LTVTab from './tabs/LTVTab';
+import ConsultTab from './tabs/ConsultTab';
 
 interface CustomerDetailSlideProps {
   customer: Customer | null;
@@ -48,6 +51,20 @@ const CustomerDetailSlide = ({
   onClose,
 }: CustomerDetailSlideProps) => {
   const [activeTab, setActiveTab] = useState<TabType>('info');
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // 고객이 변경되거나 슬라이드가 열릴 때 초기화
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab('info');
+      contentRef.current?.scrollTo(0, 0);
+    }
+  }, [customer, isOpen]);
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    contentRef.current?.scrollTo(0, 0);
+  };
 
   // Mock data
   const mockRFMData: RFMScore = {
@@ -118,6 +135,46 @@ const CustomerDetailSlide = ({
   const ltvData = mockLTVData;
   const featureData = mockFeatureData;
 
+  const mockTimeline: ConsultTimelineItem[] = [
+    {
+      date: '2026-02-10',
+      category: '요금/청구서 문의',
+      direction: 'IN',
+      content: '지난달보다 요금이 많이 나왔다는 불만 접수',
+      promotionName: '신년 맞이 요금제 업그레이드',
+      satisfactionScore: 3,
+    },
+    {
+      date: '2026-02-08',
+      category: '납부/연체/미납',
+      direction: 'IN',
+      content: '결제 오류로 인한 이중 청구 확인 요청',
+      satisfactionScore: 2,
+    },
+    {
+      date: '2026-02-05',
+      category: '요금제 변경',
+      direction: 'IN',
+      content: '프리미엄 요금제에서 스탠다드로 변경 문의',
+      satisfactionScore: 4,
+    },
+    {
+      date: '2026-02-01',
+      category: '할인/쿠폰/프로모션',
+      direction: 'OUT',
+      content: 'VIP 고객 대상 특별 할인 프로모션 안내',
+      promotionName: 'VIP 전용 30% 할인',
+      satisfactionScore: 3,
+    },
+    {
+      date: '2026-01-28',
+      category: '부가서비스',
+      direction: 'IN',
+      content: '부가서비스 해지 요청',
+      satisfactionScore: 3,
+    },
+  ];
+
   // Body 스크롤 막기
   useEffect(() => {
     if (isOpen) {
@@ -152,6 +209,40 @@ const CustomerDetailSlide = ({
 
   if (!customer) return null;
 
+  // 기본 정보 mock 데이터 (customer에 없는 필드 보강)
+  const enrichedCustomer: Customer = {
+    ...customer,
+    gender: customer.gender || (customer.id % 2 === 0 ? 'M' : 'F'),
+    birthDate: customer.birthDate || '2002-03-01',
+    region: customer.region || '서울',
+    status: customer.status || 'ACTIVE',
+    consent: customer.consent || {
+      personalAccepted: 'Y',
+      marketingAccepted: customer.id % 3 === 0 ? 'N' : 'Y',
+      isConverted: customer.id % 2 === 0 ? 'Y' : 'N',
+      acceptedAt: '2026-02-22T22:39:56',
+      expiresAt: null,
+    },
+    subscriptions: customer.subscriptions || [
+      {
+        subscribeId: 1,
+        product: { planId: 1, productName: '프리미엄 멤버십', productType: 'MONTHLY', price: 9900 },
+        quantity: 1,
+        totalPrice: 9900,
+        startedAt: '2026-02-19T14:48:33',
+        status: 'ACTIVE',
+      },
+      ...(customer.id % 3 !== 0 ? [{
+        subscribeId: 2,
+        product: { planId: 2, productName: 'VIP 멤버십', productType: 'YEARLY', price: 99000 },
+        quantity: 1,
+        totalPrice: 99000,
+        startedAt: '2026-02-09T14:48:33',
+        status: 'ACTIVE',
+      }] : []),
+    ],
+  };
+
   return (
     <>
       {/* 오버레이 */}
@@ -178,14 +269,28 @@ const CustomerDetailSlide = ({
 
           <CustomerDetailTabs
             activeTab={activeTab}
-            onTabChange={setActiveTab}
+            onTabChange={handleTabChange}
           />
 
           {/* 내용 */}
-          <div className="scrollbar-hide flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+          <div ref={contentRef} className="scrollbar-hide flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
             {activeTab === 'info' && (
-              <InfoTab customer={customer} featureData={featureData} />
+              <InfoTab customer={enrichedCustomer} />
             )}
+            {activeTab === 'feature' && (
+              <>
+                <div className="mb-4 md:mb-6">
+                  <AIInsightSection featureData={featureData} />
+                </div>
+                <FeatureTab
+                  customer={enrichedCustomer}
+                  featureData={featureData}
+                  timeline={mockTimeline}
+                  onTabChange={handleTabChange}
+                />
+              </>
+            )}
+            {activeTab === 'consult' && <ConsultTab timeline={mockTimeline} />}
             {activeTab === 'rfm' && <RFMTab rfmData={rfmData} />}
             {activeTab === 'ltv' && <LTVTab ltvData={ltvData} />}
           </div>

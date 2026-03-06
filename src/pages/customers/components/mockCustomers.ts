@@ -10,6 +10,7 @@ type C = {
   consultCategory: string;
   isVip: boolean;
   isNewCustomer?: boolean;
+  customerType: 'vip' | 'potential_vip' | 'normal' | 'churn_risk' | 'churned';
 };
 
 const firstNames = [
@@ -54,6 +55,14 @@ const consultCategories = [
   '기타 문의',
 ];
 
+const customerTypes: Array<'vip' | 'potential_vip' | 'normal' | 'churn_risk' | 'churned'> = [
+  'vip',
+  'potential_vip',
+  'normal',
+  'churn_risk',
+  'churned',
+];
+
 const makeDate = (yearStart = 2019, yearEnd = 2024, idx = 0) => {
   const year = yearStart + (idx % (yearEnd - yearStart + 1));
   const month = ((idx * 37) % 12) + 1;
@@ -86,7 +95,10 @@ for (let i = 1; i <= 100; i += 1) {
   const consultFrequency =
     i % 3 === 0 ? 'high' : i % 3 === 1 ? 'medium' : 'low';
   const consultCategory = consultCategories[i % consultCategories.length];
-  const isVip = i % 5 === 0;
+  
+  // 고객 분류를 5가지로 균등 분배
+  const customerType = customerTypes[i % customerTypes.length];
+  const isVip = customerType === 'vip';
   
   // 처음 5명을 신규 가입자로 설정
   const isNewCustomer = i <= 5;
@@ -104,6 +116,7 @@ for (let i = 1; i <= 100; i += 1) {
     consultCategory,
     isVip,
     isNewCustomer,
+    customerType,
   });
 }
 

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Pagination } from '@/shared/ui/pagination';
 import { SearchInput } from '@/shared/ui/search-input';
 import { Badge } from '@/shared/ui/badge';
-import { StatusBadge } from '@/shared/ui/status-badge';
 import { Avatar } from '@/shared/ui/avatar';
 import ShowcaseBlock from './ShowcaseBlock';
 
@@ -100,7 +99,7 @@ const DataSection = () => {
                         <Badge variant="primary">{c.service}</Badge>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <StatusBadge variant={c.frequency}>{c.frequency.toUpperCase()}</StatusBadge>
+                        <Badge variant={c.frequency}>{c.frequency.toUpperCase()}</Badge>
                       </td>
                       <td className="px-4 py-3 text-center">
                         {c.isVip ? <Badge variant="vip">VIP</Badge> : <span className="text-gray-300">-</span>}
