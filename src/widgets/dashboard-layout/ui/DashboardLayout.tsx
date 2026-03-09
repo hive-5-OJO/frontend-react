@@ -10,9 +10,9 @@ const DashboardLayout = ({ children }: Props) => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   return (
-    <div className="bg-content-bg relative min-h-screen">
+    <div className="bg-content-bg relative min-h-screen min-w-fit">
       {/* 상단 파랑 배경 */}
-      <div className="bg-main-blue absolute top-0 left-0 h-[200px] w-full md:h-[280px]" />
+      <div className="bg-main-blue absolute top-0 left-0 h-[200px] min-w-full w-full md:h-[280px]" />
 
       <div className="relative flex min-h-screen flex-col md:flex-row">
         {/* Mobile Overlay */}
