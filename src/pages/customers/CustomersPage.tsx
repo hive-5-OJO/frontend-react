@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { CustomerTable } from '@/widgets/customer-table';
 import { CustomerDetailSlide } from '@/widgets/customer-detail';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
@@ -30,6 +31,7 @@ interface SortField {
 }
 
 const CustomersPage = () => {
+  const [searchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const pageSizeAuto = 12;
   const [pageSizeManual, setPageSizeManual] = useState<number | null>(null);
@@ -41,6 +43,17 @@ const CustomersPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   const pageSize = pageSizeManual ?? pageSizeAuto;
+
+  // URL 쿼리 파라미터에서 customerType을 읽어서 필터 적용
+  useEffect(() => {
+    const customerTypeParam = searchParams.get('customerType');
+    if (customerTypeParam) {
+      setFilters((prev) => ({ ...prev, customerType: customerTypeParam }));
+      setIsFilterOpen(true); // 필터가 적용되었으므로 필터 섹션 열기
+      // 페이지 최상단으로 스크롤
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [searchParams]);
 
   const handleFiltersChange = (newFilters: Filters) => {
     setFilters(newFilters);

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -8,6 +9,7 @@ import {
 } from 'chart.js';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
 import { Card, CardContent, PageHeader, Button, MonthPicker, Badge, FilterToggleButton } from '@/shared/ui';
+import { ROUTES } from '@/shared/constants/routes';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -106,12 +108,18 @@ const totalCustomers = mockSegments.reduce((sum, s) => sum + s.count, 0);
 
 // --- 메인 컴포넌트 ---
 const RFMAnalysisPage = () => {
+  const navigate = useNavigate();
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [isQueried, setIsQueried] = useState(false);
   const [baseMonth, setBaseMonth] = useState('2026-02');
 
   const handleQuery = () => {
     setIsQueried(true);
+  };
+
+  const handleSegmentClick = (segmentType: CustomerType) => {
+    // 고객 목록 페이지로 이동하면서 세그먼트 타입을 쿼리 파라미터로 전달
+    navigate(`${ROUTES.CUSTOMERS}?customerType=${segmentType}`);
   };
 
   // 도넛 중앙 텍스트 플러그인 (캔버스 레벨에서 그려서 툴팁보다 아래에 위치)
@@ -294,10 +302,14 @@ const RFMAnalysisPage = () => {
               <Card>
                 <CardContent className="p-6">
                   <h3 className="mb-1 text-base font-bold text-gray-900">세그먼트 상세</h3>
-                  <p className="mb-4 text-sm text-gray-500">각 세그먼트별 고객 수 및 비율</p>
+                  <p className="mb-4 text-sm text-gray-500">각 세그먼트별 고객 수 및 비율 · 클릭하여 고객 목록 보기</p>
                   <div className="space-y-3">
                     {mockSegments.map((s) => (
-                      <div key={s.type} className="flex items-center gap-3 rounded-lg border border-gray-100 p-3">
+                      <button
+                        key={s.type}
+                        onClick={() => handleSegmentClick(s.type)}
+                        className="flex w-full items-center gap-3 rounded-lg border border-gray-100 p-3 text-left transition-all hover:border-primary-300 hover:bg-primary-50/30 hover:shadow-md active:scale-[0.99]"
+                      >
                         <Badge variant={SEGMENT_CONFIG[s.type].badgeVariant}>
                           {SEGMENT_CONFIG[s.type].label}
                         </Badge>
@@ -319,7 +331,10 @@ const RFMAnalysisPage = () => {
                             />
                           </div>
                         </div>
-                      </div>
+                        <svg className="h-5 w-5 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
                     ))}
                   </div>
                 </CardContent>
