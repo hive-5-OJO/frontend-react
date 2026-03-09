@@ -40,10 +40,38 @@ const RegionalAnalysisPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
+  const [isFloatingEnabled, setIsFloatingEnabled] = useState(true);
+  const [isHeaderFixed, setIsHeaderFixed] = useState(false);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const headerPlaceholderRef = useRef<HTMLDivElement>(null);
+
+  // 스크롤 이벤트로 헤더 고정 처리 (플로팅이 활성화된 경우에만)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!isFloatingEnabled) {
+        setIsHeaderFixed(false);
+        return;
+      }
+      
+      if (headerRef.current && headerPlaceholderRef.current) {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const headerTop = headerPlaceholderRef.current.offsetTop;
+        
+        if (scrollTop > headerTop - 80) { // Header 높이 고려
+          setIsHeaderFixed(true);
+        } else {
+          setIsHeaderFixed(false);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isFloatingEnabled]);
 
   // 드롭다운 외부 클릭 감지
   useEffect(() => {
@@ -188,87 +216,126 @@ const RegionalAnalysisPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col gap-6 pb-6">
-        <div className="flex-shrink-0 rounded-xl border border-gray-100 bg-white shadow-sm">
-          <div className="p-6 pb-4">
-            <PageHeader
-              title="지역 기반 분석"
-              description="지역별 고객 분포 및 서비스 이용 현황 분석"
-              actions={
+      {/* Placeholder for fixed header */}
+      <div ref={headerPlaceholderRef} style={{ height: isHeaderFixed && isFloatingEnabled ? (headerRef.current?.offsetHeight || 0) : 0 }} />
+      
+      {/* 필터 섹션 */}
+      <div 
+        ref={headerRef}
+        className={`flex-shrink-0 rounded-xl border border-gray-100 bg-white shadow-sm transition-all ${
+          isHeaderFixed && isFloatingEnabled
+            ? 'fixed top-[80px] z-30' 
+            : 'mb-6'
+        }`}
+        style={isHeaderFixed && isFloatingEnabled ? {
+          left: headerPlaceholderRef.current?.getBoundingClientRect().left || 0,
+          width: headerPlaceholderRef.current?.offsetWidth || 'auto'
+        } : undefined}
+      >
+        <div className="p-6 pb-4">
+          <PageHeader
+            title="지역 기반 분석"
+            description="지역별 고객 분포 및 서비스 이용 현황 분석"
+            actions={
+              <div className="flex items-center gap-3">
+                {/* 플로팅 토글 버튼 */}
+                <button
+                  onClick={() => setIsFloatingEnabled(!isFloatingEnabled)}
+                  className="flex w-[110px] items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm transition-colors hover:border-gray-300 hover:bg-gray-50"
+                  title={isFloatingEnabled ? '필터 고정 해제' : '필터 고정 활성화'}
+                >
+                  {isFloatingEnabled ? (
+                    <>
+                      <svg className="h-4 w-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                      </svg>
+                      <span className="text-gray-700">고정됨</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                      </svg>
+                      <span className="text-gray-500">고정 해제</span>
+                    </>
+                  )}
+                </button>
                 <FilterToggleButton isOpen={isFilterOpen} onToggle={() => setIsFilterOpen(!isFilterOpen)} />
-              }
-            />
-          </div>
+              </div>
+            }
+          />
+        </div>
 
-          {isFilterOpen && (
-            <div className="space-y-4 px-6 pb-6">
-              <div className="flex items-start gap-4">
-                {/* 지역 선택 드롭다운 */}
-                <div ref={dropdownRef} className="relative w-[240px]">
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">지역 선택</label>
-                  <button
-                    onClick={() => setIsRegionDropdownOpen(!isRegionDropdownOpen)}
-                    className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm transition-colors hover:border-gray-300 focus-visible:border-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        {isFilterOpen && (
+          <div className="space-y-4 px-6 pb-6">
+            <div className="flex items-start gap-4">
+              {/* 지역 선택 드롭다운 */}
+              <div ref={dropdownRef} className="relative w-[240px]">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">지역 선택</label>
+                <button
+                  onClick={() => setIsRegionDropdownOpen(!isRegionDropdownOpen)}
+                  className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm transition-colors hover:border-gray-300 focus-visible:border-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                >
+                  <span className="text-gray-700">
+                    {selectedRegions.length === 0
+                      ? '전체'
+                      : `${selectedRegions.length}개 지역 선택됨`}
+                  </span>
+                  <svg
+                    className={`h-4 w-4 text-gray-400 transition-transform ${isRegionDropdownOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <span className="text-gray-700">
-                      {selectedRegions.length === 0
-                        ? '전체'
-                        : `${selectedRegions.length}개 지역 선택됨`}
-                    </span>
-                    <svg
-                      className={`h-4 w-4 text-gray-400 transition-transform ${isRegionDropdownOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
 
-                  {isRegionDropdownOpen && (
-                    <div className="absolute z-10 mt-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
-                      <div className="border-b border-gray-100 p-3">
-                        <div className="flex items-center justify-between">
+                {isRegionDropdownOpen && (
+                  <div className="absolute z-10 mt-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
+                    <div className="border-b border-gray-100 p-3">
+                      <div className="flex items-center justify-between">
+                        <button
+                          onClick={handleSelectAll}
+                          className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                        >
+                          {selectedRegions.length === mockRegionalData.length ? '전체 해제' : '전체 선택'}
+                        </button>
+                        {selectedRegions.length > 0 && (
                           <button
-                            onClick={handleSelectAll}
-                            className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                            onClick={handleClearSelection}
+                            className="text-sm text-gray-500 hover:text-gray-700"
                           >
-                            {selectedRegions.length === mockRegionalData.length ? '전체 해제' : '전체 선택'}
+                            초기화
                           </button>
-                          {selectedRegions.length > 0 && (
-                            <button
-                              onClick={handleClearSelection}
-                              className="text-sm text-gray-500 hover:text-gray-700"
-                            >
-                              초기화
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <div className="max-h-[280px] overflow-y-auto p-2">
-                        {mockRegionalData.map((data) => (
-                          <label
-                            key={data.region}
-                            className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 hover:bg-gray-50"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedRegions.includes(data.region)}
-                              onChange={() => handleRegionToggle(data.region)}
-                              className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-2 focus:ring-primary-500"
-                            />
-                            <span className="flex-1 text-sm text-gray-700">{data.region}</span>
-                            <span className="text-xs text-gray-500">{data.customers.toLocaleString()}명</span>
-                          </label>
-                        ))}
+                        )}
                       </div>
                     </div>
-                  )}
-                </div>
+                    <div className="max-h-[280px] overflow-y-auto p-2">
+                      {mockRegionalData.map((data) => (
+                        <label
+                          key={data.region}
+                          className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 hover:bg-gray-50"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedRegions.includes(data.region)}
+                            onChange={() => handleRegionToggle(data.region)}
+                            className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-2 focus:ring-primary-500"
+                          />
+                          <span className="flex-1 text-sm text-gray-700">{data.region}</span>
+                          <span className="text-xs text-gray-500">{data.customers.toLocaleString()}명</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-                {/* 선택된 지역 태그 */}
-                {selectedRegions.length > 0 && (
-                  <div className="flex flex-1 flex-wrap items-center gap-2 pt-7">
+              {/* 선택된 지역 태그 + 초기화 버튼 */}
+              {selectedRegions.length > 0 && (
+                <div className="flex flex-1 items-center gap-3 pt-7">
+                  <div className="flex flex-1 flex-wrap items-center gap-2">
                     {selectedRegions.map((region) => (
                       <button
                         key={region}
@@ -282,11 +349,20 @@ const RegionalAnalysisPage = () => {
                       </button>
                     ))}
                   </div>
-                )}
-              </div>
+                  <button
+                    onClick={handleClearSelection}
+                    className="shrink-0 text-sm font-medium text-gray-500 transition hover:text-error-600"
+                  >
+                    초기화
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-6 pb-6">
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <Card>

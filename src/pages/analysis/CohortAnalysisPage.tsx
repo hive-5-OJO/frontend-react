@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
-import { Card, CardContent, PageHeader, Button, FormSelect, FilterToggleButton } from '@/shared/ui';
+import { Card, CardContent, PageHeader, Button, FormSelect, MonthPicker, FilterToggleButton } from '@/shared/ui';
 
 // --- 타입 정의 ---
 interface CohortRow {
@@ -31,25 +31,6 @@ const ANALYSIS_PERIOD_OPTIONS = [
   { value: '10', label: '10개월' },
   { value: '11', label: '11개월' },
   { value: '12', label: '12개월' },
-];
-
-// 사용 가능한 가입 월 범위 (2025-01 ~ 2026-03)
-const AVAILABLE_MONTHS = [
-  { value: '2025-01', label: '2025년 1월' },
-  { value: '2025-02', label: '2025년 2월' },
-  { value: '2025-03', label: '2025년 3월' },
-  { value: '2025-04', label: '2025년 4월' },
-  { value: '2025-05', label: '2025년 5월' },
-  { value: '2025-06', label: '2025년 6월' },
-  { value: '2025-07', label: '2025년 7월' },
-  { value: '2025-08', label: '2025년 8월' },
-  { value: '2025-09', label: '2025년 9월' },
-  { value: '2025-10', label: '2025년 10월' },
-  { value: '2025-11', label: '2025년 11월' },
-  { value: '2025-12', label: '2025년 12월' },
-  { value: '2026-01', label: '2026년 1월' },
-  { value: '2026-02', label: '2026년 2월' },
-  { value: '2026-03', label: '2026년 3월' },
 ];
 
 // --- Mock 데이터 생성 (2025-01 ~ 2026-03) ---
@@ -213,21 +194,17 @@ const CohortAnalysisPage = () => {
                   className="w-[160px]"
                   options={SEGMENT_OPTIONS}
                 />
-                <FormSelect
+                <MonthPicker
                   label="가입 월 (시작)"
-                  placeholder="시작 월 선택"
                   value={startMonth}
                   onChange={setStartMonth}
                   className="w-[160px]"
-                  options={AVAILABLE_MONTHS}
                 />
-                <FormSelect
+                <MonthPicker
                   label="가입 월 (끝)"
-                  placeholder="끝 월 선택"
                   value={endMonth}
                   onChange={setEndMonth}
                   className="w-[160px]"
-                  options={AVAILABLE_MONTHS}
                 />
                 <FormSelect
                   label="분석 기간"
@@ -301,7 +278,7 @@ const CohortAnalysisPage = () => {
                   <table className="w-full border-collapse">
                     <thead>
                       <tr>
-                        <th className="sticky left-0 z-10 min-w-[100px] border-b border-r border-gray-200 bg-gray-50 px-3 py-2.5 text-left text-xs font-semibold text-gray-600">
+                        <th className="sticky left-0 z-10 w-[1500px] min-w-[150px] max-w-[150px] border-b border-r border-gray-200 bg-gray-50 px-3 py-2.5 text-left text-xs font-semibold text-gray-600">
                           가입 월
                         </th>
                         {columnHeaders.map((header, i) => (
@@ -317,7 +294,7 @@ const CohortAnalysisPage = () => {
                     <tbody>
                       {filteredData.map((row) => (
                         <tr key={row.join_month}>
-                          <td className="sticky left-0 z-10 border-b border-r border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
+                          <td className="sticky left-0 z-10 w-[100px] min-w-[100px] max-w-[100px] border-b border-r border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
                             {row.join_month}
                           </td>
                           {columnHeaders.map((_, i) => {

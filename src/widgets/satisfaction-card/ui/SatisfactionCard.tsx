@@ -8,6 +8,31 @@ ChartJS.register(ArcElement, Tooltip);
 const colors = ['#3B82F6', '#60A5FA', '#F59E0B', '#F97316', '#EF4444'];
 
 const SatisfactionCard = () => {
+  // 도넛 중앙 텍스트 플러그인
+  const centerTextPlugin = {
+    id: 'satisfactionCenterText',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    beforeDraw(chart: any) {
+      const { ctx, chartArea } = chart;
+      if (!chartArea) return;
+      const centerX = (chartArea.left + chartArea.right) / 2;
+      const centerY = (chartArea.top + chartArea.bottom) / 2;
+      ctx.save();
+
+      ctx.font = 'bold 22px Pretendard, sans-serif';
+      ctx.fillStyle = '#111827';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(satisfactionData.averageScore), centerX, centerY - 6);
+
+      ctx.font = '10px Pretendard, sans-serif';
+      ctx.fillStyle = '#9ca3af';
+      ctx.fillText('평균', centerX, centerY + 12);
+
+      ctx.restore();
+    },
+  };
+
   const chartData = {
     labels: satisfactionData.scoreDistribution.map((d) => d.label),
     datasets: [
@@ -27,6 +52,9 @@ const SatisfactionCard = () => {
     plugins: {
       legend: { display: false },
       tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        padding: 10,
+        cornerRadius: 8,
         callbacks: {
           label: (ctx: { label?: string; raw?: unknown }) => {
             const count = ctx.raw as number;
@@ -49,13 +77,7 @@ const SatisfactionCard = () => {
         <div className="flex flex-1 items-center gap-5">
           {/* 도넛 차트 */}
           <div className="relative flex-shrink-0" style={{ width: '110px', height: '110px' }}>
-            <Doughnut data={chartData} options={options} />
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-2xl font-bold text-gray-900">
-                {satisfactionData.averageScore}
-              </span>
-              <span className="text-xs text-gray-400">평균</span>
-            </div>
+            <Doughnut data={chartData} options={options} plugins={[centerTextPlugin]} />
           </div>
 
           {/* 분포 리스트 */}
