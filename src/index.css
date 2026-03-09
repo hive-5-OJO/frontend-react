@@ -5,6 +5,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* 전체 페이지 스크롤바 숨김 (기능은 유지) */
+html {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
+
 @theme {
   /* 1. 메인 브랜드 컬러 */
   --color-main-blue: #5e72e4;
