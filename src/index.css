@@ -32,22 +32,38 @@ html::-webkit-scrollbar {
   --color-primary-900: #312e81;
 
   /* 3. 상태 컬러 */
+  --color-success-50: #ecfdf5;
   --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
   --color-success-600: #10b981;
   --color-success-700: #059669;
+  --color-success-800: #047857;
+  --color-success-900: #065f46;
 
+  --color-warning-50: #fffbeb;
   --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
   --color-warning-500: #f59e0b;
   --color-warning-600: #f59e0b;
   --color-warning-700: #d97706;
+  --color-warning-800: #b45309;
+  --color-warning-900: #92400e;
 
+  --color-error-50: #fef2f2;
   --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
   --color-error-600: #ef4444;
   --color-error-700: #dc2626;
+  --color-error-800: #b91c1c;
+  --color-error-900: #991b1b;
 
+  --color-info-50: #eff6ff;
   --color-info-100: #dbeafe;
+  --color-info-200: #bfdbfe;
   --color-info-600: #3b82f6;
   --color-info-700: #2563eb;
+  --color-info-800: #1d4ed8;
+  --color-info-900: #1e40af;
 
   /* 4. VIP 및 특수 상태 */
   --color-vip-50: #faf5ff;
