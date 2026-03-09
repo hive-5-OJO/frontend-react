@@ -4,7 +4,6 @@ import { CustomerDetailSlide } from '@/widgets/customer-detail';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
 import {
   Pagination,
-  Button,
   PageHeader,
   SearchInput,
   Select,
@@ -12,6 +11,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  FilterToggleButton,
 } from '@/shared/ui';
 import { getCategoryPath } from '@/shared/constants';
 import CustomerFilter from './components/CustomerFilter';
@@ -166,23 +166,7 @@ const CustomersPage = () => {
               title="고객 목록"
               description="고객 정보를 한눈에 관리하고 상담 현황을 추적하세요"
               actions={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  leftIcon={
-                    <svg
-                      className={`h-4 w-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  }
-                >
-                  {isFilterOpen ? '필터 접기' : '필터 펼치기'}
-                </Button>
+                <FilterToggleButton isOpen={isFilterOpen} onToggle={() => setIsFilterOpen(!isFilterOpen)} />
               }
             />
 
