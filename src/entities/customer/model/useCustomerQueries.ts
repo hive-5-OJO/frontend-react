@@ -1,0 +1,27 @@
+import { useQuery } from '@tanstack/react-query';
+import { customerApi } from '../api/customerApi';
+import { queryKeys } from '@/shared/constants';
+import type { PaginationParams } from '@/shared/types';
+
+/**
+ * 고객 목록 조회 쿼리
+ */
+export const useCustomerList = (
+  params: PaginationParams & { filters?: Record<string, unknown> },
+) => {
+  return useQuery({
+    queryKey: queryKeys.customer.list(params),
+    queryFn: () => customerApi.getList(params),
+  });
+};
+
+/**
+ * 고객 상세 조회 쿼리
+ */
+export const useCustomer = (id: number, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.customer.detail(id),
+    queryFn: () => customerApi.getById(id),
+    enabled,
+  });
+};

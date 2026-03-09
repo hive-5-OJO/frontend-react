@@ -6,7 +6,7 @@ const SignupForm = () => {
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5">
       <input type="text" placeholder="이름" className="input" />
 
       <input type="text" placeholder="부서" className="input" />
@@ -70,7 +70,7 @@ const SignupForm = () => {
       </button>
 
       {/* 구분선 */}
-      <div className="flex items-center">
+      <div className="flex items-center py-2">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300/60 to-gray-300"></div>
         <span className="px-3 text-xs text-gray-400">or</span>
         <div className="h-px flex-1 bg-gradient-to-r from-gray-300 via-gray-300/60 to-transparent"></div>
