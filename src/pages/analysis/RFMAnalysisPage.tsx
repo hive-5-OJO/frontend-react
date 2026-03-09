@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
-import { Card, CardContent, PageHeader, Button, SearchInput, FormSelect } from '@/shared/ui';
+import { Card, CardContent, PageHeader, SearchInput, FormSelect, FilterToggleButton } from '@/shared/ui';
 
 const RFMAnalysisPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
@@ -16,28 +16,7 @@ const RFMAnalysisPage = () => {
               title="RFM 분석"
               description="Recency, Frequency, Monetary 기반 고객 세분화 분석"
               actions={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  leftIcon={
-                    <svg
-                      className={`h-4 w-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  }
-                >
-                  {isFilterOpen ? '필터 접기' : '필터 펼치기'}
-                </Button>
+                <FilterToggleButton isOpen={isFilterOpen} onToggle={() => setIsFilterOpen(!isFilterOpen)} />
               }
             />
 

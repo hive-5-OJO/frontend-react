@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
-import { Card, CardContent, PageHeader, Button } from '@/shared/ui';
+import { Card, CardContent, PageHeader, FilterToggleButton } from '@/shared/ui';
 
 // Mapbox Access Token
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoiZXhhbXBsZSIsImEiOiJjbGV4YW1wbGUifQ.example';
@@ -195,28 +195,7 @@ const RegionalAnalysisPage = () => {
               title="지역 기반 분석"
               description="지역별 고객 분포 및 서비스 이용 현황 분석"
               actions={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  leftIcon={
-                    <svg
-                      className={`h-4 w-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  }
-                >
-                  {isFilterOpen ? '필터 접기' : '필터 펼치기'}
-                </Button>
+                <FilterToggleButton isOpen={isFilterOpen} onToggle={() => setIsFilterOpen(!isFilterOpen)} />
               }
             />
           </div>

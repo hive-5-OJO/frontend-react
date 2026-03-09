@@ -1,157 +1,191 @@
-import { useState } from 'react';
-import { Line, Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Tooltip,
-  Legend,
-  Filler,
-} from 'chart.js';
+import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
-import { Card, CardContent, PageHeader, Button, FormSelect, MonthPicker } from '@/shared/ui';
+import { Card, CardContent, PageHeader, Button, FormSelect, FilterToggleButton } from '@/shared/ui';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Tooltip,
-  Legend,
-  Filler
-);
+// --- 타입 정의 ---
+interface CohortRow {
+  join_month: string;
+  segment_type: string;
+  [key: string]: number | null | string;
+}
 
-const mockCohortResult = {
-  summary: {
-    avgRetention: 68.5,
-    threeMonthRetention: 42.3,
-    sixMonthRetention: 28.7,
-  },
-  retentionTrend: {
-    labels: ['1개월', '2개월', '3개월', '4개월', '5개월', '6개월'],
-    datasets: [
-      { cohort: '2024-09', data: [72, 58, 45, 38, 32, 28] },
-      { cohort: '2024-08', data: [68, 54, 42, 35, 29, 25] },
-      { cohort: '2024-07', data: [70, 56, 44, 37, 31, 27] },
-    ],
-  },
-  cohortComparison: {
-    labels: ['2024-07', '2024-08', '2024-09'],
-    customers: [9120, 7850, 8420],
-    retention1m: [70, 68, 72],
-    retention3m: [44, 42, 45],
-    retention6m: [27, 25, 28],
-  },
-  table: [
-    { cohort: '2024-09', customers: 8420, months: [72, 58, 45, 38, 32, 28] },
-    { cohort: '2024-08', customers: 7850, months: [68, 54, 42, 35, 29, 25] },
-    { cohort: '2024-07', customers: 9120, months: [70, 56, 44, 37, 31, 27] },
-  ],
-};
+type SegmentType = 'all' | 'high_consult' | 'big_spender' | 'vip';
 
-const cohortColors = [
-  { border: 'rgb(99, 102, 241)', bg: 'rgba(99, 102, 241, 0.1)' },
-  { border: 'rgb(16, 185, 129)', bg: 'rgba(16, 185, 129, 0.1)' },
-  { border: 'rgb(245, 158, 11)', bg: 'rgba(245, 158, 11, 0.1)' },
+const SEGMENT_OPTIONS = [
+  { value: 'all', label: '전체 고객' },
+  { value: 'high_consult', label: '고상담 고객' },
+  { value: 'big_spender', label: '고액 결제자' },
+  { value: 'vip', label: 'VIP 유저' },
 ];
 
-const getRetentionColor = (value: number) => {
-  if (value >= 50) return 'bg-green-100 text-green-700';
-  if (value >= 30) return 'bg-yellow-100 text-yellow-700';
-  return 'bg-orange-100 text-orange-700';
+const ANALYSIS_PERIOD_OPTIONS = [
+  { value: '1', label: '1개월' },
+  { value: '2', label: '2개월' },
+  { value: '3', label: '3개월' },
+  { value: '4', label: '4개월' },
+  { value: '5', label: '5개월' },
+  { value: '6', label: '6개월' },
+  { value: '7', label: '7개월' },
+  { value: '8', label: '8개월' },
+  { value: '9', label: '9개월' },
+  { value: '10', label: '10개월' },
+  { value: '11', label: '11개월' },
+  { value: '12', label: '12개월' },
+];
+
+// 사용 가능한 가입 월 범위 (2025-01 ~ 2026-03)
+const AVAILABLE_MONTHS = [
+  { value: '2025-01', label: '2025년 1월' },
+  { value: '2025-02', label: '2025년 2월' },
+  { value: '2025-03', label: '2025년 3월' },
+  { value: '2025-04', label: '2025년 4월' },
+  { value: '2025-05', label: '2025년 5월' },
+  { value: '2025-06', label: '2025년 6월' },
+  { value: '2025-07', label: '2025년 7월' },
+  { value: '2025-08', label: '2025년 8월' },
+  { value: '2025-09', label: '2025년 9월' },
+  { value: '2025-10', label: '2025년 10월' },
+  { value: '2025-11', label: '2025년 11월' },
+  { value: '2025-12', label: '2025년 12월' },
+  { value: '2026-01', label: '2026년 1월' },
+  { value: '2026-02', label: '2026년 2월' },
+  { value: '2026-03', label: '2026년 3월' },
+];
+
+// --- Mock 데이터 생성 (2025-01 ~ 2026-03) ---
+// 현재 시점: 2026-03 기준, 각 코호트는 가입 월부터 현재까지 경과한 개월 수만큼만 데이터 보유
+const CURRENT_MONTH = '2026-03';
+
+const generateMockData = (): CohortRow[] => {
+  const segments: SegmentType[] = ['all', 'high_consult', 'big_spender', 'vip'];
+  const months = [
+    '2025-01', '2025-02', '2025-03', '2025-04', '2025-05', '2025-06',
+    '2025-07', '2025-08', '2025-09', '2025-10', '2025-11', '2025-12',
+    '2026-01', '2026-02', '2026-03',
+  ];
+  const rows: CohortRow[] = [];
+
+  const [curY, curM] = CURRENT_MONTH.split('-').map(Number);
+
+  for (const segment of segments) {
+    for (let mi = 0; mi < months.length; mi++) {
+      const row: CohortRow = { join_month: months[mi], segment_type: segment };
+
+      // 가입 월부터 현재까지 경과 개월 수
+      const [joinY, joinM] = months[mi].split('-').map(Number);
+      const monthsElapsed = (curY - joinY) * 12 + (curM - joinM);
+
+      // 세그먼트별 초기 리텐션
+      let base = segment === 'vip' ? 0.95 :
+                 segment === 'big_spender' ? 0.92 :
+                 segment === 'high_consult' ? 0.88 : 0.85;
+
+      for (let i = 0; i <= 12; i++) {
+        if (i > monthsElapsed) {
+          row[String(i)] = null; // 아직 도래하지 않은 기간
+        } else if (i === 0) {
+          row[String(i)] = 1;
+        } else {
+          base = base * (0.96 + Math.random() * 0.04);
+          row[String(i)] = Math.max(0.1, Math.min(1, base));
+        }
+      }
+      rows.push(row);
+    }
+  }
+  return rows;
 };
 
+const mockCohortData: CohortRow[] = generateMockData();
+
+// --- 히트맵 셀 색상 (main-blue #5e72e4 기반 그라데이션) ---
+const getHeatmapStyle = (value: number | null): { style: React.CSSProperties; className: string } => {
+  if (value === null) return { style: {}, className: 'bg-gray-100 text-gray-400' };
+  const pct = value * 100;
+
+  // main-blue(#5e72e4) 기반, opacity로 농도 조절 — 100%가 가장 진하고 점점 연해짐
+  if (pct >= 90) return { style: { backgroundColor: '#5e72e4', color: '#fff' }, className: '' };
+  if (pct >= 80) return { style: { backgroundColor: 'rgba(94,114,228,0.85)', color: '#fff' }, className: '' };
+  if (pct >= 70) return { style: { backgroundColor: 'rgba(94,114,228,0.70)', color: '#fff' }, className: '' };
+  if (pct >= 60) return { style: { backgroundColor: 'rgba(94,114,228,0.55)', color: '#2d3a8c' }, className: '' };
+  if (pct >= 50) return { style: { backgroundColor: 'rgba(94,114,228,0.42)', color: '#2d3a8c' }, className: '' };
+  if (pct >= 40) return { style: { backgroundColor: 'rgba(94,114,228,0.30)', color: '#3b4caa' }, className: '' };
+  if (pct >= 30) return { style: { backgroundColor: 'rgba(94,114,228,0.20)', color: '#4a5ab8' }, className: '' };
+  if (pct >= 20) return { style: { backgroundColor: 'rgba(94,114,228,0.12)', color: '#5e72e4' }, className: '' };
+  if (pct >= 10) return { style: { backgroundColor: 'rgba(94,114,228,0.06)', color: '#7b8be8' }, className: '' };
+  return { style: { backgroundColor: 'rgba(94,114,228,0.03)', color: '#9aa5ed' }, className: '' };
+};
+
+const formatPercent = (value: number | null): string => {
+  if (value === null) return '-';
+  return `${(value * 100).toFixed(1)}%`;
+};
+
+// --- 메인 컴포넌트 ---
 const CohortAnalysisPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [isQueried, setIsQueried] = useState(false);
+  const [segmentType, setSegmentType] = useState<SegmentType>('all');
+  const [startMonth, setStartMonth] = useState('2025-01');
+  const [endMonth, setEndMonth] = useState('2026-03');
+  const [analysisPeriod, setAnalysisPeriod] = useState('12');
 
   const handleQuery = () => {
     setIsQueried(true);
   };
 
-  const lineChartData = {
-    labels: mockCohortResult.retentionTrend.labels,
-    datasets: mockCohortResult.retentionTrend.datasets.map((ds, i) => ({
-      label: ds.cohort,
-      data: ds.data,
-      borderColor: cohortColors[i].border,
-      backgroundColor: cohortColors[i].bg,
-      tension: 0.4,
-      fill: true,
-      pointRadius: 4,
-      pointHoverRadius: 6,
-    })),
-  };
+  // 필터링된 데이터
+  const filteredData = useMemo(() => {
+    if (!isQueried) return [];
 
-  const lineChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom' as const },
-      tooltip: {
-        callbacks: {
-          label: (ctx: { dataset: { label?: string }; parsed: { y: number | null } }) =>
-            `${ctx.dataset.label}: ${ctx.parsed.y ?? 0}%`,
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 100,
-        ticks: { callback: (v: string | number) => `${v}%` },
-      },
-    },
-  };
+    // 1. 선택한 segment_type만 필터
+    const rows = mockCohortData.filter((row) => row.segment_type === segmentType);
 
-  const barChartData = {
-    labels: mockCohortResult.cohortComparison.labels,
-    datasets: [
-      {
-        label: '1개월 유지율',
-        data: mockCohortResult.cohortComparison.retention1m,
-        backgroundColor: 'rgba(99, 102, 241, 0.7)',
-        borderRadius: 4,
-      },
-      {
-        label: '3개월 유지율',
-        data: mockCohortResult.cohortComparison.retention3m,
-        backgroundColor: 'rgba(16, 185, 129, 0.7)',
-        borderRadius: 4,
-      },
-      {
-        label: '6개월 유지율',
-        data: mockCohortResult.cohortComparison.retention6m,
-        backgroundColor: 'rgba(245, 158, 11, 0.7)',
-        borderRadius: 4,
-      },
-    ],
-  };
+    // 2. 시작 월 ~ 끝 월 범위의 코호트만 선택
+    return rows.filter((row) => {
+      return row.join_month >= startMonth && row.join_month <= endMonth;
+    }).sort((a, b) => a.join_month.localeCompare(b.join_month));
+  }, [isQueried, segmentType, startMonth, endMonth]);
 
-  const barChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom' as const },
-      tooltip: {
-        callbacks: {
-          label: (ctx: { dataset: { label?: string }; parsed: { y: number | null } }) =>
-            `${ctx.dataset.label}: ${ctx.parsed.y ?? 0}%`,
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 100,
-        ticks: { callback: (v: string | number) => `${v}%` },
-      },
-    },
-  };
+  // 열 헤더 계산 (0개월 ~ 분석기간)
+  const columnHeaders = useMemo(() => {
+    const maxPeriod = parseInt(analysisPeriod);
+    return Array.from({ length: maxPeriod + 1 }, (_, i) => `${i}개월`);
+  }, [analysisPeriod]);
+
+  // 요약 통계
+  const summaryStats = useMemo(() => {
+    if (filteredData.length === 0) return null;
+
+    const maxPeriod = parseInt(analysisPeriod);
+    const allValues: number[] = [];
+    let month1Values: number[] = [];
+    let month3Values: number[] = [];
+    let month6Values: number[] = [];
+
+    for (const row of filteredData) {
+      for (let i = 0; i <= maxPeriod; i++) {
+        const val = row[String(i)];
+        if (typeof val === 'number') {
+          allValues.push(val);
+          if (i === 1) month1Values.push(val);
+          if (i === 3) month3Values.push(val);
+          if (i === 6) month6Values.push(val);
+        }
+      }
+    }
+
+    const avg = (arr: number[]) => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+
+    return {
+      avgRetention: avg(allValues),
+      retention1: avg(month1Values),
+      retention3: avg(month3Values),
+      retention6: avg(month6Values),
+    };
+  }, [filteredData, analysisPeriod]);
+
+  const segmentLabel = SEGMENT_OPTIONS.find((o) => o.value === segmentType)?.label ?? '';
 
   return (
     <DashboardLayout>
@@ -161,30 +195,9 @@ const CohortAnalysisPage = () => {
           <div className="p-6 pb-4">
             <PageHeader
               title="코호트 분석"
-              description="시간 경과에 따른 고객 그룹별 행동 패턴 분석"
+              description="가입 시점별 고객 그룹의 리텐션 추이를 히트맵으로 분석합니다"
               actions={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  leftIcon={
-                    <svg
-                      className={`h-4 w-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  }
-                >
-                  {isFilterOpen ? '필터 접기' : '필터 펼치기'}
-                </Button>
+                <FilterToggleButton isOpen={isFilterOpen} onToggle={() => setIsFilterOpen(!isFilterOpen)} />
               }
             />
           </div>
@@ -195,41 +208,34 @@ const CohortAnalysisPage = () => {
                 <FormSelect
                   label="분석 기준"
                   placeholder="기준 선택"
-                  value="rfm"
+                  value={segmentType}
+                  onChange={(v) => setSegmentType(v as SegmentType)}
                   className="w-[160px]"
-                  options={[
-                    { value: 'rfm', label: 'RFM 세그먼트' },
-                    { value: 'consult', label: '상담 횟수' },
-                  ]}
+                  options={SEGMENT_OPTIONS}
                 />
                 <FormSelect
-                  label="기간 단위"
-                  placeholder="단위 선택"
-                  value="month"
-                  className="w-[120px]"
-                  options={[
-                    { value: 'month', label: '월' },
-                    { value: 'year', label: '년' },
-                  ]}
-                />
-                <MonthPicker
-                  label="기준 년월"
-                  value="2024-09"
+                  label="가입 월 (시작)"
+                  placeholder="시작 월 선택"
+                  value={startMonth}
+                  onChange={setStartMonth}
                   className="w-[160px]"
+                  options={AVAILABLE_MONTHS}
+                />
+                <FormSelect
+                  label="가입 월 (끝)"
+                  placeholder="끝 월 선택"
+                  value={endMonth}
+                  onChange={setEndMonth}
+                  className="w-[160px]"
+                  options={AVAILABLE_MONTHS}
                 />
                 <FormSelect
                   label="분석 기간"
                   placeholder="기간 선택"
-                  value="6"
-                  className="w-[120px]"
-                  options={[
-                    { value: '3', label: '3개월' },
-                    { value: '6', label: '6개월' },
-                    { value: '9', label: '9개월' },
-                    { value: '12', label: '12개월' },
-                    { value: '18', label: '18개월' },
-                    { value: '24', label: '24개월' },
-                  ]}
+                  value={analysisPeriod}
+                  onChange={setAnalysisPeriod}
+                  className="w-[140px]"
+                  options={ANALYSIS_PERIOD_OPTIONS}
                 />
                 <Button variant="primary" size="md" className="ml-auto shrink-0" onClick={handleQuery}>
                   조회하기
@@ -239,106 +245,132 @@ const CohortAnalysisPage = () => {
           )}
         </div>
 
-        {isQueried && (
+        {isQueried && filteredData.length > 0 && (
           <>
-            {/* 코호트 요약 */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="mb-2 text-sm font-semibold text-gray-500">평균 재방문율</h3>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {mockCohortResult.summary.avgRetention}%
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">첫 달 이후 재방문 비율</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="mb-2 text-sm font-semibold text-gray-500">3개월 유지율</h3>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {mockCohortResult.summary.threeMonthRetention}%
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">3개월 후 활성 고객 비율</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="mb-2 text-sm font-semibold text-gray-500">6개월 유지율</h3>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {mockCohortResult.summary.sixMonthRetention}%
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">6개월 후 활성 고객 비율</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* 차트 섹션 */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {/* 유지율 추이 라인 차트 */}
-              <Card>
-                <CardContent className="p-6">
-                  <h4 className="mb-1 text-base font-bold text-gray-900">유지율 추이</h4>
-                  <p className="mb-4 text-sm text-gray-500">코호트별 시간 경과에 따른 유지율 변화</p>
-                  <div style={{ height: '280px' }}>
-                    <Line data={lineChartData} options={lineChartOptions} />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* 코호트별 비교 바 차트 */}
-              <Card>
-                <CardContent className="p-6">
-                  <h4 className="mb-1 text-base font-bold text-gray-900">코호트별 유지율 비교</h4>
-                  <p className="mb-4 text-sm text-gray-500">각 코호트의 1/3/6개월 유지율 비교</p>
-                  <div style={{ height: '280px' }}>
-                    <Bar data={barChartData} options={barChartOptions} />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* 코호트 테이블 */}
-            <div className="flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-              <div className="p-6">
-                <h3 className="text-lg font-bold text-gray-900">코호트 분석 테이블</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  각 코호트의 시간 경과에 따른 재방문율 (%)
-                </p>
+            {/* 요약 카드 */}
+            {summaryStats && (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                  <CardContent className="p-5">
+                    <p className="text-sm font-medium text-gray-500">분석 대상</p>
+                    <p className="mt-1 text-2xl font-bold text-gray-900">{segmentLabel}</p>
+                    <p className="mt-1 text-xs text-gray-400">{filteredData.length}개 코호트</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-5">
+                    <p className="text-sm font-medium text-gray-500">+1개월 리텐션</p>
+                    <p className="mt-1 text-2xl font-bold text-gray-900">
+                      {(summaryStats.retention1 * 100).toFixed(1)}%
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400">1개월 후 평균</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-5">
+                    <p className="text-sm font-medium text-gray-500">+3개월 리텐션</p>
+                    <p className="mt-1 text-2xl font-bold text-gray-900">
+                      {(summaryStats.retention3 * 100).toFixed(1)}%
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400">3개월 후 평균</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-5">
+                    <p className="text-sm font-medium text-gray-500">+6개월 리텐션</p>
+                    <p className="mt-1 text-2xl font-bold text-gray-900">
+                      {(summaryStats.retention6 * 100).toFixed(1)}%
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400">6개월 후 평균</p>
+                  </CardContent>
+                </Card>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="border-y border-gray-200 bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">코호트</th>
-                      <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">고객 수</th>
-                      {mockCohortResult.retentionTrend.labels.map((label) => (
-                        <th key={label} className="px-6 py-3 text-center text-sm font-semibold text-gray-900">
-                          {label}
+            )}
+
+            {/* 히트맵 테이블 */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="mb-4">
+                  <h3 className="text-lg font-bold text-gray-900">리텐션 히트맵</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    가입 월별 경과 기간에 따른 리텐션 비율 (%) · 색상이 진할수록 높은 리텐션
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="sticky left-0 z-10 min-w-[100px] border-b border-r border-gray-200 bg-gray-50 px-3 py-2.5 text-left text-xs font-semibold text-gray-600">
+                          가입 월
                         </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {mockCohortResult.table.map((row) => (
-                      <tr key={row.cohort} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{row.cohort}</td>
-                        <td className="px-6 py-4 text-center text-sm text-gray-600">
-                          {row.customers.toLocaleString()}
-                        </td>
-                        {row.months.map((val, i) => (
-                          <td key={i} className="px-6 py-4 text-center text-sm">
-                            <span className={`inline-block rounded px-2 py-1 ${getRetentionColor(val)}`}>
-                              {val}%
-                            </span>
-                          </td>
+                        {columnHeaders.map((header, i) => (
+                          <th
+                            key={i}
+                            className="min-w-[70px] border-b border-gray-200 bg-gray-50 px-2 py-2.5 text-center text-xs font-semibold text-gray-600"
+                          >
+                            {header}
+                          </th>
                         ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                    </thead>
+                    <tbody>
+                      {filteredData.map((row) => (
+                        <tr key={row.join_month}>
+                          <td className="sticky left-0 z-10 border-b border-r border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
+                            {row.join_month}
+                          </td>
+                          {columnHeaders.map((_, i) => {
+                            const val = row[String(i)] as number | null;
+                            const { style, className } = getHeatmapStyle(val);
+                            return (
+                              <td key={i} className="border-b border-gray-100 px-0.5 py-0.5">
+                                <div
+                                  className={`flex items-center justify-center rounded px-1 py-1.5 text-xs font-medium ${className}`}
+                                  style={style}
+                                  title={val !== null ? `${(val * 100).toFixed(2)}%` : '데이터 없음'}
+                                >
+                                  {formatPercent(val)}
+                                </div>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* 범례 */}
+                <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
+                  <span>낮음</span>
+                  <div className="flex gap-0.5">
+                    <div className="h-4 w-6 rounded" style={{ backgroundColor: 'rgba(94,114,228,0.03)' }} title="10% 미만" />
+                    <div className="h-4 w-6 rounded" style={{ backgroundColor: 'rgba(94,114,228,0.06)' }} title="10-20%" />
+                    <div className="h-4 w-6 rounded" style={{ backgroundColor: 'rgba(94,114,228,0.12)' }} title="20-30%" />
+                    <div className="h-4 w-6 rounded" style={{ backgroundColor: 'rgba(94,114,228,0.20)' }} title="30-40%" />
+                    <div className="h-4 w-6 rounded" style={{ backgroundColor: 'rgba(94,114,228,0.30)' }} title="40-50%" />
+                    <div className="h-4 w-6 rounded" style={{ backgroundColor: 'rgba(94,114,228,0.42)' }} title="50-60%" />
+                    <div className="h-4 w-6 rounded" style={{ backgroundColor: 'rgba(94,114,228,0.55)' }} title="60-70%" />
+                    <div className="h-4 w-6 rounded" style={{ backgroundColor: 'rgba(94,114,228,0.70)' }} title="70-80%" />
+                    <div className="h-4 w-6 rounded" style={{ backgroundColor: 'rgba(94,114,228,0.85)' }} title="80-90%" />
+                    <div className="h-4 w-6 rounded" style={{ backgroundColor: '#5e72e4' }} title="90% 이상" />
+                  </div>
+                  <span>높음</span>
+                </div>
+              </CardContent>
+            </Card>
           </>
+        )}
+
+        {isQueried && filteredData.length === 0 && (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white py-20 shadow-sm">
+            <svg className="mb-4 h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+            <p className="text-lg font-medium text-gray-500">해당 조건의 데이터가 없습니다</p>
+            <p className="mt-1 text-sm text-gray-400">필터 조건을 변경해 보세요</p>
+          </div>
         )}
 
         {!isQueried && (
@@ -347,7 +379,7 @@ const CohortAnalysisPage = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
             <p className="text-lg font-medium text-gray-500">분석 기준을 설정하고 조회하기를 눌러주세요</p>
-            <p className="mt-1 text-sm text-gray-400">분석 결과가 이곳에 표시됩니다</p>
+            <p className="mt-1 text-sm text-gray-400">코호트 리텐션 히트맵이 이곳에 표시됩니다</p>
           </div>
         )}
       </div>
