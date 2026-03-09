@@ -13,7 +13,7 @@ const DashboardPage = () => {
   return (
     <DashboardLayout>
       <div className="my-3 ml-5 flex flex-col gap-2">
-        <h2 className="text-2xl font-bold">관리자님, 안녕하세요!</h2>
+        <h2 className="text-2xl font-bold text-white/90">관리자님, 안녕하세요!</h2>
         <h3 className="text-white/60">CRM 및 마케팅 데이터 인사이트를 확인하세요.</h3>
       </div>
 

@@ -13,7 +13,7 @@ import { ROUTES } from '@/shared/constants/routes';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, isLoading, error } = useLogin();
+  const { login, isLoading } = useLogin();
   const { handleGoogleLogin } = useGoogleLogin();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
@@ -31,7 +31,8 @@ const LoginPage = () => {
       await login({ email, password });
       toast.success('로그인 성공', '환영합니다!');
     } catch {
-      toast.error('로그인 실패', error || '이메일 또는 비밀번호를 확인해주세요.');
+      // 백엔드 에러 메시지를 보여주지 않고 일반적인 메시지만 표시
+      toast.error('로그인 실패', '이메일 또는 비밀번호를 확인해주세요.');
     }
   };
 
@@ -51,10 +52,6 @@ const LoginPage = () => {
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>
-        )}
-
         <Input
           type="email"
           placeholder="이메일"
