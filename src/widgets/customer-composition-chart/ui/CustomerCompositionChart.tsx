@@ -18,6 +18,31 @@ const segments = [
 const total = segments.reduce((sum, s) => sum + s.data.count, 0);
 
 const CustomerCompositionChart = () => {
+  // 도넛 중앙 텍스트 플러그인
+  const centerTextPlugin = {
+    id: 'compositionCenterText',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    beforeDraw(chart: any) {
+      const { ctx, chartArea } = chart;
+      if (!chartArea) return;
+      const centerX = (chartArea.left + chartArea.right) / 2;
+      const centerY = (chartArea.top + chartArea.bottom) / 2;
+      ctx.save();
+
+      ctx.font = '11px Pretendard, sans-serif';
+      ctx.fillStyle = '#9ca3af';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('전체', centerX, centerY - 10);
+
+      ctx.font = 'bold 16px Pretendard, sans-serif';
+      ctx.fillStyle = '#111827';
+      ctx.fillText(`${formatNumber(total)}명`, centerX, centerY + 10);
+
+      ctx.restore();
+    },
+  };
+
   const chartData = {
     labels: segments.map((s) => s.label),
     datasets: [
@@ -37,6 +62,9 @@ const CustomerCompositionChart = () => {
     plugins: {
       legend: { display: false },
       tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        padding: 10,
+        cornerRadius: 8,
         callbacks: {
           label: (ctx: { label?: string; raw?: unknown }) => {
             const count = ctx.raw as number;
@@ -56,11 +84,7 @@ const CustomerCompositionChart = () => {
         {/* 차트 + 범례 */}
         <div className="flex flex-1 items-center gap-6">
           <div className="relative flex-shrink-0" style={{ width: '180px', height: '180px' }}>
-            <Doughnut data={chartData} options={options} />
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xs text-gray-400">전체</span>
-              <span className="text-lg font-bold text-gray-900">{formatNumber(total)}명</span>
-            </div>
+            <Doughnut data={chartData} options={options} plugins={[centerTextPlugin]} />
           </div>
 
           <div className="flex-1 space-y-3">
