@@ -1,6 +1,6 @@
 import type { LTVData } from '@/entities/customer/model/types';
-import { Card, CardContent, Badge, Alert, AlertDescription } from '@/shared/ui';
-import { formatNumber, getLTVGradeInfo, getDaysUntilChurn } from '../../utils';
+import { Card, CardContent, Badge } from '@/shared/ui';
+import { formatNumber } from '../../utils';
 import { Bar } from 'react-chartjs-2';
 
 interface Props {
@@ -8,8 +8,15 @@ interface Props {
 }
 
 const LTVTab = ({ ltvData }: Props) => {
-  const ltvGradeInfo = getLTVGradeInfo(ltvData.ltvGrade);
-  const daysUntilChurn = getDaysUntilChurn(ltvData.expectedChurnDate);
+  // LTV 등급 계산 (LTV 값 기준)
+  const getLTVGrade = (ltv: number) => {
+    if (ltv >= 5000000) return { label: 'TOP 10%', color: 'bg-purple-100 text-purple-700' };
+    if (ltv >= 3000000) return { label: 'TOP 30%', color: 'bg-blue-100 text-blue-700' };
+    if (ltv >= 1500000) return { label: '평균 이상', color: 'bg-green-100 text-green-700' };
+    return { label: '평균 이하', color: 'bg-gray-100 text-gray-700' };
+  };
+
+  const ltvGradeInfo = getLTVGrade(ltvData.ltv);
 
   const ltvChartData = {
     labels: ['1개월', '3개월', '6개월', '12개월', '예상 LTV'],
@@ -17,11 +24,11 @@ const LTVTab = ({ ltvData }: Props) => {
       {
         label: '누적 수익 (원)',
         data: [
-          ltvData.avgOrderValue,
-          ltvData.avgOrderValue * 3,
-          ltvData.avgOrderValue * 6,
-          ltvData.avgOrderValue * 12,
-          ltvData.ltvAmount,
+          ltvData.avgValue,
+          ltvData.avgValue * 3,
+          ltvData.avgValue * 6,
+          ltvData.avgValue * 12,
+          ltvData.ltv,
         ],
         backgroundColor: 'rgba(147, 51, 234, 0.8)',
         borderColor: 'rgba(147, 51, 234, 1)',
@@ -59,11 +66,11 @@ const LTVTab = ({ ltvData }: Props) => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium opacity-90">고객 생애 가치</p>
-              <h3 className="mt-1 text-4xl font-bold">{formatNumber(ltvData.ltvAmount)}원</h3>
+              <p className="text-sm font-medium opacity-90">고객 생애 가치 (LTV)</p>
+              <h3 className="mt-1 text-4xl font-bold">{formatNumber(ltvData.ltv)}원</h3>
               <div className="mt-3 flex items-center gap-2">
                 <Badge
-                  className={`${ltvGradeInfo.bgColor} ${ltvGradeInfo.color} border-0 px-3 py-1`}
+                  className={`${ltvGradeInfo.color} border-0 px-3 py-1`}
                 >
                   {ltvGradeInfo.label}
                 </Badge>
@@ -71,53 +78,13 @@ const LTVTab = ({ ltvData }: Props) => {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm opacity-90">예상 이탈일</p>
-              <p className="text-lg font-bold">
-                {new Date(ltvData.expectedChurnDate).toLocaleDateString('ko-KR')}
-              </p>
-              <p className="mt-1 text-sm opacity-90">({daysUntilChurn}일 남음)</p>
+              <p className="text-sm opacity-90">서비스 이용 기간</p>
+              <p className="text-lg font-bold">{ltvData.lifespanDays}일</p>
+              <p className="mt-1 text-sm opacity-90">({Math.floor(ltvData.lifespanDays / 30)}개월)</p>
             </div>
           </div>
         </CardContent>
       </Card>
-
-      <Alert variant="default" className="border-2 border-purple-200 bg-purple-50">
-        <AlertDescription className="text-purple-800">
-          <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-purple-900">
-            <span>💡</span>
-            <span>LTV 향상 전략</span>
-          </h3>
-          <div className="space-y-2 text-sm">
-            {ltvData.ltvGrade === 'TOP_10' && (
-              <>
-                <p>• 최상위 고객입니다. 전담 매니저 배정을 고려하세요.</p>
-                <p>• 프리미엄 서비스 및 독점 혜택을 제공하세요.</p>
-              </>
-            )}
-            {ltvData.ltvGrade === 'TOP_20' && (
-              <>
-                <p>• 상위 고객입니다. VIP 프로그램 가입을 제안하세요.</p>
-                <p>• 고가 상품 추천으로 LTV를 증대시킬 수 있습니다.</p>
-              </>
-            )}
-            {daysUntilChurn < 60 && (
-              <p className="font-semibold text-error-700">
-                ⚠️ 이탈 예정일이 임박했습니다. 리텐션 캠페인을 즉시 실행하세요.
-              </p>
-            )}
-            {daysUntilChurn >= 60 && daysUntilChurn < 120 && (
-              <p className="text-warning-700">
-                • 이탈 예정일이 다가오고 있습니다. 사전 예방 조치를 취하세요.
-              </p>
-            )}
-            <p>
-              • 평균 주문 금액: {formatNumber(Math.round(ltvData.avgOrderValue))}원 - 고가 상품
-              추천으로 증대 가능
-            </p>
-            <p>• 정기적인 소통과 맞춤형 제안으로 고객 관계를 강화하세요.</p>
-          </div>
-        </AlertDescription>
-      </Alert>
 
       <Card>
         <CardContent className="p-6">
@@ -131,41 +98,33 @@ const LTVTab = ({ ltvData }: Props) => {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
         <Card>
           <CardContent className="p-6">
-            <h3 className="mb-4 text-lg font-bold text-gray-900">이탈 위험도 분석</h3>
+            <h3 className="mb-4 text-lg font-bold text-gray-900">주요 지표</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3">
-                <span className="text-sm text-gray-600">예상 이탈일</span>
+              <div className="flex items-center justify-between border-b pb-3">
+                <span className="text-sm text-gray-600">평균 주문 금액</span>
                 <span className="text-base font-semibold text-gray-900">
-                  {new Date(ltvData.expectedChurnDate).toLocaleDateString('ko-KR')}
+                  {formatNumber(ltvData.avgValue)}원
+                </span>
+              </div>
+              <div className="flex items-center justify-between border-b pb-3">
+                <span className="text-sm text-gray-600">총 결제 금액</span>
+                <span className="text-base font-semibold text-gray-900">
+                  {formatNumber(ltvData.totalRevenue)}원
+                </span>
+              </div>
+              <div className="flex items-center justify-between border-b pb-3">
+                <span className="text-sm text-gray-600">결제 횟수</span>
+                <span className="text-base font-semibold text-gray-900">
+                  {ltvData.frequency}회
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">남은 기간</span>
-                <span className="text-2xl font-bold text-success-600">{daysUntilChurn}일</span>
+                <span className="text-sm text-gray-600">서비스 이용 기간</span>
+                <span className="text-base font-semibold text-gray-900">
+                  {ltvData.lifespanDays}일
+                </span>
               </div>
             </div>
-            <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-              <div
-                className="h-full bg-success-600 transition-all"
-                style={{ width: `${Math.min((daysUntilChurn / 365) * 100, 100)}%` }}
-              />
-            </div>
-            <Alert variant="success" className="mt-4 border-success-200 bg-success-50">
-              <AlertDescription className="text-success-700">
-                <p className="flex items-center gap-2 text-sm">
-                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span className="font-medium">
-                    안정적인 고객입니다. 현재 관계를 유지하세요.
-                  </span>
-                </p>
-              </AlertDescription>
-            </Alert>
           </CardContent>
         </Card>
 
@@ -175,7 +134,7 @@ const LTVTab = ({ ltvData }: Props) => {
             <div className="mb-4 flex items-center justify-between">
               <span className="text-sm text-gray-600">현재 등급</span>
               <Badge
-                className={`${ltvGradeInfo.bgColor} ${ltvGradeInfo.color} border-0 px-4 py-2 text-base`}
+                className={`${ltvGradeInfo.color} border-0 px-4 py-2 text-base`}
               >
                 {ltvGradeInfo.label}
               </Badge>
@@ -188,39 +147,37 @@ const LTVTab = ({ ltvData }: Props) => {
                 <div className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500"></div>
                 <div className="flex-1 bg-gradient-to-r from-blue-500 to-teal-500"></div>
                 <div className="flex-1 bg-gradient-to-r from-teal-500 to-gray-400"></div>
-                <div className="flex-1 bg-gray-400"></div>
               </div>
             </div>
 
             {/* 등급 레이블 */}
             <div className="flex justify-between text-xs text-gray-600">
               <span>TOP 10%</span>
-              <span>TOP 20%</span>
               <span>TOP 30%</span>
-              <span>MIDDLE</span>
-              <span>LOW</span>
+              <span>평균 이상</span>
+              <span>평균 이하</span>
             </div>
 
-            <Alert variant="default" className="mt-4 border-purple-200 bg-purple-50">
-              <AlertDescription className="text-purple-700">
-                <p className="flex items-start gap-2 text-sm">
-                  <svg
-                    className="mt-0.5 h-5 w-5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                  <span className="font-medium">
-                    최상위 고객입니다. VIP 대우와 특별 관리가 필요합니다.
-                  </span>
-                </p>
-              </AlertDescription>
-            </Alert>
+            <div className="mt-4 rounded-lg border border-purple-200 bg-purple-50 p-4">
+              <p className="flex items-start gap-2 text-sm text-purple-700">
+                <svg
+                  className="mt-0.5 h-5 w-5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span className="font-medium">
+                  {ltvData.ltv >= 5000000 && '최상위 고객입니다. VIP 대우와 특별 관리가 필요합니다.'}
+                  {ltvData.ltv >= 3000000 && ltvData.ltv < 5000000 && '상위 고객입니다. 프리미엄 서비스를 제공하세요.'}
+                  {ltvData.ltv >= 1500000 && ltvData.ltv < 3000000 && '평균 이상 고객입니다. 지속적인 관리가 필요합니다.'}
+                  {ltvData.ltv < 1500000 && '평균 이하 고객입니다. LTV 향상 전략이 필요합니다.'}
+                </span>
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
-
     </div>
   );
 };

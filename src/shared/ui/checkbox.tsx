@@ -14,7 +14,8 @@ const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   CheckboxProps
 >(({ className, label, id, ...props }, ref) => {
-  const checkboxId = id || `checkbox-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = React.useId();
+  const checkboxId = id || generatedId;
 
   if (label) {
     return (

@@ -92,7 +92,7 @@ const InfoTab = ({ customer }: Props) => {
                 <span className="text-base text-gray-600">고객 분류:</span>
                 <span className="ml-2">
                   {customer.customerType ? (
-                    <Badge variant={customer.customerType as any}>
+                    <Badge variant={customer.customerType as 'vip' | 'potential_vip' | 'normal' | 'churn_risk' | 'churned'}>
                       {CUSTOMER_TYPE_LABELS[customer.customerType as CustomerType]}
                     </Badge>
                   ) : (
@@ -168,7 +168,7 @@ const InfoTab = ({ customer }: Props) => {
                       <span className="text-sm font-semibold text-gray-900">
                         {sub.product.productName}
                       </span>
-                      <Badge variant={getSubscriptionStatusColor(sub.status) as any}>
+                      <Badge variant={getSubscriptionStatusColor(sub.status) as 'success' | 'warning' | 'error'}>
                         {getSubscriptionStatusLabel(sub.status)}
                       </Badge>
                     </div>

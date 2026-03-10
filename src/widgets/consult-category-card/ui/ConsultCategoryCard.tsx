@@ -1,20 +1,48 @@
 import { Card, CardContent } from '@/shared/ui';
-import { consultCategoryData } from '@/pages/dashboard/mockDashboardData';
+import { useConsultCategories } from '@/entities/dashboard';
 
-const colors = ['bg-blue-500', 'bg-indigo-500', 'bg-red-500', 'bg-amber-500'];
+const colors = ['bg-blue-500', 'bg-indigo-500', 'bg-red-500', 'bg-amber-500', 'bg-purple-500'];
 
 const ConsultCategoryCard = () => {
+  const { data, isLoading, error } = useConsultCategories();
+
+  if (isLoading) {
+    return (
+      <Card className="h-full">
+        <CardContent className="flex h-full items-center justify-center p-5">
+          <div className="text-center">
+            <div className="mb-2 inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></div>
+            <p className="text-sm text-gray-500">데이터를 불러오는 중...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error || !data || !data.items) {
+    return (
+      <Card className="h-full">
+        <CardContent className="flex h-full items-center justify-center p-5">
+          <p className="text-sm text-gray-500">데이터를 불러올 수 없습니다</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // 상위 5개만 표시
+  const topCategories = data.items.slice(0, 5);
+
   return (
     <Card className="h-full">
       <CardContent className="flex h-full flex-col p-5">
         <h4 className="mb-1 text-base font-bold text-gray-900">상담 카테고리 통계</h4>
         <p className="mb-4 text-xs text-gray-400">
-          총 {consultCategoryData.totalCount.toLocaleString()}건
+          총 {data.totalCount.toLocaleString()}건 · 상위 5개 카테고리
         </p>
         <div className="flex-1 space-y-3">
-          {consultCategoryData.categories.map((cat, i) => (
+          {topCategories.map((cat, i) => (
             <div key={cat.categoryId} className="flex items-center gap-3">
-              <span className="w-24 text-sm text-gray-700">{cat.categoryName}</span>
+              <span className="w-32 text-sm text-gray-700">{cat.categoryName}</span>
               <div className="group relative flex-1">
                 <div className="h-4 w-full overflow-hidden rounded-full bg-gray-100">
                   <div

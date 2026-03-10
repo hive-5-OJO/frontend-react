@@ -15,14 +15,23 @@ export const queryKeys = {
     all: ['customer'] as const,
     lists: () => [...queryKeys.customer.all, 'list'] as const,
     list: (params: unknown) => [...queryKeys.customer.lists(), params] as const,
+    search: (params: unknown) => [...queryKeys.customer.all, 'search', params] as const,
     details: () => [...queryKeys.customer.all, 'detail'] as const,
     detail: (id: number) => [...queryKeys.customer.details(), id] as const,
+    features: (id: number) => [...queryKeys.customer.all, 'features', id] as const,
+    timeline: (id: number) => [...queryKeys.customer.all, 'timeline', id] as const,
+    rfm: (id: number) => [...queryKeys.customer.all, 'rfm', id] as const,
+    ltv: (id: number) => [...queryKeys.customer.all, 'ltv', id] as const,
   },
 
   // Dashboard
   dashboard: {
     all: ['dashboard'] as const,
     stats: () => [...queryKeys.dashboard.all, 'stats'] as const,
+    consultCategories: () => [...queryKeys.dashboard.all, 'consultCategories'] as const,
+    consultTimeStats: () => [...queryKeys.dashboard.all, 'consultTimeStats'] as const,
+    outboundStats: () => [...queryKeys.dashboard.all, 'outboundStats'] as const,
+    satisfactionStats: () => [...queryKeys.dashboard.all, 'satisfactionStats'] as const,
   },
 
   // Analysis

@@ -14,10 +14,9 @@ import {
   SelectValue,
   FilterToggleButton,
 } from '@/shared/ui';
-import { getCategoryPath } from '@/shared/constants';
+import { useCustomerList, useCustomerSearch } from '@/entities/customer/model/useCustomerQueries';
 import CustomerFilter from './components/CustomerFilter';
-import mockCustomers from './components/mockCustomers';
-import type { Customer } from '@/entities/customer/model/types';
+import type { Customer, CustomerType } from '@/entities/customer/model/types';
 
 interface Filters {
   customerType?: string | null;
@@ -30,39 +29,110 @@ interface SortField {
   order: 'asc' | 'desc';
 }
 
+// API 응답을 Customer 타입으로 변환
+const mapApiResponseToCustomer = (apiData: {
+  memberId: number;
+  name: string;
+  service: string | null;
+  servicePeriod: string;
+  consultCategory: string | null;
+  consultFrequency: string;
+  vip: string;
+}): Customer => {
+  // vip 값을 CustomerType으로 매핑
+  const getCustomerType = (vip: string): CustomerType => {
+    const vipLower = vip.toLowerCase();
+    if (vipLower.includes('vip') && !vipLower.includes('잠재')) return 'vip';
+    if (vipLower.includes('잠재')) return 'potential_vip';
+    if (vipLower.includes('이탈 우려')) return 'churn_risk';
+    if (vipLower.includes('이탈')) return 'churned';
+    return 'normal';
+  };
+
+  // consultFrequency 매핑
+  const getConsultFrequency = (freq: string) => {
+    const freqUpper = freq.toUpperCase();
+    if (freqUpper === 'HIGH') return 'high';
+    if (freqUpper === 'MEDIUM') return 'medium';
+    if (freqUpper === 'LOW') return 'low';
+    return 'low';
+  };
+
+  return {
+    id: apiData.memberId,
+    name: apiData.name,
+    phone: '', // API에서 제공하지 않음
+    email: '', // API에서 제공하지 않음
+    joinedAt: apiData.servicePeriod.split(' ~ ')[0] || '',
+    service: apiData.service || undefined,
+    period: apiData.servicePeriod,
+    consultCategory: apiData.consultCategory || undefined,
+    consultFrequency: getConsultFrequency(apiData.consultFrequency),
+    customerType: getCustomerType(apiData.vip),
+  };
+};
+
 const CustomersPage = () => {
   const [searchParams] = useSearchParams();
-  const [page, setPage] = useState(1);
-  const pageSizeAuto = 12;
-  const [pageSizeManual, setPageSizeManual] = useState<number | null>(null);
-  const [filters, setFilters] = useState<Filters>({});
+  const customerTypeParam = searchParams.get('customerType');
+  
+  const [page, setPage] = useState(0); // API는 0부터 시작
+  const [pageSize, setPageSize] = useState(10);
+  const [filters, setFilters] = useState<Filters>(() => {
+    // 초기 상태에서 URL 파라미터 반영
+    return customerTypeParam ? { customerType: customerTypeParam } : {};
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [sorts, setSorts] = useState<SortField[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(() => !!customerTypeParam);
 
-  const pageSize = pageSizeManual ?? pageSizeAuto;
+  // 검색어가 있으면 검색 API, 없으면 목록 API 호출
+  const isSearching = searchTerm.trim().length > 0;
 
-  // URL 쿼리 파라미터에서 customerType을 읽어서 필터 적용
+  // 목록 API 호출
+  const { data: listResponse, isLoading: isLoadingList, error: listError } = useCustomerList({
+    page,
+    size: pageSize,
+    filters: filters as Record<string, unknown>,
+  });
+
+  // 검색 API 호출
+  const { data: searchResponse, isLoading: isLoadingSearch, error: searchError } = useCustomerSearch({
+    keyword: searchTerm.trim(),
+    page,
+    size: pageSize,
+  }, isSearching);
+
+  // 검색 중이면 검색 결과, 아니면 목록 결과 사용
+  const apiResponse = isSearching ? searchResponse : listResponse;
+  const isLoading = isSearching ? isLoadingSearch : isLoadingList;
+  const error = isSearching ? searchError : listError;
+
+  // API 데이터를 Customer 타입으로 변환
+  const customers = apiResponse?.content?.map(mapApiResponseToCustomer) || [];
+  const totalElements = apiResponse?.page?.totalElements || 0;
+  const totalPages = apiResponse?.page?.totalPages || 1;
+
+  // URL 파라미터 변경 시 필터 업데이트 (초기 로드 제외)
   useEffect(() => {
-    const customerTypeParam = searchParams.get('customerType');
-    if (customerTypeParam) {
+    if (customerTypeParam && filters.customerType !== customerTypeParam) {
       setFilters((prev) => ({ ...prev, customerType: customerTypeParam }));
-      setIsFilterOpen(true); // 필터가 적용되었으므로 필터 섹션 열기
-      // 페이지 최상단으로 스크롤
+      setIsFilterOpen(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerTypeParam]);
 
   const handleFiltersChange = (newFilters: Filters) => {
     setFilters(newFilters);
-    setPage(1);
+    setPage(0); // 첫 페이지로
   };
 
   const handleSearchChange = (term: string) => {
     setSearchTerm(term);
-    setPage(1);
+    setPage(0);
   };
 
   const handleSort = (field: string) => {
@@ -79,11 +149,11 @@ const CustomersPage = () => {
       }
       return [...prev, { field, order: 'asc' }];
     });
-    setPage(1);
+    setPage(0);
   };
 
-  const handleClearSort = () => { setSorts([]); setPage(1); };
-  const handleClearAll = () => { setFilters({}); setSearchTerm(''); setSorts([]); setPage(1); };
+  const handleClearSort = () => { setSorts([]); setPage(0); };
+  const handleClearAll = () => { setFilters({}); setSearchTerm(''); setSorts([]); setPage(0); };
 
   const handleCustomerClick = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -95,32 +165,10 @@ const CustomersPage = () => {
     setTimeout(() => setSelectedCustomer(null), 300);
   };
 
-  const filteredData = mockCustomers.filter((customer) => {
-    if (filters.customerType && customer.customerType !== filters.customerType) {
-      return false;
-    }
-    if (filters.consultCategory) {
-      // consultCategory는 이제 number (category ID)
-      // mock 데이터의 consultCategory는 string이므로 임시로 이름 비교
-      // 추후 백엔드 연동 시 ID로 비교
-      const categoryName = getCategoryPath(filters.consultCategory);
-      if (!customer.consultCategory?.includes(categoryName)) return false;
-    }
-    if (filters.consultFrequency && customer.consultFrequency !== filters.consultFrequency) return false;
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      if (
-        !customer.name.toLowerCase().includes(term) &&
-        !customer.phone.includes(term) &&
-        !customer.email.toLowerCase().includes(term)
-      ) return false;
-    }
-    return true;
-  });
-
+  // 클라이언트 사이드 정렬만 수행 (검색은 서버에서 처리됨)
   const sortedData = (() => {
-    if (sorts.length === 0) return filteredData;
-    const getSortValue = (c: (typeof mockCustomers)[0], field: string): string | number => {
+    if (sorts.length === 0) return customers;
+    const getSortValue = (c: Customer, field: string): string | number => {
       switch (field) {
         case 'name': return c.name;
         case 'phone': return c.phone || '';
@@ -143,7 +191,7 @@ const CustomersPage = () => {
         default: return '';
       }
     };
-    return [...filteredData].sort((a, b) => {
+    return [...customers].sort((a, b) => {
       for (const sort of sorts) {
         const aVal = getSortValue(a, sort.field);
         const bVal = getSortValue(b, sort.field);
@@ -159,12 +207,9 @@ const CustomersPage = () => {
     });
   })();
 
-  const filteredTotal = sortedData.length;
-  const filteredTotalPages = Math.max(1, Math.ceil(filteredTotal / pageSize));
-  const filteredCurrentPage = Math.max(1, Math.min(page, filteredTotalPages));
-  const start = (filteredCurrentPage - 1) * pageSize;
-  const end = start + pageSize;
-  const pageData = sortedData.slice(start, end);
+  const displayPage = page + 1; // 사용자에게는 1부터 표시
+  const start = page * pageSize;
+  const pageData = sortedData;
 
   const hasActiveFilters =
     Object.keys(filters).some((k) => filters[k as keyof Filters]) || searchTerm || sorts.length > 0;
@@ -207,7 +252,9 @@ const CustomersPage = () => {
               </div>
               <div className="flex items-center gap-3 md:gap-4">
                 <div className="text-right">
-                  <p className="text-xl font-bold text-primary-600 md:text-2xl">{filteredTotal}</p>
+                  <p className="text-xl font-bold text-primary-600 md:text-2xl">
+                    {isLoading ? '...' : totalElements}
+                  </p>
                   <p className="text-xs text-gray-500">명의 고객</p>
                 </div>
                 {hasActiveFilters && (
@@ -221,13 +268,19 @@ const CustomersPage = () => {
 
           {isFilterOpen && (
             <div className="space-y-4 px-6 pb-6">
-              <CustomerFilter filters={filters} onFiltersChange={handleFiltersChange} />
+              {!isSearching && (
+                <CustomerFilter filters={filters} onFiltersChange={handleFiltersChange} />
+              )}
               <SearchInput
-                placeholder="고객 이름 검색"
+                placeholder="고객 이름, 이메일, 전화번호 검색"
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                onClear={() => handleSearchChange('')}
               />
+              {isSearching && searchTerm && (
+                <div className="rounded-lg bg-blue-50 px-4 py-2 text-sm text-blue-700">
+                  <span className="font-medium">"{searchTerm}"</span> 검색 결과: {totalElements}명
+                </div>
+              )}
 
               {sorts.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4">
@@ -265,58 +318,90 @@ const CustomersPage = () => {
 
         {/* 테이블 */}
         <div className="flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <div className="table-scroll overflow-y-auto scroll-smooth" style={{ height: '589px', minWidth: '800px' }}>
-              <CustomerTable
-                data={pageData}
-                startIndex={start}
-                sorts={sorts}
-                onSort={handleSort}
-                onCustomerClick={handleCustomerClick}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3 border-t border-gray-100 bg-white px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6 md:py-4">
-            <div className="flex flex-wrap items-center gap-3 md:gap-4">
-              <div className="text-sm text-gray-600">
-                <span className="font-semibold">{start + 1}</span>
-                <span className="mx-1 text-gray-400">-</span>
-                <span className="font-semibold">{Math.min(end, filteredTotal)}</span>
-                <span className="mx-1 text-gray-400">/</span>
-                <span className="font-semibold text-primary-600">{filteredTotal}</span>
-                <span className="ml-1 text-gray-500">명</span>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></div>
+                <p className="text-gray-600">고객 목록을 불러오는 중...</p>
               </div>
-              <Select
-                value={pageSizeManual?.toString() ?? 'auto'}
-                onValueChange={(val) => {
-                  setPageSizeManual(val === 'auto' ? null : parseInt(val, 10));
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger size="sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="auto">자동</SelectItem>
-                  <SelectItem value="5">5개/페이지</SelectItem>
-                  <SelectItem value="10">10개/페이지</SelectItem>
-                  <SelectItem value="15">15개/페이지</SelectItem>
-                  <SelectItem value="20">20개/페이지</SelectItem>
-                  <SelectItem value="50">50개/페이지</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
-            <div className="flex items-center justify-center md:justify-end">
-              <Pagination
-                currentPage={filteredCurrentPage}
-                totalPages={filteredTotalPages}
-                onPageChange={(p) => setPage(Math.max(1, Math.min(p, filteredTotalPages)))}
-                maxVisible={5}
-                showFirstLast
-              />
+          ) : error ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="max-w-md text-center">
+                <div className="mb-4 flex justify-center">
+                  <svg className="h-16 w-16 text-error-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <p className="mb-2 text-lg font-semibold text-error-600">데이터를 불러오는데 실패했습니다</p>
+                <p className="mb-4 text-sm text-gray-600">잠시 후 다시 시도해주세요</p>
+                {error instanceof Error && (
+                  <details className="mt-4 rounded-lg bg-gray-100 p-4 text-left">
+                    <summary className="cursor-pointer text-sm font-medium text-gray-700">
+                      오류 상세 정보
+                    </summary>
+                    <pre className="mt-2 overflow-auto text-xs text-gray-600">
+                      {error.message}
+                    </pre>
+                  </details>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <div className="table-scroll overflow-y-auto scroll-smooth" style={{ height: '589px', minWidth: '800px' }}>
+                  <CustomerTable
+                    data={pageData}
+                    startIndex={start}
+                    sorts={sorts}
+                    onSort={handleSort}
+                    onCustomerClick={handleCustomerClick}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 border-t border-gray-100 bg-white px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6 md:py-4">
+                <div className="flex flex-wrap items-center gap-3 md:gap-4">
+                  <div className="text-sm text-gray-600">
+                    <span className="font-semibold">{start + 1}</span>
+                    <span className="mx-1 text-gray-400">-</span>
+                    <span className="font-semibold">{Math.min(start + pageSize, totalElements)}</span>
+                    <span className="mx-1 text-gray-400">/</span>
+                    <span className="font-semibold text-primary-600">{totalElements}</span>
+                    <span className="ml-1 text-gray-500">명</span>
+                  </div>
+                  <Select
+                    value={pageSize.toString()}
+                    onValueChange={(val) => {
+                      setPageSize(parseInt(val, 10));
+                      setPage(0);
+                    }}
+                  >
+                    <SelectTrigger size="sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5개/페이지</SelectItem>
+                      <SelectItem value="10">10개/페이지</SelectItem>
+                      <SelectItem value="15">15개/페이지</SelectItem>
+                      <SelectItem value="20">20개/페이지</SelectItem>
+                      <SelectItem value="50">50개/페이지</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center justify-center md:justify-end">
+                  <Pagination
+                    currentPage={displayPage}
+                    totalPages={totalPages}
+                    onPageChange={(p) => setPage(p - 1)} // 0-based로 변환
+                    maxVisible={5}
+                    showFirstLast
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

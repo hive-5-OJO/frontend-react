@@ -7,7 +7,6 @@ export interface LoginRequest {
 
 export interface GoogleLoginRequest {
   code: string;
-  redirectUri: string;
 }
 
 export interface AuthResponse {

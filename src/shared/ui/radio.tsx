@@ -8,13 +8,14 @@ export interface RadioProps
 
 const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
   ({ className, label, id, ...props }, ref) => {
-    const radioId = id || `radio-${Math.random().toString(36).substr(2, 9)}`;
+    const radioId = React.useId();
+    const finalId = id || radioId;
 
     return (
       <div className="flex items-center">
         <input
           type="radio"
-          id={radioId}
+          id={finalId}
           ref={ref}
           className={cn(
             'h-4 w-4 border-gray-300 text-primary-600 transition-colors',
@@ -26,7 +27,7 @@ const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
         />
         {label && (
           <label
-            htmlFor={radioId}
+            htmlFor={finalId}
             className="ml-2 text-sm text-gray-700 cursor-pointer"
           >
             {label}

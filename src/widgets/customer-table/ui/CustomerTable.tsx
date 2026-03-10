@@ -58,7 +58,7 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
     };
 
     return (
-      <Badge variant={customerType as any}>
+      <Badge variant={customerType as 'vip' | 'potential_vip' | 'normal' | 'churn_risk' | 'churned'}>
         {labelMap[customerType]}
       </Badge>
     );
