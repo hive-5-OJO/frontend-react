@@ -10,6 +10,7 @@ import RegionalAnalysisPage from '@/pages/analysis/RegionalAnalysisPage';
 import NotFoundPage from '@/pages/not-found/NotFoundPage';
 import UIShowcasePage from '@/pages/ui-showcase/UIShowcasePage';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { ROUTES } from '@/shared/constants/routes';
 
 export const router = createBrowserRouter([
@@ -33,9 +34,9 @@ export const router = createBrowserRouter([
     path: ROUTES.HOME,
     element: (
       <ErrorBoundary>
-        {/* <ProtectedRoute> */}
+        <ProtectedRoute>
           <DashboardPage />
-        {/* </ProtectedRoute> */}
+        </ProtectedRoute>
       </ErrorBoundary>
     ),
   },
@@ -43,9 +44,9 @@ export const router = createBrowserRouter([
     path: ROUTES.CUSTOMERS,
     element: (
       <ErrorBoundary>
-        {/* <ProtectedRoute> */}
+        <ProtectedRoute>
           <CustomersPage />
-        {/* </ProtectedRoute> */}
+        </ProtectedRoute>
       </ErrorBoundary>
     ),
   },
@@ -53,9 +54,9 @@ export const router = createBrowserRouter([
     path: ROUTES.ANALYSIS_RFM,
     element: (
       <ErrorBoundary>
-        {/* <ProtectedRoute> */}
+        <ProtectedRoute>
           <RFMAnalysisPage />
-        {/* </ProtectedRoute> */}
+        </ProtectedRoute>
       </ErrorBoundary>
     ),
   },
@@ -63,9 +64,9 @@ export const router = createBrowserRouter([
     path: ROUTES.ANALYSIS_COHORT,
     element: (
       <ErrorBoundary>
-        {/* <ProtectedRoute> */}
+        <ProtectedRoute>
           <CohortAnalysisPage />
-        {/* </ProtectedRoute> */}
+        </ProtectedRoute>
       </ErrorBoundary>
     ),
   },
@@ -73,9 +74,9 @@ export const router = createBrowserRouter([
     path: ROUTES.ANALYSIS_REGIONAL,
     element: (
       <ErrorBoundary>
-        {/* <ProtectedRoute> */}
+        <ProtectedRoute>
           <RegionalAnalysisPage />
-        {/* </ProtectedRoute> */}
+        </ProtectedRoute>
       </ErrorBoundary>
     ),
   },
