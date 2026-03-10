@@ -73,10 +73,11 @@ export interface RFMScore {
 
 export interface LTVData {
   memberId: number;
-  ltvAmount: number;
-  ltvGrade: string;
-  expectedChurnDate: string;
-  avgOrderValue: number;
+  avgValue: number;
+  totalRevenue: number;
+  frequency: number;
+  lifespanDays: number;
+  ltv: number;
 }
 
 export interface ConsultTimelineItem {

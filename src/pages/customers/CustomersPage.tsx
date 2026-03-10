@@ -14,7 +14,7 @@ import {
   SelectValue,
   FilterToggleButton,
 } from '@/shared/ui';
-import { useCustomerList } from '@/entities/customer/model/useCustomerQueries';
+import { useCustomerList, useCustomerSearch } from '@/entities/customer/model/useCustomerQueries';
 import CustomerFilter from './components/CustomerFilter';
 import type { Customer, CustomerType } from '@/entities/customer/model/types';
 
@@ -83,12 +83,27 @@ const CustomersPage = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(true);
 
-  // API 호출
-  const { data: apiResponse, isLoading, error } = useCustomerList({
+  // 검색어가 있으면 검색 API, 없으면 목록 API 호출
+  const isSearching = searchTerm.trim().length > 0;
+
+  // 목록 API 호출
+  const { data: listResponse, isLoading: isLoadingList, error: listError } = useCustomerList({
     page,
     size: pageSize,
     filters: filters as Record<string, unknown>,
   });
+
+  // 검색 API 호출
+  const { data: searchResponse, isLoading: isLoadingSearch, error: searchError } = useCustomerSearch({
+    keyword: searchTerm.trim(),
+    page,
+    size: pageSize,
+  }, isSearching);
+
+  // 검색 중이면 검색 결과, 아니면 목록 결과 사용
+  const apiResponse = isSearching ? searchResponse : listResponse;
+  const isLoading = isSearching ? isLoadingSearch : isLoadingList;
+  const error = isSearching ? searchError : listError;
 
   // API 데이터를 Customer 타입으로 변환
   const customers = apiResponse?.content?.map(mapApiResponseToCustomer) || [];
@@ -145,17 +160,9 @@ const CustomersPage = () => {
     setTimeout(() => setSelectedCustomer(null), 300);
   };
 
-  // 클라이언트 사이드 필터링 (검색어, 정렬)
-  const filteredData = customers.filter((customer) => {
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      if (!customer.name.toLowerCase().includes(term)) return false;
-    }
-    return true;
-  });
-
+  // 클라이언트 사이드 정렬만 수행 (검색은 서버에서 처리됨)
   const sortedData = (() => {
-    if (sorts.length === 0) return filteredData;
+    if (sorts.length === 0) return customers;
     const getSortValue = (c: Customer, field: string): string | number => {
       switch (field) {
         case 'name': return c.name;
@@ -179,7 +186,7 @@ const CustomersPage = () => {
         default: return '';
       }
     };
-    return [...filteredData].sort((a, b) => {
+    return [...customers].sort((a, b) => {
       for (const sort of sorts) {
         const aVal = getSortValue(a, sort.field);
         const bVal = getSortValue(b, sort.field);
@@ -256,13 +263,20 @@ const CustomersPage = () => {
 
           {isFilterOpen && (
             <div className="space-y-4 px-6 pb-6">
-              <CustomerFilter filters={filters} onFiltersChange={handleFiltersChange} />
+              {!isSearching && (
+                <CustomerFilter filters={filters} onFiltersChange={handleFiltersChange} />
+              )}
               <SearchInput
-                placeholder="고객 이름 검색"
+                placeholder="고객 이름, 이메일, 전화번호 검색"
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onClear={() => handleSearchChange('')}
               />
+              {isSearching && searchTerm && (
+                <div className="rounded-lg bg-blue-50 px-4 py-2 text-sm text-blue-700">
+                  <span className="font-medium">"{searchTerm}"</span> 검색 결과: {totalElements}명
+                </div>
+              )}
 
               {sorts.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4">
@@ -309,9 +323,24 @@ const CustomersPage = () => {
             </div>
           ) : error ? (
             <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <p className="text-lg font-medium text-error-600">데이터를 불러오는데 실패했습니다</p>
-                <p className="mt-2 text-sm text-gray-500">잠시 후 다시 시도해주세요</p>
+              <div className="max-w-md text-center">
+                <div className="mb-4 flex justify-center">
+                  <svg className="h-16 w-16 text-error-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <p className="mb-2 text-lg font-semibold text-error-600">데이터를 불러오는데 실패했습니다</p>
+                <p className="mb-4 text-sm text-gray-600">잠시 후 다시 시도해주세요</p>
+                {error instanceof Error && (
+                  <details className="mt-4 rounded-lg bg-gray-100 p-4 text-left">
+                    <summary className="cursor-pointer text-sm font-medium text-gray-700">
+                      오류 상세 정보
+                    </summary>
+                    <pre className="mt-2 overflow-auto text-xs text-gray-600">
+                      {error.message}
+                    </pre>
+                  </details>
+                )}
               </div>
             </div>
           ) : (
