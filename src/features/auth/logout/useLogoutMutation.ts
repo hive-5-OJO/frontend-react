@@ -19,12 +19,15 @@ export const useLogoutMutation = () => {
     onSuccess: () => {
       clearAuth();
       queryClient.clear(); // 모든 캐시 초기화
-      toast.success('로그아웃 되었습니다.');
+      toast.success('로그아웃되었습니다.');
       navigate(ROUTES.LOGIN);
     },
-    onError: (error) => {
-      const errorMessage = error instanceof Error ? error.message : '로그아웃에 실패했습니다.';
-      toast.error(errorMessage);
+    onError: () => {
+      // 로그아웃 실패해도 클라이언트 상태는 초기화
+      clearAuth();
+      queryClient.clear();
+      toast.error('로그아웃 중 오류가 발생했습니다.');
+      navigate(ROUTES.LOGIN);
     },
   });
 };

@@ -24,12 +24,12 @@ export const useLoginMutation = () => {
           role: response.role,
         },
       });
-      toast.success('로그인 성공');
+      toast.success('로그인 성공', '환영합니다!');
       navigate(ROUTES.HOME);
     },
-    onError: (error) => {
-      const errorMessage = error instanceof Error ? error.message : '로그인에 실패했습니다.';
-      toast.error(errorMessage);
+    onError: () => {
+      // 백엔드 에러 메시지를 보여주지 않고 일반적인 메시지만 표시
+      toast.error('로그인 실패', '이메일 또는 비밀번호를 확인해주세요.');
     },
   });
 };

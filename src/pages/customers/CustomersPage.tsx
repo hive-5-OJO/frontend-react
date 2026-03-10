@@ -270,7 +270,6 @@ const CustomersPage = () => {
                 placeholder="고객 이름, 이메일, 전화번호 검색"
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                onClear={() => handleSearchChange('')}
               />
               {isSearching && searchTerm && (
                 <div className="rounded-lg bg-blue-50 px-4 py-2 text-sm text-blue-700">

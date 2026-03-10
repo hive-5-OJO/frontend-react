@@ -24,12 +24,13 @@ export const useGoogleLoginMutation = () => {
           role: response.role,
         },
       });
-      toast.success('로그인 성공');
+      toast.success('로그인 성공', '환영합니다!');
       navigate(ROUTES.HOME);
     },
-    onError: (error) => {
-      const errorMessage = error instanceof Error ? error.message : 'Google 로그인에 실패했습니다.';
-      toast.error(errorMessage);
+    onError: () => {
+      // 백엔드 에러 메시지를 보여주지 않고 일반적인 메시지만 표시
+      toast.error('로그인 실패', 'Google 로그인에 실패했습니다. 다시 시도해주세요.');
+      navigate(ROUTES.LOGIN);
     },
   });
 };

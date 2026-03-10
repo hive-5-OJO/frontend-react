@@ -2,14 +2,14 @@ import headerMascot from '@/assets/images/header-mascot.png';
 import adminIcon from '@/assets/icons/admin-icon.svg';
 import logoutIcon from '@/assets/icons/logout-icon.svg';
 import { Icon, IconButton } from '@/shared/ui';
-import { useLogout } from '@/features/auth/logout/useLogout';
+import { useLogoutMutation } from '@/features/auth/logout/useLogoutMutation';
 
 interface Props {
   onMenuClick: () => void;
 }
 
 const Header = ({ onMenuClick }: Props) => {
-  const { logout } = useLogout();
+  const { mutate: logout } = useLogoutMutation();
 
   return (
     <header className="bg-main-blue relative flex h-20 items-center px-8 text-white">

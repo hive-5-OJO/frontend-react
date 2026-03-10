@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '@/components/auth/AuthLayout';
-import { useLogin } from '@/features/auth/login/model/useLogin';
-import { useGoogleLogin } from '@/features/auth/google-auth/useGoogleLogin';
+import { useLoginMutation } from '@/features/auth/login/model/useLoginMutation';
+import { redirectToGoogleAuth } from '@/features/auth/google-auth/utils/googleAuthUrl';
 import { useToast } from '@/shared/hooks';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
@@ -13,8 +13,7 @@ import { ROUTES } from '@/shared/constants/routes';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, isLoading } = useLogin();
-  const { handleGoogleLogin } = useGoogleLogin();
+  const { mutate: login, isPending: isLoading } = useLoginMutation();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,13 +26,7 @@ const LoginPage = () => {
       return;
     }
 
-    try {
-      await login({ email, password });
-      toast.success('로그인 성공', '환영합니다!');
-    } catch {
-      // 백엔드 에러 메시지를 보여주지 않고 일반적인 메시지만 표시
-      toast.error('로그인 실패', '이메일 또는 비밀번호를 확인해주세요.');
-    }
+    login({ email, password });
   };
 
   return (
@@ -81,7 +74,7 @@ const LoginPage = () => {
         type="button"
         variant="secondary"
         fullWidth
-        onClick={handleGoogleLogin}
+        onClick={redirectToGoogleAuth}
         leftIcon={<Icon src={GoogleIcon} alt="google" size="sm" />}
       >
         Google
