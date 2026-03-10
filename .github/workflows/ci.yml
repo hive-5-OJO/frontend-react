@@ -21,6 +21,9 @@ jobs:
           # map 관련 환경 변수
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           VITE_MAPBOX_ACCESS_TOKEN : ${{ secrets.VITE_MAPBOX_ACCESS_TOKEN }}
+          # 백 관련 환경 변수
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_API_URL_PY: ${{ secrets.VITE_API_URL_PY }}
 
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@master
