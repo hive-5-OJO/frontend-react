@@ -13,20 +13,26 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   tokenType: string;
-  adminId: string;
+  adminId: number;
   email: string;
   role: string;
 }
 
+interface AuthApiResponse {
+  status: string;
+  data: AuthResponse;
+  message: string | null;
+}
+
 export const authApi = {
   login: async (credentials: LoginRequest): Promise<AuthResponse> => {
-    const response = await axiosInstance.post<AuthResponse>('/api/auth/login', credentials);
-    return response.data;
+    const response = await axiosInstance.post<AuthApiResponse>('/api/auth/login', credentials);
+    return response.data.data;
   },
 
   googleLogin: async (data: GoogleLoginRequest): Promise<AuthResponse> => {
-    const response = await axiosInstance.post<AuthResponse>('/api/auth/google', data);
-    return response.data;
+    const response = await axiosInstance.post<AuthApiResponse>('/api/auth/google', data);
+    return response.data.data;
   },
 
   refresh: async (): Promise<{ accessToken: string }> => {

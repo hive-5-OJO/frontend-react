@@ -18,6 +18,7 @@ export const useGoogleLoginMutation = () => {
     onSuccess: (response) => {
       setAuth({
         accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
         user: {
           adminId: response.adminId,
           email: response.email,

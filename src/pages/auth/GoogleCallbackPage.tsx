@@ -23,7 +23,9 @@ const GoogleCallbackPage = () => {
     } else {
       navigate(ROUTES.LOGIN);
     }
-  }, [searchParams, navigate, googleLogin]);
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, navigate]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
