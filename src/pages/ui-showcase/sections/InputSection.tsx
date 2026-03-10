@@ -119,7 +119,6 @@ const InputSection = () => {
             placeholder="고객 이름 검색"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onClear={() => setSearch('')}
           />
           {search && (
             <p className="text-sm text-gray-500">검색어: <span className="font-medium text-primary-600">"{search}"</span></p>

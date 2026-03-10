@@ -65,7 +65,6 @@ const DataSection = () => {
             placeholder="이름, 이메일, 서비스 검색"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onClear={() => setSearch('')}
           />
 
           <div className="overflow-hidden rounded-lg border border-gray-200">

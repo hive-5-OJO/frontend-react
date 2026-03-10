@@ -44,7 +44,7 @@ const Header = ({ onMenuClick }: Props) => {
           tooltip="로그아웃"
           tooltipPosition="bottom"
           aria-label="로그아웃"
-          onClick={logout}
+          onClick={() => logout()}
         />
       </div>
     </header>
