@@ -29,6 +29,9 @@ export const queryKeys = {
     all: ['dashboard'] as const,
     stats: () => [...queryKeys.dashboard.all, 'stats'] as const,
     consultCategories: () => [...queryKeys.dashboard.all, 'consultCategories'] as const,
+    consultTimeStats: () => [...queryKeys.dashboard.all, 'consultTimeStats'] as const,
+    outboundStats: () => [...queryKeys.dashboard.all, 'outboundStats'] as const,
+    satisfactionStats: () => [...queryKeys.dashboard.all, 'satisfactionStats'] as const,
   },
 
   // Analysis
