@@ -38,8 +38,8 @@ class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-          <Card className="max-w-md p-8 text-center">
+        <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-gray-50 p-4">
+          <Card className="w-full max-w-2xl p-8 text-center shadow-2xl">
             <div className="mb-4 flex justify-center">
               <svg
                 className="h-16 w-16 text-error-500"
@@ -67,12 +67,18 @@ class ErrorBoundary extends Component<Props, State> {
                 <summary className="cursor-pointer font-medium text-gray-700">
                   오류 상세 정보
                 </summary>
-                <pre className="mt-2 overflow-auto text-xs text-gray-600">
+                <pre className="mt-2 max-h-60 overflow-auto text-xs text-gray-600 whitespace-pre-wrap break-words">
                   {this.state.error.toString()}
+                  {this.state.error.stack && (
+                    <>
+                      {'\n\n'}
+                      {this.state.error.stack}
+                    </>
+                  )}
                 </pre>
               </details>
             )}
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <Button
                 variant="outline"
                 fullWidth
