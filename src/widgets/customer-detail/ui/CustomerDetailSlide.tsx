@@ -13,7 +13,7 @@ import {
   RadarController,
   ArcElement,
 } from 'chart.js';
-import type { TabType, CustomerFeature } from '@/entities/customer/model/types';
+import type { TabType } from '@/entities/customer/model/types';
 import type { Customer } from '@/entities/customer/model/types';
 import { useCustomer, useCustomerFeatures, useCustomerTimeline, useCustomerRFM, useCustomerLTV } from '@/entities/customer/model/useCustomerQueries';
 import CustomerDetailHeader from './CustomerDetailHeader';
@@ -86,11 +86,13 @@ const CustomerDetailSlide = ({
 
   // 고객이 변경되거나 슬라이드가 열릴 때 초기화
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && customer?.id) {
+      // 슬라이드가 열릴 때 탭을 초기화하는 것은 의도된 동작
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab('info');
       contentRef.current?.scrollTo(0, 0);
     }
-  }, [customer, isOpen]);
+  }, [customer?.id, isOpen]);
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);

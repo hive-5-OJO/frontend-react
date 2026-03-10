@@ -2,12 +2,10 @@ import * as React from 'react';
 import { cn } from '@/shared/lib/utils';
 import { Input, type InputProps } from './input';
 
-export interface SearchInputProps extends Omit<InputProps, 'leftIcon'> {
-  onClear?: () => void;
-}
+export type SearchInputProps = Omit<InputProps, 'leftIcon'>;
 
 const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ className, onClear, value, ...props }, ref) => {
+  ({ className, value, ...props }, ref) => {
     return (
       <div className="relative">
         <Input

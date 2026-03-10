@@ -74,14 +74,19 @@ const mapApiResponseToCustomer = (apiData: {
 
 const CustomersPage = () => {
   const [searchParams] = useSearchParams();
+  const customerTypeParam = searchParams.get('customerType');
+  
   const [page, setPage] = useState(0); // API는 0부터 시작
   const [pageSize, setPageSize] = useState(10);
-  const [filters, setFilters] = useState<Filters>({});
+  const [filters, setFilters] = useState<Filters>(() => {
+    // 초기 상태에서 URL 파라미터 반영
+    return customerTypeParam ? { customerType: customerTypeParam } : {};
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [sorts, setSorts] = useState<SortField[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(() => !!customerTypeParam);
 
   // 검색어가 있으면 검색 API, 없으면 목록 API 호출
   const isSearching = searchTerm.trim().length > 0;
@@ -110,15 +115,15 @@ const CustomersPage = () => {
   const totalElements = apiResponse?.page?.totalElements || 0;
   const totalPages = apiResponse?.page?.totalPages || 1;
 
-  // URL 쿼리 파라미터에서 customerType을 읽어서 필터 적용
+  // URL 파라미터 변경 시 필터 업데이트 (초기 로드 제외)
   useEffect(() => {
-    const customerTypeParam = searchParams.get('customerType');
-    if (customerTypeParam) {
+    if (customerTypeParam && filters.customerType !== customerTypeParam) {
       setFilters((prev) => ({ ...prev, customerType: customerTypeParam }));
       setIsFilterOpen(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerTypeParam]);
 
   const handleFiltersChange = (newFilters: Filters) => {
     setFilters(newFilters);

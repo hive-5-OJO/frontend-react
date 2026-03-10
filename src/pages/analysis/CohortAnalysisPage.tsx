@@ -140,9 +140,9 @@ const CohortAnalysisPage = () => {
 
     const maxPeriod = parseInt(analysisPeriod);
     const allValues: number[] = [];
-    let month1Values: number[] = [];
-    let month3Values: number[] = [];
-    let month6Values: number[] = [];
+    const month1Values: number[] = [];
+    const month3Values: number[] = [];
+    const month6Values: number[] = [];
 
     for (const row of filteredData) {
       for (let i = 0; i <= maxPeriod; i++) {

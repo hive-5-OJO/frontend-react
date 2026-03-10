@@ -42,12 +42,32 @@ const RegionalAnalysisPage = () => {
   const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
   const [isFloatingEnabled, setIsFloatingEnabled] = useState(true);
   const [isHeaderFixed, setIsHeaderFixed] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [headerPosition, setHeaderPosition] = useState({ left: 0, width: 'auto' as string | number });
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const headerPlaceholderRef = useRef<HTMLDivElement>(null);
+
+  // 헤더 위치와 크기 업데이트
+  useEffect(() => {
+    const updateHeaderDimensions = () => {
+      if (headerRef.current && headerPlaceholderRef.current) {
+        setHeaderHeight(headerRef.current.offsetHeight);
+        const rect = headerPlaceholderRef.current.getBoundingClientRect();
+        setHeaderPosition({
+          left: rect.left,
+          width: headerPlaceholderRef.current.offsetWidth
+        });
+      }
+    };
+
+    updateHeaderDimensions();
+    window.addEventListener('resize', updateHeaderDimensions);
+    return () => window.removeEventListener('resize', updateHeaderDimensions);
+  }, [isFilterOpen]);
 
   // 스크롤 이벤트로 헤더 고정 처리 (플로팅이 활성화된 경우에만)
   useEffect(() => {
@@ -57,7 +77,7 @@ const RegionalAnalysisPage = () => {
         return;
       }
       
-      if (headerRef.current && headerPlaceholderRef.current) {
+      if (headerPlaceholderRef.current) {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const headerTop = headerPlaceholderRef.current.offsetTop;
         
@@ -217,7 +237,7 @@ const RegionalAnalysisPage = () => {
   return (
     <DashboardLayout>
       {/* Placeholder for fixed header */}
-      <div ref={headerPlaceholderRef} style={{ height: isHeaderFixed && isFloatingEnabled ? (headerRef.current?.offsetHeight || 0) : 0 }} />
+      <div ref={headerPlaceholderRef} style={{ height: isHeaderFixed && isFloatingEnabled ? headerHeight : 0 }} />
       
       {/* 필터 섹션 */}
       <div 
@@ -228,8 +248,8 @@ const RegionalAnalysisPage = () => {
             : 'mb-6'
         }`}
         style={isHeaderFixed && isFloatingEnabled ? {
-          left: headerPlaceholderRef.current?.getBoundingClientRect().left || 0,
-          width: headerPlaceholderRef.current?.offsetWidth || 'auto'
+          left: headerPosition.left,
+          width: headerPosition.width
         } : undefined}
       >
         <div className="p-6 pb-4">
