@@ -16,12 +16,13 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: (credentials: LoginRequest) => authApi.login(credentials),
     onSuccess: (response) => {
-      // GUEST 역할인 경우 권한 요청 알림 표시
-      if (response.role === 'GUEST') {
-        toast.warning(
-          '권한 승인 대기 중',
-          '관리자에게 권한 설정을 요청해주세요. 승인 후 다시 로그인해주세요.'
-        );
+      // GUEST 역할이거나 INACTIVE 상태인 경우 권한 요청 알림 표시
+      if (response.role === 'GUEST' || response.status === 'INACTIVE') {
+        const message = response.status === 'INACTIVE'
+          ? '계정이 비활성화되었습니다. 관리자에게 문의해주세요.'
+          : '관리자에게 권한 설정을 요청해주세요. 승인 후 다시 로그인해주세요.';
+        
+        toast.warning('접근 제한', message);
         navigate(ROUTES.LOGIN);
         return;
       }
@@ -34,6 +35,7 @@ export const useLoginMutation = () => {
           name: response.name,
           email: response.email,
           role: response.role,
+          status: response.status,
         },
       });
       toast.success('로그인 성공', '환영합니다!');
