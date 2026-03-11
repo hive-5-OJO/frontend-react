@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { CustomerTable } from '@/widgets/customer-table';
 import { CustomerDetailSlide } from '@/widgets/customer-detail';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
+import { SelectionBasket } from '@/widgets/selection-basket';
 import {
   Pagination,
   PageHeader,
@@ -410,6 +411,8 @@ const CustomersPage = () => {
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
       />
+
+      <SelectionBasket />
     </DashboardLayout>
   );
 };

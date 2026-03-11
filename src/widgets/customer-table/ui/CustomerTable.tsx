@@ -1,6 +1,7 @@
-import { Badge } from '@/shared/ui';
+import { Badge, Checkbox } from '@/shared/ui';
 import type { Customer } from '@/entities/customer/model/types';
 import { maskPhone, maskEmail } from '@/shared/utils';
+import { useSelectionBasket } from '@/entities/customer/model/selectionBasketStore';
 
 interface SortField {
   field: string;
@@ -35,6 +36,32 @@ const SortIndicator = ({ field, sorts }: { field: string; sorts?: SortField[] })
 };
 
 const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerClick }: Props) => {
+  const { addCustomer, removeCustomer, isSelected, addMultiple } = useSelectionBasket();
+
+  // 전체 선택 상태 확인
+  const allSelected = data.length > 0 && data.every((customer) => isSelected(customer.id));
+  const someSelected = data.some((customer) => isSelected(customer.id));
+
+  // 전체 선택/해제 토글
+  const handleSelectAll = () => {
+    if (allSelected) {
+      // 전체 해제
+      data.forEach((customer) => removeCustomer(customer.id));
+    } else {
+      // 전체 선택
+      addMultiple(data);
+    }
+  };
+
+  // 개별 선택/해제 토글
+  const handleSelectCustomer = (customer: Customer) => {
+    if (isSelected(customer.id)) {
+      removeCustomer(customer.id);
+    } else {
+      addCustomer(customer);
+    }
+  };
+
   const renderConsultBadge = (val?: Customer['consultFrequency']) => {
     let variant: 'high' | 'medium' | 'low' = 'low';
     if (typeof val === 'string') {
@@ -71,11 +98,19 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
     <div className="relative h-full w-full">
       <table className="w-full table-fixed text-sm">
         <colgroup>
+          <col className="w-16" />
           <col className="w-20" />
           <col /><col /><col /><col /><col /><col />
         </colgroup>
         <thead className="sticky top-0 z-10 border-b border-gray-200 bg-primary-50">
           <tr>
+            <th className="px-4 py-4 text-center">
+              <Checkbox
+                checked={allSelected}
+                indeterminate={someSelected && !allSelected}
+                onCheckedChange={handleSelectAll}
+              />
+            </th>
             <th className="px-4 py-4 text-center text-xs font-semibold text-gray-700">구분</th>
             {[
               { field: 'name', label: '이름' },
@@ -101,7 +136,7 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
         <tbody>
           {data.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-4 py-16 text-center">
+              <td colSpan={8} className="px-4 py-16 text-center">
                 <div className="flex flex-col items-center justify-center gap-3">
                   <svg className="h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -120,6 +155,12 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
                 className="cursor-pointer border-b border-gray-100 transition hover:bg-primary-50/30"
                 onClick={() => onCustomerClick?.(customer)}
               >
+                <td className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={isSelected(customer.id)}
+                    onCheckedChange={() => handleSelectCustomer(customer)}
+                  />
+                </td>
                 <td className="px-4 py-3 text-center text-sm text-gray-500">{startIndex + idx + 1}</td>
                 <td className="px-4 py-3 text-center text-sm font-medium text-gray-900">
                   <div className="truncate">{customer.name}</div>
