@@ -3,6 +3,7 @@ import adminIcon from '@/assets/icons/admin-icon.svg';
 import logoutIcon from '@/assets/icons/logout-icon.svg';
 import { Icon, IconButton } from '@/shared/ui';
 import { useLogoutMutation } from '@/features/auth/logout/useLogoutMutation';
+import { useAuthStore } from '@/entities/user/model/store';
 
 interface Props {
   onMenuClick: () => void;
@@ -10,6 +11,7 @@ interface Props {
 
 const Header = ({ onMenuClick }: Props) => {
   const { mutate: logout } = useLogoutMutation();
+  const { user } = useAuthStore();
 
   return (
     <header className="bg-main-blue relative flex h-20 items-center px-8 text-white">
@@ -35,7 +37,7 @@ const Header = ({ onMenuClick }: Props) => {
 
       <div className="ml-auto flex items-center gap-2 text-sm">
         <Icon src={adminIcon} alt="admin" size="sm" />
-        <span>관리자님</span>
+        <span>{user?.name || '관리자'}님</span>
         <IconButton
           variant="ghost"
           size="sm"

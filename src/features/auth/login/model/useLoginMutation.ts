@@ -21,6 +21,7 @@ export const useLoginMutation = () => {
         refreshToken: response.refreshToken,
         user: {
           adminId: response.adminId,
+          name: response.name,
           email: response.email,
           role: response.role,
         },
