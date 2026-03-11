@@ -1,12 +1,12 @@
 import { createBrowserRouter } from 'react-router-dom';
 import LoginPage from '@/pages/auth/LoginPage';
-import SignupPage from '@/pages/auth/SignupPage';
 import GoogleCallbackPage from '@/pages/auth/GoogleCallbackPage';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 import CustomersPage from '@/pages/customers/CustomersPage';
 import RFMAnalysisPage from '@/pages/analysis/RFMAnalysisPage';
 import CohortAnalysisPage from '@/pages/analysis/CohortAnalysisPage';
 import RegionalAnalysisPage from '@/pages/analysis/RegionalAnalysisPage';
+import AdminManagementPage from '@/pages/admin/AdminManagementPage';
 import NotFoundPage from '@/pages/not-found/NotFoundPage';
 import UIShowcasePage from '@/pages/ui-showcase/UIShowcasePage';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
@@ -17,10 +17,6 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.LOGIN,
     element: <LoginPage />,
-  },
-  {
-    path: ROUTES.SIGNUP,
-    element: <SignupPage />,
   },
   {
     path: ROUTES.GOOGLE_CALLBACK,
@@ -76,6 +72,16 @@ export const router = createBrowserRouter([
       <ErrorBoundary>
         <ProtectedRoute>
           <RegionalAnalysisPage />
+        </ProtectedRoute>
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_MANAGEMENT,
+    element: (
+      <ErrorBoundary>
+        <ProtectedRoute requiredRole="ADMIN">
+          <AdminManagementPage />
         </ProtectedRoute>
       </ErrorBoundary>
     ),
