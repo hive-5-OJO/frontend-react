@@ -10,12 +10,22 @@ import { useToast } from '@/shared/hooks';
  */
 export const useGoogleLoginMutation = () => {
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
+  const { setAuth, clearAuth } = useAuthStore();
   const { toast } = useToast();
 
   return useMutation({
     mutationFn: (data: GoogleLoginRequest) => authApi.googleLogin(data),
     onSuccess: (response) => {
+      // GUEST 역할인 경우 권한 요청 알림 표시
+      if (response.role === 'GUEST') {
+        toast.warning(
+          '권한 승인 대기 중',
+          '관리자에게 권한 설정을 요청해주세요. 승인 후 다시 로그인해주세요.'
+        );
+        navigate(ROUTES.LOGIN);
+        return;
+      }
+
       setAuth({
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,

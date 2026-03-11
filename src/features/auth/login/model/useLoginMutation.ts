@@ -16,6 +16,16 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: (credentials: LoginRequest) => authApi.login(credentials),
     onSuccess: (response) => {
+      // GUEST 역할인 경우 권한 요청 알림 표시
+      if (response.role === 'GUEST') {
+        toast.warning(
+          '권한 승인 대기 중',
+          '관리자에게 권한 설정을 요청해주세요. 승인 후 다시 로그인해주세요.'
+        );
+        navigate(ROUTES.LOGIN);
+        return;
+      }
+
       setAuth({
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
