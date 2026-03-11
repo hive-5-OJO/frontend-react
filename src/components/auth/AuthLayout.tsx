@@ -22,7 +22,7 @@ const AuthLayout = ({ children, title, footer }: AuthLayoutProps) => {
           </div>
 
           {/* 박스 영역 */}
-          <div className="mt-14 flex min-h-[580px] flex-col justify-center rounded-2xl bg-white p-8 shadow-md sm:p-10 md:mt-16 md:min-h-[640px]">
+          <div className="mt-14 flex min-h-[500px] flex-col justify-center rounded-2xl bg-white p-8 shadow-md sm:p-10 md:mt-16 md:min-h-[550px]">
             <h2 className="mb-6 text-center text-lg font-bold">{title}</h2>
 
             {children}

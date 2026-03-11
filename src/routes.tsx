@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
 import LoginPage from '@/pages/auth/LoginPage';
-import SignupPage from '@/pages/auth/SignupPage';
 import GoogleCallbackPage from '@/pages/auth/GoogleCallbackPage';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 import CustomersPage from '@/pages/customers/CustomersPage';
@@ -17,10 +16,6 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.LOGIN,
     element: <LoginPage />,
-  },
-  {
-    path: ROUTES.SIGNUP,
-    element: <SignupPage />,
   },
   {
     path: ROUTES.GOOGLE_CALLBACK,
