@@ -8,4 +8,5 @@ export const ROUTES = {
   ANALYSIS_COHORT: '/analysis/cohort',
   ANALYSIS_REGIONAL: '/analysis/regional',
   GOOGLE_CALLBACK: '/oauth/google/callback',
+  ADMIN_MANAGEMENT: '/admin/management',
 } as const;

@@ -10,7 +10,7 @@ import { useToast } from '@/shared/hooks';
  */
 export const useGoogleLoginMutation = () => {
   const navigate = useNavigate();
-  const { setAuth, clearAuth } = useAuthStore();
+  const { setAuth } = useAuthStore();
   const { toast } = useToast();
 
   return useMutation({

@@ -6,6 +6,7 @@ import CustomersPage from '@/pages/customers/CustomersPage';
 import RFMAnalysisPage from '@/pages/analysis/RFMAnalysisPage';
 import CohortAnalysisPage from '@/pages/analysis/CohortAnalysisPage';
 import RegionalAnalysisPage from '@/pages/analysis/RegionalAnalysisPage';
+import AdminManagementPage from '@/pages/admin/AdminManagementPage';
 import NotFoundPage from '@/pages/not-found/NotFoundPage';
 import UIShowcasePage from '@/pages/ui-showcase/UIShowcasePage';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
@@ -71,6 +72,16 @@ export const router = createBrowserRouter([
       <ErrorBoundary>
         <ProtectedRoute>
           <RegionalAnalysisPage />
+        </ProtectedRoute>
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_MANAGEMENT,
+    element: (
+      <ErrorBoundary>
+        <ProtectedRoute>
+          <AdminManagementPage />
         </ProtectedRoute>
       </ErrorBoundary>
     ),

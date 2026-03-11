@@ -4,6 +4,8 @@ import logoutIcon from '@/assets/icons/logout-icon.svg';
 import { Icon, IconButton } from '@/shared/ui';
 import { useLogoutMutation } from '@/features/auth/logout/useLogoutMutation';
 import { useAuthStore } from '@/entities/user/model/store';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/shared/constants/routes';
 
 interface Props {
   onMenuClick: () => void;
@@ -12,6 +14,7 @@ interface Props {
 const Header = ({ onMenuClick }: Props) => {
   const { mutate: logout } = useLogoutMutation();
   const { user } = useAuthStore();
+  const navigate = useNavigate();
 
   return (
     <header className="bg-main-blue relative flex h-20 items-center px-8 text-white">
@@ -38,7 +41,7 @@ const Header = ({ onMenuClick }: Props) => {
       <div className="ml-auto flex items-center gap-2 text-sm">
         <Icon src={adminIcon} alt="admin" size="sm" />
         <span>{user?.name || '관리자'}님</span>
-        {user?.role === 'ADMIN' && (
+        {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
           <IconButton
             variant="ghost"
             size="sm"
@@ -67,10 +70,7 @@ const Header = ({ onMenuClick }: Props) => {
             tooltip="관리자 설정"
             tooltipPosition="bottom"
             aria-label="설정"
-            onClick={() => {
-              // TODO: 설정 페이지로 이동 또는 설정 모달 열기
-              console.log('설정 클릭');
-            }}
+            onClick={() => navigate(ROUTES.ADMIN_MANAGEMENT)}
           />
         )}
         <IconButton
