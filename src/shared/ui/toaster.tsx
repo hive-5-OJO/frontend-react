@@ -77,7 +77,7 @@ export const Toaster = () => {
   };
 
   return (
-    <ToastContainer>
+    <ToastContainer position="top-center">
       {toasts.map((toast) => (
         <Toast
           key={toast.id}
