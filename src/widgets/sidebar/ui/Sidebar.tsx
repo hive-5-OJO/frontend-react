@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Logo, Icon, IconButton, Divider } from '@/shared/ui';
 import dashboardIcon from '@/assets/icons/dashboard-icon.svg';
 import customerIcon from '@/assets/icons/customers-icon.svg';
@@ -12,6 +12,7 @@ interface Props {
 
 const Sidebar = ({ onClose }: Props) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(
     location.pathname.startsWith('/analysis')
   );
@@ -26,11 +27,22 @@ const Sidebar = ({ onClose }: Props) => {
     setIsAnalysisOpen(!isAnalysisOpen);
   };
 
+  const handleLogoClick = () => {
+    navigate(ROUTES.HOME);
+    onClose?.();
+  };
+
   return (
     <aside className="bg-section-bg relative flex h-full w-64 flex-col pb-6 shadow-lg md:rounded-xl">
       {/* 로고 영역 */}
       <div className="mb-3 flex h-20 flex-shrink-0 items-center justify-center pt-5">
-        <Logo size="lg" />
+        <button
+          onClick={handleLogoClick}
+          className="cursor-pointer transition-opacity hover:opacity-80"
+          aria-label="홈으로 이동"
+        >
+          <Logo size="lg" />
+        </button>
       </div>
 
       {/* 닫기 버튼 (모바일만) */}
