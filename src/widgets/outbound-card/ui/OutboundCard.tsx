@@ -30,7 +30,7 @@ const OutboundCard = () => {
   }
 
   // 총 시도 횟수 대비 각 프로모션의 비율 계산
-  const maxAttempt = Math.max(...data.promotionStats.map(p => p.attempt));
+  const totalAttempt = data.totalAttempt;
 
   return (
     <Card className="h-full">
@@ -42,7 +42,7 @@ const OutboundCard = () => {
 
         <div className="flex-1 space-y-3">
           {data.promotionStats.map((promo, i) => {
-            const percentage = ((promo.attempt / data.totalAttempt) * 100).toFixed(1);
+            const percentage = ((promo.attempt / totalAttempt) * 100).toFixed(1);
             return (
               <div key={promo.promotionName} className="flex items-center gap-3">
                 <span className="w-32 truncate text-sm text-gray-700">
@@ -52,7 +52,7 @@ const OutboundCard = () => {
                   <div className="h-4 w-full overflow-hidden rounded-full bg-gray-100">
                     <div
                       className={`h-full rounded-full ${colors[i % colors.length]}`}
-                      style={{ width: `${(promo.attempt / maxAttempt) * 100}%` }}
+                      style={{ width: `${percentage}%` }}
                     />
                   </div>
                   {/* 툴팁 */}
@@ -62,7 +62,7 @@ const OutboundCard = () => {
                   </div>
                 </div>
                 <span className="w-16 text-right text-sm font-semibold text-gray-900">
-                  {promo.attempt.toLocaleString()}
+                  {percentage}%
                 </span>
               </div>
             );
