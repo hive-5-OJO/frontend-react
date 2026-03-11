@@ -80,7 +80,7 @@ export const router = createBrowserRouter([
     path: ROUTES.ADMIN_MANAGEMENT,
     element: (
       <ErrorBoundary>
-        <ProtectedRoute>
+        <ProtectedRoute requiredRole="ADMIN">
           <AdminManagementPage />
         </ProtectedRoute>
       </ErrorBoundary>
