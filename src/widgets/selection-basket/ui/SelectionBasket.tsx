@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useSelectionBasket } from '@/entities/customer/model/selectionBasketStore';
 import { Button, Badge } from '@/shared/ui';
+import { UsersRound } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export const SelectionBasket = () => {
   const { selectedCustomers, removeCustomer, clearBasket, getCount } = useSelectionBasket();
@@ -19,14 +21,7 @@ export const SelectionBasket = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg transition hover:bg-primary-700 hover:shadow-xl"
       >
-        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-          />
-        </svg>
+        <UsersRound />
         <Badge
           variant="destructive"
           className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full p-0 text-xs font-bold"
@@ -41,16 +36,14 @@ export const SelectionBasket = () => {
           {/* 헤더 */}
           <div className="flex items-center justify-between border-b border-gray-200 p-4">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-gray-900">선택 바구니</h3>
+              <h3 className="text-lg font-semibold text-gray-900">선택 고객들</h3>
               <Badge variant="secondary">{count}명</Badge>
             </div>
             <button
               onClick={() => setIsOpen(false)}
               className="text-gray-400 transition hover:text-gray-600"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X />
             </button>
           </div>
 
@@ -71,9 +64,7 @@ export const SelectionBasket = () => {
                   onClick={() => removeCustomer(customer.id)}
                   className="ml-2 text-gray-400 transition hover:text-error-600"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <X />
                 </button>
               </div>
             ))}
@@ -95,10 +86,10 @@ export const SelectionBasket = () => {
               className="w-full"
               onClick={() => {
                 // TODO: 타겟 액션 실행 모달 열기
-                alert(`${count}명의 고객에게 액션을 실행합니다.`);
+                alert(`${count}명의 고객에게 메일을 전송합니다.`);
               }}
             >
-              액션 실행
+              단체 메일 작성
             </Button>
           </div>
         </div>

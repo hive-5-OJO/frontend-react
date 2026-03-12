@@ -116,8 +116,8 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
               { field: 'name', label: '이름' },
               { field: 'phone', label: '휴대폰 번호' },
               { field: 'email', label: '이메일' },
-              { field: 'period', label: '이용기간' },
               { field: 'frequency', label: '상담빈도' },
+              { field: 'period', label: '이용기간' },
               { field: 'customerType', label: '고객 분류' },
             ].map(({ field, label }) => (
               <th
@@ -171,10 +171,10 @@ const CustomerTable = ({ data, startIndex = 0, sorts = [], onSort, onCustomerCli
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
                   <div className="truncate">{maskEmail(customer.email ?? '')}</div>
                 </td>
+                <td className="px-4 py-3 text-center">{renderConsultBadge(customer.consultFrequency)}</td>
                 <td className="px-4 py-3 text-center text-sm text-gray-600">
                   <div className="truncate">{customer.period ?? customer.joinedAt ?? '-'}</div>
                 </td>
-                <td className="px-4 py-3 text-center">{renderConsultBadge(customer.consultFrequency)}</td>
                 <td className="px-4 py-3 text-center">{renderCustomerTypeBadge(customer)}</td>
               </tr>
             ))
