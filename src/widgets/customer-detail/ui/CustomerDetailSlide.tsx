@@ -288,7 +288,7 @@ const CustomerDetailSlide = ({
     <>
       {/* 오버레이 */}
       <div
-        className={`fixed inset-0 z-40 bg-black transition-opacity duration-500 ${
+        className={`fixed inset-0 z-[55] bg-black transition-opacity duration-500 ${
           isOpen ? 'opacity-30' : 'pointer-events-none opacity-0'
         }`}
         onClick={onClose}
@@ -296,7 +296,7 @@ const CustomerDetailSlide = ({
 
       {/* 슬라이드 패널 */}
       <div
-        className={`fixed top-0 right-0 z-50 flex h-full w-full transform items-center transition-transform duration-500 ease-out md:w-4/5 lg:w-3/4 xl:w-[55%] ${
+        className={`fixed top-0 right-0 z-[60] flex h-full w-full transform items-center transition-transform duration-500 ease-out md:w-4/5 lg:w-3/4 xl:w-[55%] ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         style={{ padding: '12px 0 12px 0' }}

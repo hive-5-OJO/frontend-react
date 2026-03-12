@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { CustomerTable } from '@/widgets/customer-table';
 import { CustomerDetailSlide } from '@/widgets/customer-detail';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
+import { SelectionBasket } from '@/widgets/selection-basket';
 import {
   Pagination,
   PageHeader,
@@ -86,7 +87,7 @@ const CustomersPage = () => {
   const [sorts, setSorts] = useState<SortField[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(() => !!customerTypeParam);
+  const [isFilterOpen, setIsFilterOpen] = useState(() => !customerTypeParam);
 
   // 검색어가 있으면 검색 API, 없으면 목록 API 호출
   const isSearching = searchTerm.trim().length > 0;
@@ -410,6 +411,8 @@ const CustomersPage = () => {
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
       />
+
+      <SelectionBasket />
     </DashboardLayout>
   );
 };
