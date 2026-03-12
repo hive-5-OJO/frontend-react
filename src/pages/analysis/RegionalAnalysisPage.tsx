@@ -1,26 +1,38 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
 import { Card, CardContent, PageHeader, FilterToggleButton } from '@/shared/ui';
+import { useRegionalAnalysis } from '@/entities/analysis';
+import type { RegionDistribution } from '@/entities/analysis';
 
 // Mapbox Access Token
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoiZXhhbXBsZSIsImEiOiJjbGV4YW1wbGUifQ.example';
 
-const mockRegionalData = [
-  { region: '서울', lat: 37.5665, lng: 126.978, customers: 8420, percentage: 32.5, avgConsult: 4.2, utilization: 72 },
-  { region: '경기', lat: 37.4138, lng: 127.5183, customers: 6850, percentage: 26.4, avgConsult: 3.8, utilization: 68 },
-  { region: '부산', lat: 35.1796, lng: 129.0756, customers: 3120, percentage: 12.0, avgConsult: 3.5, utilization: 65 },
-  { region: '인천', lat: 37.4563, lng: 126.7052, customers: 2450, percentage: 9.4, avgConsult: 3.3, utilization: 63 },
-  { region: '대구', lat: 35.8714, lng: 128.6014, customers: 1890, percentage: 7.3, avgConsult: 3.1, utilization: 60 },
-  { region: '대전', lat: 36.3504, lng: 127.3845, customers: 1520, percentage: 5.9, avgConsult: 2.9, utilization: 58 },
-  { region: '광주', lat: 35.1595, lng: 126.8526, customers: 1180, percentage: 4.5, avgConsult: 2.7, utilization: 55 },
-  { region: '울산', lat: 35.5384, lng: 129.3114, customers: 520, percentage: 2.0, avgConsult: 2.5, utilization: 52 },
-];
+// 지역별 좌표 매핑
+const REGION_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  '서울': { lat: 37.5665, lng: 126.978 },
+  '경기': { lat: 37.4138, lng: 127.5183 },
+  '부산': { lat: 35.1796, lng: 129.0756 },
+  '인천': { lat: 37.4563, lng: 126.7052 },
+  '대구': { lat: 35.8714, lng: 128.6014 },
+  '대전': { lat: 36.3504, lng: 127.3845 },
+  '광주': { lat: 35.1595, lng: 126.8526 },
+  '울산': { lat: 35.5384, lng: 129.3114 },
+  '세종': { lat: 36.4800, lng: 127.2890 },
+  '강원': { lat: 37.8228, lng: 128.1555 },
+  '충북': { lat: 36.8000, lng: 127.7000 },
+  '충남': { lat: 36.5184, lng: 126.8000 },
+  '전북': { lat: 35.7175, lng: 127.1530 },
+  '전남': { lat: 34.8679, lng: 126.9910 },
+  '경북': { lat: 36.4919, lng: 128.8889 },
+  '경남': { lat: 35.4606, lng: 128.2132 },
+  '제주': { lat: 33.4890, lng: 126.4983 },
+};
 
 const getUtilizationColor = (value: number) => {
-  if (value >= 65) return 'bg-green-100 text-green-700';
-  if (value >= 55) return 'bg-yellow-100 text-yellow-700';
+  if (value >= 0.65) return 'bg-green-100 text-green-700';
+  if (value >= 0.55) return 'bg-yellow-100 text-yellow-700';
   return 'bg-orange-100 text-orange-700';
 };
 
@@ -50,6 +62,29 @@ const RegionalAnalysisPage = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const headerPlaceholderRef = useRef<HTMLDivElement>(null);
+
+  // API 호출
+  const { data: apiResponse, isLoading, error } = useRegionalAnalysis();
+
+  // API 응답 데이터 가공
+  const regionalData = useMemo(() => {
+    if (!apiResponse?.data?.distribution) return [];
+    
+    return apiResponse.data.distribution.map((region) => {
+      const coords = REGION_COORDINATES[region.region] || { lat: 37.5665, lng: 126.978 };
+      return {
+        region: region.region,
+        lat: coords.lat,
+        lng: coords.lng,
+        customers: region.count,
+        percentage: region.ratio,
+        vipCount: region.vipCount,
+        churnRiskCount: region.churnRiskCount,
+        avgMonetary: region.avgMonetary,
+        churnRiskRatio: region.churnRiskRatio,
+      };
+    });
+  }, [apiResponse]);
 
   // 헤더 위치와 크기 업데이트
   useEffect(() => {
@@ -111,7 +146,7 @@ const RegionalAnalysisPage = () => {
   }, [isRegionDropdownOpen]);
 
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    if (!mapContainer.current || map.current || regionalData.length === 0) return;
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -135,7 +170,7 @@ const RegionalAnalysisPage = () => {
       }
     });
 
-    mockRegionalData.forEach((data) => {
+    regionalData.forEach((data) => {
       const el = document.createElement('div');
       el.className = 'custom-marker';
       el.style.width = `${30 * getMarkerSize(data.customers)}px`;
@@ -156,15 +191,19 @@ const RegionalAnalysisPage = () => {
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
               <span>비율:</span>
-              <span style="font-weight: 600; color: #111827;">${data.percentage}%</span>
+              <span style="font-weight: 600; color: #111827;">${data.percentage.toFixed(1)}%</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-              <span>평균 상담:</span>
-              <span style="font-weight: 600; color: #111827;">${data.avgConsult}회</span>
+              <span>VIP 고객:</span>
+              <span style="font-weight: 600; color: #111827;">${data.vipCount.toLocaleString()}명</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+              <span>이탈 우려:</span>
+              <span style="font-weight: 600; color: #f97316;">${data.churnRiskCount.toLocaleString()}명</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
-              <span>이용률:</span>
-              <span style="font-weight: 600; color: #10b981;">${data.utilization}%</span>
+              <span>평균 결제액:</span>
+              <span style="font-weight: 600; color: #10b981;">₩${data.avgMonetary.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -192,14 +231,14 @@ const RegionalAnalysisPage = () => {
       map.current?.remove();
       map.current = null;
     };
-  }, []);
+  }, [regionalData]);
 
   useEffect(() => {
-    if (!map.current) return;
+    if (!map.current || regionalData.length === 0) return;
 
     const filteredData = selectedRegions.length === 0
-      ? mockRegionalData 
-      : mockRegionalData.filter((d) => selectedRegions.includes(d.region));
+      ? regionalData 
+      : regionalData.filter((d) => selectedRegions.includes(d.region));
 
     if (filteredData.length > 0) {
       const bounds = new mapboxgl.LngLatBounds();
@@ -208,7 +247,7 @@ const RegionalAnalysisPage = () => {
       });
       map.current.fitBounds(bounds, { padding: 100, maxZoom: 10 });
     }
-  }, [selectedRegions]);
+  }, [selectedRegions, regionalData]);
 
   const handleRegionToggle = (region: string) => {
     setSelectedRegions((prev) =>
@@ -219,10 +258,10 @@ const RegionalAnalysisPage = () => {
   };
 
   const handleSelectAll = () => {
-    if (selectedRegions.length === mockRegionalData.length) {
+    if (selectedRegions.length === regionalData.length) {
       setSelectedRegions([]);
     } else {
-      setSelectedRegions(mockRegionalData.map((d) => d.region));
+      setSelectedRegions(regionalData.map((d) => d.region));
     }
   };
 
@@ -230,9 +269,11 @@ const RegionalAnalysisPage = () => {
     setSelectedRegions([]);
   };
 
-  const totalCustomers = mockRegionalData.reduce((sum, d) => sum + d.customers, 0);
-  const avgUtilization = (mockRegionalData.reduce((sum, d) => sum + d.utilization, 0) / mockRegionalData.length).toFixed(1);
-  const topRegion = mockRegionalData[0];
+  const totalCustomers = regionalData.reduce((sum, d) => sum + d.customers, 0);
+  const avgChurnRiskRatio = regionalData.length > 0 
+    ? (regionalData.reduce((sum, d) => sum + d.churnRiskRatio, 0) / regionalData.length * 100).toFixed(1)
+    : '0.0';
+  const topRegion = regionalData.length > 0 ? regionalData[0] : null;
 
   return (
     <DashboardLayout>
@@ -332,7 +373,7 @@ const RegionalAnalysisPage = () => {
                       </div>
                     </div>
                     <div className="max-h-[280px] overflow-y-auto p-2">
-                      {mockRegionalData.map((data) => (
+                      {regionalData.map((data) => (
                         <label
                           key={data.region}
                           className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 hover:bg-gray-50"
@@ -383,30 +424,51 @@ const RegionalAnalysisPage = () => {
       </div>
 
       <div className="flex flex-col gap-6 pb-6">
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white py-20 shadow-sm">
+            <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></div>
+            <p className="text-lg font-medium text-gray-600">지역 분석 데이터를 불러오는 중...</p>
+            <p className="mt-1 text-sm text-gray-400">잠시만 기다려주세요</p>
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="mb-2 text-sm font-semibold text-gray-500">총 고객 수</h3>
-              <p className="text-3xl font-bold text-gray-900">{totalCustomers.toLocaleString()}</p>
-              <p className="mt-1 text-xs text-gray-500">전국 기준</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="mb-2 text-sm font-semibold text-gray-500">최다 고객 지역</h3>
-              <p className="text-3xl font-bold text-gray-900">{topRegion.region}</p>
-              <p className="mt-1 text-xs text-gray-500">전체의 {topRegion.percentage}%</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="mb-2 text-sm font-semibold text-gray-500">평균 서비스 이용률</h3>
-              <p className="text-3xl font-bold text-gray-900">{avgUtilization}%</p>
-              <p className="mt-1 text-xs text-gray-500">지역별 평균</p>
-            </CardContent>
-          </Card>
-        </div>
+        {error && (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white py-20 shadow-sm">
+            <div className="mb-4 flex justify-center">
+              <svg className="h-16 w-16 text-error-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="mb-2 text-lg font-semibold text-error-600">데이터를 불러오는데 실패했습니다</p>
+            <p className="mb-4 text-sm text-gray-600">잠시 후 다시 시도해주세요</p>
+          </div>
+        )}
+
+        {!isLoading && !error && regionalData.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="mb-2 text-sm font-semibold text-gray-500">총 고객 수</h3>
+                  <p className="text-3xl font-bold text-gray-900">{totalCustomers.toLocaleString()}</p>
+                  <p className="mt-1 text-xs text-gray-500">전국 기준</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="mb-2 text-sm font-semibold text-gray-500">최다 고객 지역</h3>
+                  <p className="text-3xl font-bold text-gray-900">{topRegion?.region || '-'}</p>
+                  <p className="mt-1 text-xs text-gray-500">전체의 {topRegion?.percentage.toFixed(1) || '0'}%</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="mb-2 text-sm font-semibold text-gray-500">평균 이탈 우려율</h3>
+                  <p className="text-3xl font-bold text-gray-900">{avgChurnRiskRatio}%</p>
+                  <p className="mt-1 text-xs text-gray-500">지역별 평균</p>
+                </CardContent>
+              </Card>
+            </div>
 
         {/* 지역별 테이블 */}
         <div className="flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
@@ -421,16 +483,14 @@ const RegionalAnalysisPage = () => {
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">지역</th>
                   <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">고객 수</th>
                   <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">비율</th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">
-                    평균 상담 횟수
-                  </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">
-                    서비스 이용률
-                  </th>
+                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">VIP 고객</th>
+                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">이탈 우려</th>
+                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">평균 결제액</th>
+                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">이탈 우려율</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {mockRegionalData
+                {regionalData
                   .filter((d) => selectedRegions.length === 0 || selectedRegions.includes(d.region))
                   .map((data) => (
                     <tr key={data.region} className="hover:bg-gray-50">
@@ -438,11 +498,13 @@ const RegionalAnalysisPage = () => {
                       <td className="px-6 py-4 text-center text-sm text-gray-600">
                         {data.customers.toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.percentage}%</td>
-                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.avgConsult}</td>
+                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.percentage.toFixed(1)}%</td>
+                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.vipCount.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.churnRiskCount.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-center text-sm text-gray-600">₩{data.avgMonetary.toLocaleString()}</td>
                       <td className="px-6 py-4 text-center text-sm">
-                        <span className={`inline-block rounded px-2 py-1 ${getUtilizationColor(data.utilization)}`}>
-                          {data.utilization}%
+                        <span className={`inline-block rounded px-2 py-1 ${getUtilizationColor(data.churnRiskRatio)}`}>
+                          {(data.churnRiskRatio * 100).toFixed(1)}%
                         </span>
                       </td>
                     </tr>
@@ -478,6 +540,8 @@ const RegionalAnalysisPage = () => {
             <div ref={mapContainer} className="h-[500px] w-full rounded-lg" />
           </CardContent>
         </Card>
+          </>
+        )}
       </div>
     </DashboardLayout>
   );
