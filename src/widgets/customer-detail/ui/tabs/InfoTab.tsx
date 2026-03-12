@@ -133,8 +133,8 @@ const InfoTab = ({ customer }: Props) => {
                   valueClassName={customer.consent.marketingAccepted === 'Y' ? 'text-success-600' : 'text-gray-500'}
                 />
                 <InfoRow
-                  label="전환 여부"
-                  value={customer.consent.isConverted === 'Y' ? '전환됨' : '미전환'}
+                  label="프로모션 동의 여부"
+                  value={customer.consent.isConverted === 'Y' ? '동의' : '미동의'}
                   valueClassName={customer.consent.isConverted === 'Y' ? 'text-primary-600' : 'text-gray-500'}
                 />
                 <InfoRow

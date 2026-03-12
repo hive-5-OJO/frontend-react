@@ -74,11 +74,21 @@ const mapApiResponseToCustomer = (apiData: {
 };
 
 const CustomersPage = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const customerTypeParam = searchParams.get('customerType');
   
-  const [page, setPage] = useState(0); // API는 0부터 시작
-  const [pageSize, setPageSize] = useState(10);
+  // URL에서 페이지 정보 읽기
+  const pageParam = searchParams.get('page');
+  const pageSizeParam = searchParams.get('pageSize');
+  
+  const [page, setPage] = useState(() => {
+    const p = pageParam ? parseInt(pageParam, 10) : 0;
+    return isNaN(p) ? 0 : p;
+  });
+  const [pageSize, setPageSize] = useState(() => {
+    const ps = pageSizeParam ? parseInt(pageSizeParam, 10) : 10;
+    return isNaN(ps) ? 10 : ps;
+  });
   const [filters, setFilters] = useState<Filters>(() => {
     // 초기 상태에서 URL 파라미터 반영
     return customerTypeParam ? { customerType: customerTypeParam } : {};
@@ -87,7 +97,15 @@ const CustomersPage = () => {
   const [sorts, setSorts] = useState<SortField[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(() => !customerTypeParam);
+  const [isFilterOpen, setIsFilterOpen] = useState(true); // 기본적으로 열려있음
+
+  // 페이지 변경 시 URL 업데이트
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', page.toString());
+    params.set('pageSize', pageSize.toString());
+    setSearchParams(params, { replace: true });
+  }, [page, pageSize, setSearchParams, searchParams]);
 
   // 검색어가 있으면 검색 API, 없으면 목록 API 호출
   const isSearching = searchTerm.trim().length > 0;
@@ -254,7 +272,7 @@ const CustomersPage = () => {
               <div className="flex items-center gap-3 md:gap-4">
                 <div className="text-right">
                   <p className="text-xl font-bold text-primary-600 md:text-2xl">
-                    {isLoading ? '...' : totalElements}
+                    {isLoading ? '...' : totalElements.toLocaleString()}
                   </p>
                   <p className="text-xs text-gray-500">명의 고객</p>
                 </div>
@@ -279,7 +297,7 @@ const CustomersPage = () => {
               />
               {isSearching && searchTerm && (
                 <div className="rounded-lg bg-blue-50 px-4 py-2 text-sm text-blue-700">
-                  <span className="font-medium">"{searchTerm}"</span> 검색 결과: {totalElements}명
+                  <span className="font-medium">"{searchTerm}"</span> 검색 결과: {totalElements.toLocaleString()}명
                 </div>
               )}
 
@@ -367,9 +385,9 @@ const CustomersPage = () => {
                   <div className="text-sm text-gray-600">
                     <span className="font-semibold">{start + 1}</span>
                     <span className="mx-1 text-gray-400">-</span>
-                    <span className="font-semibold">{Math.min(start + pageSize, totalElements)}</span>
+                    <span className="font-semibold">{Math.min(start + pageSize, totalElements).toLocaleString()}</span>
                     <span className="mx-1 text-gray-400">/</span>
-                    <span className="font-semibold text-primary-600">{totalElements}</span>
+                    <span className="font-semibold text-primary-600">{totalElements.toLocaleString()}</span>
                     <span className="ml-1 text-gray-500">명</span>
                   </div>
                   <Select
