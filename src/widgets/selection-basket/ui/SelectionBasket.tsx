@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useSelectionBasket } from '@/entities/customer/model/selectionBasketStore';
 import { Button, Badge } from '@/shared/ui';
+import { BulkEmailModal } from '@/widgets/bulk-email-modal';
 import { UsersRound } from 'lucide-react';
 import { X } from 'lucide-react';
 
 export const SelectionBasket = () => {
   const { selectedCustomers, removeCustomer, clearBasket, getCount } = useSelectionBasket();
   const [isOpen, setIsOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const count = getCount();
 
@@ -84,16 +86,20 @@ export const SelectionBasket = () => {
               variant="default"
               size="sm"
               className="w-full"
-              onClick={() => {
-                // TODO: 타겟 액션 실행 모달 열기
-                alert(`${count}명의 고객에게 메일을 전송합니다.`);
-              }}
+              onClick={() => setIsEmailModalOpen(true)}
             >
               단체 메일 작성
             </Button>
           </div>
         </div>
       )}
+
+      {/* 단체 메일 모달 */}
+      <BulkEmailModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        customers={selectedCustomers}
+      />
     </div>
   );
 };
