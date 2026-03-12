@@ -107,7 +107,7 @@ const AdminManagementPage = () => {
               <div className="flex items-center gap-3 md:gap-4">
                 <div className="text-right">
                   <p className="text-xl font-bold text-primary-600 md:text-2xl">
-                    {isLoading ? '...' : totalElements}
+                    {isLoading ? '...' : totalElements.toLocaleString()}
                   </p>
                   <p className="text-xs text-gray-500">명의 관리자</p>
                 </div>
@@ -312,10 +312,10 @@ const AdminManagementPage = () => {
                     <span className="font-semibold">{start + 1}</span>
                     <span className="mx-1 text-gray-400">-</span>
                     <span className="font-semibold">
-                      {Math.min(start + pageSize, totalElements)}
+                      {Math.min(start + pageSize, totalElements).toLocaleString()}
                     </span>
                     <span className="mx-1 text-gray-400">/</span>
-                    <span className="font-semibold text-primary-600">{totalElements}</span>
+                    <span className="font-semibold text-primary-600">{totalElements.toLocaleString()}</span>
                     <span className="ml-1 text-gray-500">명</span>
                   </div>
                   <Select

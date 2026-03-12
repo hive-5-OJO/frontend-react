@@ -254,7 +254,7 @@ const CustomersPage = () => {
               <div className="flex items-center gap-3 md:gap-4">
                 <div className="text-right">
                   <p className="text-xl font-bold text-primary-600 md:text-2xl">
-                    {isLoading ? '...' : totalElements}
+                    {isLoading ? '...' : totalElements.toLocaleString()}
                   </p>
                   <p className="text-xs text-gray-500">명의 고객</p>
                 </div>
@@ -279,7 +279,7 @@ const CustomersPage = () => {
               />
               {isSearching && searchTerm && (
                 <div className="rounded-lg bg-blue-50 px-4 py-2 text-sm text-blue-700">
-                  <span className="font-medium">"{searchTerm}"</span> 검색 결과: {totalElements}명
+                  <span className="font-medium">"{searchTerm}"</span> 검색 결과: {totalElements.toLocaleString()}명
                 </div>
               )}
 
@@ -367,9 +367,9 @@ const CustomersPage = () => {
                   <div className="text-sm text-gray-600">
                     <span className="font-semibold">{start + 1}</span>
                     <span className="mx-1 text-gray-400">-</span>
-                    <span className="font-semibold">{Math.min(start + pageSize, totalElements)}</span>
+                    <span className="font-semibold">{Math.min(start + pageSize, totalElements).toLocaleString()}</span>
                     <span className="mx-1 text-gray-400">/</span>
-                    <span className="font-semibold text-primary-600">{totalElements}</span>
+                    <span className="font-semibold text-primary-600">{totalElements.toLocaleString()}</span>
                     <span className="ml-1 text-gray-500">명</span>
                   </div>
                   <Select

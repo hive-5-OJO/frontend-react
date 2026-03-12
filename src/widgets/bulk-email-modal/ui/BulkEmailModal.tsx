@@ -98,9 +98,9 @@ export const BulkEmailModal = ({ isOpen, onClose, customers = [] }: BulkEmailMod
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-700">수신자 정보</h3>
               <div className="flex items-center gap-2">
-                <Badge variant="default">{eligibleEmails.length}명 발송 가능</Badge>
+                <Badge variant="default">{eligibleEmails.length.toLocaleString()}명 발송 가능</Badge>
                 {ineligibleCount > 0 && (
-                  <Badge variant="destructive">{ineligibleCount}명 제외</Badge>
+                  <Badge variant="destructive">{ineligibleCount.toLocaleString()}명 제외</Badge>
                 )}
               </div>
             </div>
@@ -113,7 +113,7 @@ export const BulkEmailModal = ({ isOpen, onClose, customers = [] }: BulkEmailMod
                   </svg>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-yellow-800">
-                      {ineligibleCount}명의 고객이 제외되었습니다
+                      {ineligibleCount.toLocaleString()}명의 고객이 제외되었습니다
                     </p>
                     <p className="mt-1 text-xs text-yellow-700">
                       개인정보 수집, 마케팅 수신, 프로모션 동의가 모두 필요합니다.
@@ -124,7 +124,7 @@ export const BulkEmailModal = ({ isOpen, onClose, customers = [] }: BulkEmailMod
             )}
 
             <div className="space-y-2">
-              <Label className="text-xs text-gray-600">수신 이메일 ({eligibleEmails.length}개)</Label>
+              <Label className="text-xs text-gray-600">수신 이메일 ({eligibleEmails.length.toLocaleString()}개)</Label>
               <div className="max-h-32 overflow-y-auto rounded-md border border-gray-200 bg-white p-3">
                 {eligibleEmails.length > 0 ? (
                   <div className="flex flex-wrap gap-1">
@@ -176,7 +176,7 @@ export const BulkEmailModal = ({ isOpen, onClose, customers = [] }: BulkEmailMod
             onClick={handleSend}
             disabled={eligibleEmails.length === 0 || !subject || !content}
           >
-            {eligibleEmails.length}명에게 전송
+            {eligibleEmails.length.toLocaleString()}명에게 전송
           </Button>
         </DialogFooter>
         </>

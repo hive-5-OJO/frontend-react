@@ -58,7 +58,7 @@ const CustomerTrendChart = () => {
       tooltip: {
         callbacks: {
           label: function (context: { dataset: { label?: string }; parsed: { y: number | null } }) {
-            return `${context.dataset.label}: ${context.parsed.y ?? 0}명`;
+            return `${context.dataset.label}: ${(context.parsed.y ?? 0).toLocaleString()}명`;
           },
         },
       },
