@@ -1,9 +1,11 @@
 import type { Customer } from '@/entities/customer/model/types';
 import { Badge, Card, CardContent } from '@/shared/ui';
 import { CUSTOMER_TYPE_LABELS, type CustomerType } from '@/entities/customer/model/types';
+import { useCustomerMemo } from '@/entities/customer/model/useCustomerQueries';
 
 interface Props {
   customer: Customer;
+  onMemoClick?: () => void;
 }
 
 const InfoRow = ({ label, value, valueClassName }: { label: string; value: React.ReactNode; valueClassName?: string }) => (
@@ -69,7 +71,9 @@ const getSubscriptionStatusLabel = (status: string) => {
   }
 };
 
-const InfoTab = ({ customer }: Props) => {
+const InfoTab = ({ customer, onMemoClick }: Props) => {
+  const { data: memo } = useCustomerMemo(customer.id);
+
   return (
     <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
       {/* 인적 정보 */}
@@ -187,6 +191,24 @@ const InfoTab = ({ customer }: Props) => {
           )}
         </CardContent>
       </Card>
+
+      {/* 관리자 메모 */}
+      {memo && (
+        <Card
+          className="cursor-pointer lg:col-span-2 transition hover:border-indigo-200 hover:shadow-md"
+          onClick={onMemoClick}
+        >
+          <CardContent className="p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">관리자 메모</h3>
+              <span className="text-xs text-gray-400">클릭하여 수정</span>
+            </div>
+            <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+              <p className="whitespace-pre-wrap text-sm text-gray-800">{memo.content}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

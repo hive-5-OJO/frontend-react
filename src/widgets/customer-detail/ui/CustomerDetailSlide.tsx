@@ -30,6 +30,7 @@ interface CustomerDetailSlideProps {
   customer: Customer | null;
   isOpen: boolean;
   onClose: () => void;
+  onMemoClick: () => void;
 }
 
 ChartJS.register(
@@ -50,6 +51,7 @@ const CustomerDetailSlide = ({
   customer,
   isOpen,
   onClose,
+  onMemoClick,
 }: CustomerDetailSlideProps) => {
   const [activeTab, setActiveTab] = useState<TabType>('info');
   const contentRef = useRef<HTMLDivElement>(null);
@@ -324,7 +326,7 @@ const CustomerDetailSlide = ({
               {/* 내용 */}
               <div ref={contentRef} className="scrollbar-hide flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
                 {activeTab === 'info' && (
-                  <InfoTab customer={enrichedCustomer} />
+                  <InfoTab customer={enrichedCustomer} onMemoClick={onMemoClick} />
                 )}
                 {activeTab === 'feature' && featureData && (
                   <>
@@ -360,7 +362,7 @@ const CustomerDetailSlide = ({
                 )}
               </div>
 
-              <CustomerDetailFooter onClose={onClose} />
+              <CustomerDetailFooter onClose={onClose} onMemoClick={onMemoClick} />
             </>
           )}
         </div>

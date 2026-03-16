@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CustomerTable } from '@/widgets/customer-table';
 import { CustomerDetailSlide } from '@/widgets/customer-detail';
+import { MemoModal } from '@/widgets/customer-detail';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
 import { SelectionBasket } from '@/widgets/selection-basket';
 import {
@@ -99,6 +100,7 @@ const CustomersPage = () => {
   const [sorts, setSorts] = useState<SortField[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isMemoOpen, setIsMemoOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(true); // 기본적으로 열려있음
 
   // 페이지 변경 시 URL 업데이트
@@ -453,7 +455,16 @@ const CustomersPage = () => {
         customer={selectedCustomer}
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
+        onMemoClick={() => setIsMemoOpen(true)}
       />
+
+      {selectedCustomer && (
+        <MemoModal
+          memberId={selectedCustomer.id}
+          isOpen={isMemoOpen}
+          onClose={() => setIsMemoOpen(false)}
+        />
+      )}
 
       <SelectionBasket />
     </DashboardLayout>
