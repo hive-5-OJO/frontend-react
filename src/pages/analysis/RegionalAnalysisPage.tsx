@@ -4,7 +4,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
 import { Card, CardContent, PageHeader, FilterToggleButton } from '@/shared/ui';
 import { useRegionalAnalysis } from '@/entities/analysis';
-import type { RegionDistribution } from '@/entities/analysis';
 
 // Mapbox Access Token
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoiZXhhbXBsZSIsImEiOiJjbGV4YW1wbGUifQ.example';
@@ -360,7 +359,7 @@ const RegionalAnalysisPage = () => {
                           onClick={handleSelectAll}
                           className="text-sm font-medium text-primary-600 hover:text-primary-700"
                         >
-                          {selectedRegions.length === mockRegionalData.length ? '전체 해제' : '전체 선택'}
+                          {selectedRegions.length === regionalData.length ? '전체 해제' : '전체 선택'}
                         </button>
                         {selectedRegions.length > 0 && (
                           <button

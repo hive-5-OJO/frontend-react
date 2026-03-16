@@ -28,13 +28,6 @@ interface KpiData {
   churnStatus: KpiStatus;
 }
 
-interface SegmentData {
-  type: CustomerType;
-  label: string;
-  count: number;
-  ratio: number;
-}
-
 // --- 상수 ---
 const SEGMENT_CONFIG: Record<CustomerType, { label: string; color: string; badgeVariant: CustomerType }> = {
   vip: { label: 'VIP', color: '#8b5cf6', badgeVariant: 'vip' },

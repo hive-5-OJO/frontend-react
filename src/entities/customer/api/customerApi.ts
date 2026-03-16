@@ -1,5 +1,4 @@
 import axiosInstance from '@/shared/lib/axios/instance';
-import axiosInstancePy from '@/shared/lib/axios/pythonInstance';
 import type { Customer, CustomerFeature, ConsultTimelineItem, RFMScore, LTVData, Subscription } from '../model/types';
 
 export interface CustomerListResponse {
