@@ -35,7 +35,7 @@ const OutboundCard = () => {
   return (
     <Card className="h-full">
       <CardContent className="flex h-full flex-col p-5">
-        <h4 className="mb-1 text-base font-bold text-gray-900">아웃바운드 통계</h4>
+        <h4 className="mb-1 text-base font-bold text-gray-900">프로모션 상담 통계</h4>
         <p className="mb-4 text-xs text-gray-400">
           총 {data.totalAttempt.toLocaleString()}건
         </p>

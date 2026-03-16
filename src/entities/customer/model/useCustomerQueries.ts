@@ -85,3 +85,14 @@ export const useCustomerLTV = (id: number, enabled = true) => {
     enabled,
   });
 };
+
+/**
+ * 고객 구독 서비스 조회 쿼리
+ */
+export const useCustomerSubscriptions = (id: number, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.customer.subscriptions(id),
+    queryFn: () => customerApi.getSubscriptions(id),
+    enabled,
+  });
+};

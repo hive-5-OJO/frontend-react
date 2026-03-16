@@ -34,6 +34,8 @@ interface SortField {
 const mapApiResponseToCustomer = (apiData: {
   memberId: number;
   name: string;
+  phone?: string | null;
+  email?: string | null;
   service: string | null;
   servicePeriod: string;
   consultCategory: string | null;
@@ -62,8 +64,8 @@ const mapApiResponseToCustomer = (apiData: {
   return {
     id: apiData.memberId,
     name: apiData.name,
-    phone: '', // API에서 제공하지 않음
-    email: '', // API에서 제공하지 않음
+    phone: apiData.phone || '',
+    email: apiData.email || '',
     joinedAt: apiData.servicePeriod.split(' ~ ')[0] || '',
     service: apiData.service || undefined,
     period: apiData.servicePeriod,

@@ -133,7 +133,7 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
               aria-label={`Page ${page}`}
               aria-current={currentPage === page ? 'page' : undefined}
               className={cn(
-                'h-8 w-8 p-0',
+                'h-8 min-w-8 px-2',
                 currentPage === page && 'font-semibold'
               )}
             >

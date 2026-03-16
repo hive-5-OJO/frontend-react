@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Doughnut } from 'react-chartjs-2';
 import {
@@ -10,11 +10,12 @@ import {
 import { DashboardLayout } from '@/widgets/dashboard-layout';
 import { Card, CardContent, PageHeader, Button, MonthPicker, Badge, FilterToggleButton } from '@/shared/ui';
 import { ROUTES } from '@/shared/constants/routes';
+import { useRFMAnalysis, useRFMKpi } from '@/entities/analysis';
+import type { RFMSegmentType, KpiStatus } from '@/entities/analysis';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 // --- 타입 정의 ---
-type KpiStatus = 'HEALTHY' | 'WARNING' | 'DANGER';
 type CustomerType = 'vip' | 'potential_vip' | 'normal' | 'churn_risk' | 'churned';
 
 interface KpiData {
@@ -27,13 +28,6 @@ interface KpiData {
   churnStatus: KpiStatus;
 }
 
-interface SegmentData {
-  type: CustomerType;
-  label: string;
-  count: number;
-  ratio: number;
-}
-
 // --- 상수 ---
 const SEGMENT_CONFIG: Record<CustomerType, { label: string; color: string; badgeVariant: CustomerType }> = {
   vip: { label: 'VIP', color: '#8b5cf6', badgeVariant: 'vip' },
@@ -41,6 +35,15 @@ const SEGMENT_CONFIG: Record<CustomerType, { label: string; color: string; badge
   normal: { label: '일반', color: '#9ca3af', badgeVariant: 'normal' },
   churn_risk: { label: '이탈 우려', color: '#f97316', badgeVariant: 'churn_risk' },
   churned: { label: '이탈', color: '#ef4444', badgeVariant: 'churned' },
+};
+
+// RFM API 타입을 CustomerType으로 매핑
+const RFM_TYPE_TO_CUSTOMER_TYPE: Record<RFMSegmentType, CustomerType> = {
+  VIP: 'vip',
+  POTENTIAL_VIP: 'potential_vip',
+  NORMAL: 'normal',
+  CHURN_RISK: 'churn_risk',
+  CHURNED: 'churned',
 };
 
 const STATUS_STYLE: Record<KpiStatus, { label: string; className: string }> = {
@@ -85,33 +88,27 @@ const KPI_MESSAGES: Record<string, Record<KpiStatus, string>> = {
   },
 };
 
-// --- Mock 데이터 ---
-const mockKpi: KpiData = {
-  baseMonth: '2026-02',
-  crr: 0.92,
-  nrr: 1.05,
-  churnRate: 0.08,
-  crrStatus: 'HEALTHY',
-  nrrStatus: 'HEALTHY',
-  churnStatus: 'HEALTHY',
-};
-
-const mockSegments: SegmentData[] = [
-  { type: 'vip', label: 'VIP', count: 15200, ratio: 15.1 },
-  { type: 'potential_vip', label: '잠재 VIP', count: 22400, ratio: 22.2 },
-  { type: 'normal', label: '일반', count: 31850, ratio: 31.6 },
-  { type: 'churn_risk', label: '이탈 우려', count: 18600, ratio: 18.4 },
-  { type: 'churned', label: '이탈', count: 12800, ratio: 12.7 },
-];
-
-const totalCustomers = mockSegments.reduce((sum, s) => sum + s.count, 0);
-
 // --- 메인 컴포넌트 ---
 const RFMAnalysisPage = () => {
   const navigate = useNavigate();
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [isQueried, setIsQueried] = useState(false);
   const [baseMonth, setBaseMonth] = useState('2026-02');
+
+  // API 호출 - 세그먼트 데이터
+  const { data: apiResponse, isLoading: isLoadingSegments, error: errorSegments } = useRFMAnalysis(
+    { baseMonth },
+    isQueried
+  );
+
+  // API 호출 - KPI 데이터
+  const { data: kpiResponse, isLoading: isLoadingKpi, error: errorKpi } = useRFMKpi(
+    { baseMonth },
+    isQueried
+  );
+
+  const isLoading = isLoadingSegments || isLoadingKpi;
+  const error = errorSegments || errorKpi;
 
   const handleQuery = () => {
     setIsQueried(true);
@@ -121,6 +118,29 @@ const RFMAnalysisPage = () => {
     // 고객 목록 페이지로 이동하면서 세그먼트 타입을 쿼리 파라미터로 전달
     navigate(`${ROUTES.CUSTOMERS}?customerType=${segmentType}`);
   };
+
+  // API 응답 데이터 가공
+  const segmentsData = useMemo(() => {
+    if (!apiResponse?.data?.segmentsDetail) return [];
+    
+    return apiResponse.data.segmentsDetail.map((segment) => ({
+      type: RFM_TYPE_TO_CUSTOMER_TYPE[segment.type],
+      label: SEGMENT_CONFIG[RFM_TYPE_TO_CUSTOMER_TYPE[segment.type]].label,
+      count: segment.count,
+      ratio: segment.ratio,
+      avgR: segment.avgR,
+      avgF: segment.avgF,
+      avgM: segment.avgM,
+    }));
+  }, [apiResponse]);
+
+  const totalCustomers = apiResponse?.data?.totalCount || 0;
+
+  // KPI 데이터
+  const kpiData: KpiData | null = useMemo(() => {
+    if (!kpiResponse?.data) return null;
+    return kpiResponse.data;
+  }, [kpiResponse]);
 
   // 도넛 중앙 텍스트 플러그인 (캔버스 레벨에서 그려서 툴팁보다 아래에 위치)
   const centerTextPlugin = {
@@ -150,11 +170,11 @@ const RFMAnalysisPage = () => {
   };
 
   const chartData = {
-    labels: mockSegments.map((s) => SEGMENT_CONFIG[s.type].label),
+    labels: segmentsData.map((s) => SEGMENT_CONFIG[s.type].label),
     datasets: [
       {
-        data: mockSegments.map((s) => s.count),
-        backgroundColor: mockSegments.map((s) => SEGMENT_CONFIG[s.type].color),
+        data: segmentsData.map((s) => s.count),
+        backgroundColor: segmentsData.map((s) => SEGMENT_CONFIG[s.type].color),
         borderColor: '#fff',
         borderWidth: 2,
         hoverOffset: 6,
@@ -208,70 +228,72 @@ const RFMAnalysisPage = () => {
                   onChange={setBaseMonth}
                   className="w-[160px]"
                 />
-                <Button variant="primary" size="md" className="ml-auto shrink-0" onClick={handleQuery}>
-                  조회하기
+                <Button variant="primary" size="md" className="ml-auto shrink-0" onClick={handleQuery} disabled={isLoading}>
+                  {isLoading ? '조회 중...' : '조회하기'}
                 </Button>
               </div>
             </div>
           )}
         </div>
 
-        {isQueried && (
+        {isQueried && !isLoading && !error && segmentsData.length > 0 && (
           <>
             {/* KPI 카드 */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <Card>
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-500">고객 유지율 (CRR)</p>
-                    <span className={`text-xs font-semibold ${STATUS_STYLE[mockKpi.crrStatus].className}`}>
-                      {STATUS_STYLE[mockKpi.crrStatus].label}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-3xl font-bold text-gray-900">
-                    {(mockKpi.crr * 100).toFixed(0)}%
-                  </p>
-                  <p className="mt-1 text-xs text-gray-400">{mockKpi.baseMonth} 기준</p>
-                  <p className={`mt-2 text-xs ${STATUS_STYLE[mockKpi.crrStatus].className}`}>
-                    {KPI_MESSAGES.crr[mockKpi.crrStatus]}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-500">순 매출 유지율 (NRR)</p>
-                    <span className={`text-xs font-semibold ${STATUS_STYLE[mockKpi.nrrStatus].className}`}>
-                      {STATUS_STYLE[mockKpi.nrrStatus].label}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-3xl font-bold text-gray-900">
-                    {(mockKpi.nrr * 100).toFixed(0)}%
-                  </p>
-                  <p className="mt-1 text-xs text-gray-400">{mockKpi.baseMonth} 기준</p>
-                  <p className={`mt-2 text-xs ${STATUS_STYLE[mockKpi.nrrStatus].className}`}>
-                    {KPI_MESSAGES.nrr[mockKpi.nrrStatus]}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-500">이탈률</p>
-                    <span className={`text-xs font-semibold ${STATUS_STYLE[mockKpi.churnStatus].className}`}>
-                      {STATUS_STYLE[mockKpi.churnStatus].label}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-3xl font-bold text-gray-900">
-                    {(mockKpi.churnRate * 100).toFixed(0)}%
-                  </p>
-                  <p className="mt-1 text-xs text-gray-400">{mockKpi.baseMonth} 기준</p>
-                  <p className={`mt-2 text-xs ${STATUS_STYLE[mockKpi.churnStatus].className}`}>
-                    {KPI_MESSAGES.churnRate[mockKpi.churnStatus]}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+            {kpiData && (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <Card>
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-500">고객 유지율 (CRR)</p>
+                      <span className={`text-xs font-semibold ${STATUS_STYLE[kpiData.crrStatus].className}`}>
+                        {STATUS_STYLE[kpiData.crrStatus].label}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-3xl font-bold text-gray-900">
+                      {(kpiData.crr * 100).toFixed(0)}%
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400">{kpiData.baseMonth} 기준</p>
+                    <p className={`mt-2 text-xs ${STATUS_STYLE[kpiData.crrStatus].className}`}>
+                      {KPI_MESSAGES.crr[kpiData.crrStatus]}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-500">순 매출 유지율 (NRR)</p>
+                      <span className={`text-xs font-semibold ${STATUS_STYLE[kpiData.nrrStatus].className}`}>
+                        {STATUS_STYLE[kpiData.nrrStatus].label}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-3xl font-bold text-gray-900">
+                      {(kpiData.nrr * 100).toFixed(0)}%
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400">{kpiData.baseMonth} 기준</p>
+                    <p className={`mt-2 text-xs ${STATUS_STYLE[kpiData.nrrStatus].className}`}>
+                      {KPI_MESSAGES.nrr[kpiData.nrrStatus]}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-500">이탈률</p>
+                      <span className={`text-xs font-semibold ${STATUS_STYLE[kpiData.churnStatus].className}`}>
+                        {STATUS_STYLE[kpiData.churnStatus].label}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-3xl font-bold text-gray-900">
+                      {(kpiData.churnRate * 100).toFixed(0)}%
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400">{kpiData.baseMonth} 기준</p>
+                    <p className={`mt-2 text-xs ${STATUS_STYLE[kpiData.churnStatus].className}`}>
+                      {KPI_MESSAGES.churnRate[kpiData.churnStatus]}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             {/* 세그먼트 분포 */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -285,7 +307,7 @@ const RFMAnalysisPage = () => {
                   </div>
                   {/* 커스텀 범례 */}
                   <div className="mt-4 flex flex-wrap justify-center gap-3">
-                    {mockSegments.map((s) => (
+                    {segmentsData.map((s) => (
                       <div key={s.type} className="flex items-center gap-1.5">
                         <div
                           className="h-3 w-3 rounded-full"
@@ -304,7 +326,7 @@ const RFMAnalysisPage = () => {
                   <h3 className="mb-1 text-base font-bold text-gray-900">세그먼트 상세</h3>
                   <p className="mb-4 text-sm text-gray-500">각 세그먼트별 고객 수 및 비율 · 클릭하여 고객 목록 보기</p>
                   <div className="space-y-3">
-                    {mockSegments.map((s) => (
+                    {segmentsData.map((s) => (
                       <button
                         key={s.type}
                         onClick={() => handleSegmentClick(s.type)}
@@ -318,7 +340,7 @@ const RFMAnalysisPage = () => {
                             <span className="text-sm font-medium text-gray-900">
                               {s.count.toLocaleString()}명
                             </span>
-                            <span className="text-sm font-semibold text-gray-700">{s.ratio}%</span>
+                            <span className="text-sm font-semibold text-gray-700">{s.ratio.toFixed(1)}%</span>
                           </div>
                           {/* 비율 바 */}
                           <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
@@ -341,6 +363,49 @@ const RFMAnalysisPage = () => {
               </Card>
             </div>
           </>
+        )}
+
+        {/* 로딩 상태 */}
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white py-20 shadow-sm">
+            <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></div>
+            <p className="text-lg font-medium text-gray-600">RFM 분석 데이터를 불러오는 중...</p>
+            <p className="mt-1 text-sm text-gray-400">잠시만 기다려주세요</p>
+          </div>
+        )}
+
+        {/* 에러 상태 */}
+        {error && (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white py-20 shadow-sm">
+            <div className="mb-4 flex justify-center">
+              <svg className="h-16 w-16 text-error-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="mb-2 text-lg font-semibold text-error-600">데이터를 불러오는데 실패했습니다</p>
+            <p className="mb-4 text-sm text-gray-600">잠시 후 다시 시도해주세요</p>
+            {error instanceof Error && (
+              <details className="mt-4 rounded-lg bg-gray-100 p-4 text-left">
+                <summary className="cursor-pointer text-sm font-medium text-gray-700">
+                  오류 상세 정보
+                </summary>
+                <pre className="mt-2 overflow-auto text-xs text-gray-600">
+                  {error.message}
+                </pre>
+              </details>
+            )}
+          </div>
+        )}
+
+        {/* 데이터 없음 */}
+        {isQueried && !isLoading && !error && segmentsData.length === 0 && (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white py-20 shadow-sm">
+            <svg className="mb-4 h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+            <p className="text-lg font-medium text-gray-500">해당 기간의 데이터가 없습니다</p>
+            <p className="mt-1 text-sm text-gray-400">다른 기준 년월을 선택해 보세요</p>
+          </div>
         )}
 
         {!isQueried && (

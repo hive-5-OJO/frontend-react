@@ -82,24 +82,24 @@ const CustomerCompositionChart = () => {
         <h4 className="text-base font-bold text-gray-900">현재 고객 구성</h4>
 
         {/* 차트 + 범례 */}
-        <div className="flex flex-1 items-center gap-6">
+        <div className="flex flex-1 flex-col items-center gap-4 overflow-hidden sm:flex-row sm:gap-6">
           <div className="relative flex-shrink-0" style={{ width: '180px', height: '180px' }}>
             <Doughnut data={chartData} options={options} plugins={[centerTextPlugin]} />
           </div>
 
-          <div className="flex-1 space-y-3">
+          <div className="w-full min-w-0 flex-1 space-y-3">
             {segments.map((s) => (
-              <div key={s.key} className="flex items-center gap-3 text-sm">
+              <div key={s.key} className="flex items-center gap-2 text-sm sm:gap-3">
                 <span
                   className="h-3 w-3 flex-shrink-0 rounded-full"
                   style={{ backgroundColor: s.color }}
                 />
-                <span className="w-16 text-gray-600">{s.label}</span>
-                <span className="flex-1 font-semibold text-gray-900">
+                <span className="w-14 flex-shrink-0 truncate text-gray-600 sm:w-16">{s.label}</span>
+                <span className="min-w-0 flex-1 truncate font-semibold text-gray-900">
                   {formatNumber(s.data.count)}명
                 </span>
                 <span
-                  className={`rounded px-1.5 py-0.5 text-xs font-medium ${
+                  className={`flex-shrink-0 rounded px-1.5 py-0.5 text-xs font-medium ${
                     s.data.changePercent >= 0
                       ? 'bg-green-50 text-green-600'
                       : 'bg-red-50 text-red-500'
