@@ -8,6 +8,8 @@ export interface CustomerListResponse {
     content: Array<{
       memberId: number;
       name: string;
+      phone: string | null;
+      email: string | null;
       service: string | null;
       servicePeriod: string;
       consultCategory: string | null;
