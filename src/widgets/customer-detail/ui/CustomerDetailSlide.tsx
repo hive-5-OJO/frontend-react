@@ -15,7 +15,7 @@ import {
 } from 'chart.js';
 import type { TabType } from '@/entities/customer/model/types';
 import type { Customer } from '@/entities/customer/model/types';
-import { useCustomer, useCustomerFeatures, useCustomerTimeline, useCustomerRFM, useCustomerLTV } from '@/entities/customer/model/useCustomerQueries';
+import { useCustomer, useCustomerFeatures, useCustomerTimeline, useCustomerRFM, useCustomerLTV, useCustomerSubscriptions } from '@/entities/customer/model/useCustomerQueries';
 import CustomerDetailHeader from './CustomerDetailHeader';
 import CustomerDetailTabs from './CustomerDetailTabs';
 import CustomerDetailFooter from './CustomerDetailFooter';
@@ -80,6 +80,12 @@ const CustomerDetailSlide = ({
 
   // API로 고객 LTV 데이터 조회
   const { data: ltvData, isLoading: isLoadingLTV } = useCustomerLTV(
+    customer?.id || 0,
+    !!customer?.id && isOpen
+  );
+
+  // API로 고객 구독 서비스 조회
+  const { data: subscriptions, isLoading: isLoadingSubscriptions } = useCustomerSubscriptions(
     customer?.id || 0,
     !!customer?.id && isOpen
   );
@@ -245,7 +251,7 @@ const CustomerDetailSlide = ({
   if (!customer) return null;
 
   // 로딩 중일 때
-  const isLoading = isLoadingDetail || isLoadingFeatures || isLoadingTimeline || isLoadingRFM || isLoadingLTV;
+  const isLoading = isLoadingDetail || isLoadingFeatures || isLoadingTimeline || isLoadingRFM || isLoadingLTV || isLoadingSubscriptions;
 
   // API에서 받은 상세 정보와 목록에서 받은 정보 병합
   const enrichedCustomer: Customer = customerDetail
@@ -258,6 +264,8 @@ const CustomerDetailSlide = ({
         consultFrequency: customer.consultFrequency,
         consultCategory: customer.consultCategory,
         customerType: customer.customerType,
+        // API에서 받은 구독 정보 사용
+        subscriptions: subscriptions || [],
       }
     : {
         ...customer,
@@ -272,16 +280,7 @@ const CustomerDetailSlide = ({
           acceptedAt: '2026-02-22T22:39:56',
           expiresAt: null,
         },
-        subscriptions: customer.subscriptions || [
-          {
-            subscribeId: 1,
-            product: { planId: 1, productName: '프리미엄 멤버십', productType: 'MONTHLY', price: 9900 },
-            quantity: 1,
-            totalPrice: 9900,
-            startedAt: '2026-02-19T14:48:33',
-            status: 'ACTIVE',
-          },
-        ],
+        subscriptions: subscriptions || [],
       };
 
   return (

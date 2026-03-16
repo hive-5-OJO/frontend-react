@@ -1,6 +1,6 @@
 import axiosInstance from '@/shared/lib/axios/instance';
 import axiosInstancePy from '@/shared/lib/axios/pythonInstance';
-import type { Customer, CustomerFeature, ConsultTimelineItem, RFMScore, LTVData } from '../model/types';
+import type { Customer, CustomerFeature, ConsultTimelineItem, RFMScore, LTVData, Subscription } from '../model/types';
 
 export interface CustomerListResponse {
   status: string;
@@ -158,6 +158,26 @@ export interface LTVDataResponse {
   };
 }
 
+export interface SubscriptionListResponse {
+  status: string;
+  message: string | null;
+  data: {
+    subscriptions: Array<{
+      subscribeId: number;
+      product: {
+        planId: number;
+        productName: string;
+        productType: string;
+        price: number;
+      };
+      quantity: number;
+      totalPrice: number;
+      startedAt: string;
+      status: string;
+    }>;
+  };
+}
+
 export const customerApi = {
   getList: async (params?: {
     page?: number;
@@ -299,5 +319,10 @@ export const customerApi = {
       lifespanDays: data.lifespan_days,
       ltv: data.LTV,
     };
+  },
+
+  getSubscriptions: async (id: number): Promise<Subscription[]> => {
+    const response = await axiosInstance.get<SubscriptionListResponse>(`/api/customers/${id}/subscriptions`);
+    return response.data.data.subscriptions;
   },
 };
