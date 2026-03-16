@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -16,22 +16,27 @@ interface Props {
 }
 
 const MemoModal = ({ memberId, isOpen, onClose }: Props) => {
-  const [content, setContent] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-
   const { data: memo, isLoading } = useCustomerMemo(memberId, isOpen);
   const createMemo = useCreateMemo();
   const deleteMemo = useDeleteMemo();
 
-  useEffect(() => {
-    if (memo) {
-      setContent(memo.content);
+  const hasMemo = !!memo;
+  const [content, setContent] = useState('');
+  const [isEditing, setIsEditing] = useState(!hasMemo);
+  const [lastMemoContent, setLastMemoContent] = useState<string | null>(null);
+
+  // memo 데이터가 변경되면 동기적으로 반영 (렌더 중 setState 대신 ref 비교)
+  const memoContent = memo?.content ?? null;
+  if (memoContent !== lastMemoContent) {
+    setLastMemoContent(memoContent);
+    if (memoContent) {
+      setContent(memoContent);
       setIsEditing(false);
     } else {
       setContent('');
       setIsEditing(true);
     }
-  }, [memo]);
+  }
 
   const handleSave = () => {
     if (!content.trim()) return;

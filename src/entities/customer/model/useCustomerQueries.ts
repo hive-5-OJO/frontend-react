@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { customerApi } from '../api/customerApi';
+import { customerApi, type SortRequest } from '../api/customerApi';
 import { queryKeys } from '@/shared/constants';
 
 /**
@@ -8,7 +8,7 @@ import { queryKeys } from '@/shared/constants';
 export const useCustomerList = (params?: {
   page?: number;
   size?: number;
-  sorts?: any[];
+  sorts?: SortRequest[];
 }) => {
   return useQuery({
     queryKey: queryKeys.customer.list(params || {}),
