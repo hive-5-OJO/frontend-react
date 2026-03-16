@@ -22,7 +22,6 @@ import type { Customer, CustomerType } from '@/entities/customer/model/types';
 interface Filters {
   segment?: string | null;
   frequency?: string | null;
-  service?: string | null;
   categoryId?: number | null;
 }
 
@@ -67,12 +66,12 @@ const mapApiResponseToCustomer = (apiData: {
     name: apiData.name,
     phone: apiData.phone || '',
     email: apiData.email || '',
-    joinedAt: apiData.servicePeriod.split(' ~ ')[0] || '',
+    joinedAt: apiData.servicePeriod?.split(' ~ ')[0] || '',
     service: apiData.service || undefined,
-    period: apiData.servicePeriod,
+    period: apiData.servicePeriod || '',
     consultCategory: apiData.consultCategory || undefined,
-    consultFrequency: getConsultFrequency(apiData.consultFrequency),
-    customerType: getCustomerType(apiData.vip),
+    consultFrequency: getConsultFrequency(apiData.consultFrequency || ''),
+    customerType: getCustomerType(apiData.vip || ''),
   };
 };
 
@@ -117,7 +116,6 @@ const CustomersPage = () => {
   const activeFilterParam = (() => {
     if (filters.segment) return { segment: filters.segment };
     if (filters.frequency) return { frequency: filters.frequency };
-    if (filters.service) return { service: filters.service };
     if (filters.categoryId) return { categoryId: filters.categoryId };
     return null;
   })();

@@ -23,7 +23,6 @@ export const useCustomerFilter = (params: {
   size?: number;
   segment?: string;
   frequency?: string;
-  service?: string;
   categoryId?: number;
 }, enabled = true) => {
   return useQuery({

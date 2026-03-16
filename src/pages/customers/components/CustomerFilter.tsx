@@ -11,7 +11,6 @@ import { useState, useEffect } from 'react';
 interface Filters {
   segment?: string | null;
   frequency?: string | null;
-  service?: string | null;
   categoryId?: number | null;
 }
 
@@ -60,7 +59,6 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
   const [selectedParentCategory, setSelectedParentCategory] = useState<number | null>(null);
   const parentCategories = getParentCategories();
 
-  // 필터의 categoryId가 외부에서 초기화될 때 대분류도 동기화
   useEffect(() => {
     if (filters.categoryId) {
       const allChildCategories = parentCategories.flatMap(parent =>
@@ -79,7 +77,6 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
     setSelectedParentCategory(null);
   };
 
-  // 필터는 한 번에 하나만 — 선택 시 다른 필터 초기화
   const handleSegmentChange = (val: string | null) => {
     setSelectedParentCategory(null);
     onFiltersChange(val ? { segment: val } : {});
@@ -90,11 +87,6 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
     onFiltersChange(val ? { frequency: val } : {});
   };
 
-  const handleServiceChange = (val: string | null) => {
-    setSelectedParentCategory(null);
-    onFiltersChange(val ? { service: val } : {});
-  };
-
   const handleParentCategoryChange = (val: string) => {
     if (val === 'all') {
       setSelectedParentCategory(null);
@@ -102,21 +94,19 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
     } else {
       const parentId = parseInt(val, 10);
       setSelectedParentCategory(parentId);
-      // 대분류 선택 시 대분류 ID를 categoryId로 전송
       onFiltersChange({ categoryId: parentId });
     }
   };
 
   const handleChildCategoryChange = (val: string) => {
     if (val === 'all') {
-      // 소분류 해제 시 대분류 ID로 복원
       onFiltersChange(selectedParentCategory ? { categoryId: selectedParentCategory } : {});
     } else {
       onFiltersChange({ categoryId: parseInt(val, 10) });
     }
   };
 
-  const hasActiveFilters = filters.segment || filters.frequency || filters.service || filters.categoryId;
+  const hasActiveFilters = filters.segment || filters.frequency || filters.categoryId;
 
   const childCategories = selectedParentCategory
     ? getChildCategories(selectedParentCategory)
@@ -124,7 +114,6 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
 
   return (
     <div className="space-y-4">
-      {/* 필터 선택 섹션 */}
       <div className="flex flex-wrap gap-3">
         {/* 고객 분류 필터 */}
         <div className="w-[140px]">
@@ -245,17 +234,6 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
               className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition ${getFrequencyColor(filters.frequency)}`}
             >
               <span>상담 빈도: {getFrequencyLabel(filters.frequency)}</span>
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-          {filters.service && (
-            <button
-              onClick={() => handleServiceChange(null)}
-              className="inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-cyan-100 px-3 py-1 text-sm text-cyan-700 transition hover:bg-cyan-200"
-            >
-              <span>서비스: {filters.service}</span>
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>

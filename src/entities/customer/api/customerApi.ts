@@ -1,4 +1,5 @@
 import axiosInstance from '@/shared/lib/axios/instance';
+import axiosInstancePy from '@/shared/lib/axios/pythonInstance';
 import type { Customer, CustomerFeature, ConsultTimelineItem, RFMScore, LTVData, Subscription } from '../model/types';
 
 export interface CustomerListResponse {
@@ -196,7 +197,6 @@ export const customerApi = {
     size?: number;
     segment?: string;
     frequency?: string;
-    service?: string;
     categoryId?: number;
   }): Promise<CustomerListResponse['data']> => {
     const { page, size, ...body } = params;
@@ -321,7 +321,7 @@ export const customerApi = {
   },
 
   getLTVData: async (id: number): Promise<LTVData> => {
-    const response = await axiosInstance.get<LTVDataResponse>(`/api/analysis/ltv/${id}`);
+    const response = await axiosInstancePy.get<LTVDataResponse>(`/api/analysis/ltv/${id}`);
     const data = response.data.data;
     
     return {
