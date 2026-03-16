@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { customerApi } from '../api/customerApi';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { customerApi, type SortRequest } from '../api/customerApi';
 import { queryKeys } from '@/shared/constants';
 
 /**
@@ -8,12 +8,28 @@ import { queryKeys } from '@/shared/constants';
 export const useCustomerList = (params?: {
   page?: number;
   size?: number;
-  filters?: Record<string, unknown>;
-  sorts?: any[];
+  sorts?: SortRequest[];
 }) => {
   return useQuery({
     queryKey: queryKeys.customer.list(params || {}),
     queryFn: () => customerApi.getList(params),
+  });
+};
+
+/**
+ * 고객 필터 조회 쿼리
+ */
+export const useCustomerFilter = (params: {
+  page?: number;
+  size?: number;
+  segment?: string;
+  frequency?: string;
+  categoryId?: number;
+}, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.customer.filter(params),
+    queryFn: () => customerApi.filter(params),
+    enabled,
   });
 };
 
@@ -95,5 +111,48 @@ export const useCustomerSubscriptions = (id: number, enabled = true) => {
     queryKey: queryKeys.customer.subscriptions(id),
     queryFn: () => customerApi.getSubscriptions(id),
     enabled,
+  });
+};
+
+/**
+ * 고객 메모 조회 쿼리
+ */
+export const useCustomerMemo = (memberId: number, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.customer.memo(memberId),
+    queryFn: () => customerApi.getMemo(memberId),
+    enabled,
+  });
+};
+
+/**
+ * 고객 메모 추가 뮤테이션
+ */
+export const useCreateMemo = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ memberId, content }: { memberId: number; content: string }) =>
+      customerApi.createMemo(memberId, content),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.customer.memo(variables.memberId),
+      });
+    },
+  });
+};
+
+/**
+ * 고객 메모 삭제 뮤테이션
+ */
+export const useDeleteMemo = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (memberId: number) => customerApi.deleteMemo(memberId),
+    onSuccess: (_, memberId) => {
+      queryClient.setQueryData(queryKeys.customer.memo(memberId), null);
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.customer.memo(memberId),
+      });
+    },
   });
 };

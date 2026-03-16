@@ -1,13 +1,17 @@
 interface Props {
   onClose: () => void;
+  onMemoClick: () => void;
 }
 
-const CustomerDetailFooter = ({ onClose }: Props) => {
+const CustomerDetailFooter = ({ onClose, onMemoClick }: Props) => {
   return (
     <div className="border-t border-gray-200 bg-white px-8 py-4">
       <div className="flex items-center justify-between">
         <div className="flex gap-3">
-          <button className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700">
+          <button
+            onClick={onMemoClick}
+            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
+          >
             <svg
               className="h-4 w-4"
               fill="none"

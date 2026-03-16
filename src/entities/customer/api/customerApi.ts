@@ -185,7 +185,6 @@ export const customerApi = {
   getList: async (params?: {
     page?: number;
     size?: number;
-    filters?: Record<string, unknown>;
     sorts?: SortRequest[];
   }): Promise<CustomerListResponse['data']> => {
     const response = await axiosInstance.post<CustomerListResponse>('/api/customers/list', 
@@ -193,9 +192,23 @@ export const customerApi = {
       params: {
         page: params?.page ?? 0,
         size: params?.size ?? 10,
-        ...params?.filters,
       },
     });
+    return response.data.data;
+  },
+
+  filter: async (params: {
+    page?: number;
+    size?: number;
+    segment?: string;
+    frequency?: string;
+    categoryId?: number;
+  }): Promise<CustomerListResponse['data']> => {
+    const { page, size, ...body } = params;
+    const response = await axiosInstance.post<CustomerListResponse>(
+      `/api/customers/filter?page=${page ?? 0}&size=${size ?? 10}`,
+      body,
+    );
     return response.data.data;
   },
 
@@ -233,7 +246,7 @@ export const customerApi = {
   },
 
   getFeatures: async (id: number): Promise<CustomerFeature> => {
-    const response = await axiosInstance.get<CustomerFeatureResponse>(`/batch/features/${id}`);
+    const response = await axiosInstance.get<CustomerFeatureResponse>(`/api/batch/feature/${id}`);
     const apiData = response.data.data;
     
     return {
@@ -329,5 +342,26 @@ export const customerApi = {
   getSubscriptions: async (id: number): Promise<Subscription[]> => {
     const response = await axiosInstance.get<SubscriptionListResponse>(`/api/customers/${id}/subscriptions`);
     return response.data.data.subscriptions;
+  },
+
+  getMemo: async (memberId: number): Promise<{ id: number; adminId: number; memberId: number; content: string } | null> => {
+    const response = await axiosInstance.get<{
+      status: string;
+      data: { id: number; adminId: number; memberId: number; content: string } | null;
+    }>(`/api/member-memos/${memberId}`);
+    return response.data.data;
+  },
+
+  createMemo: async (memberId: number, content: string): Promise<number> => {
+    const response = await axiosInstance.post<{
+      status: string;
+      data: number;
+      message: string;
+    }>(`/api/member-memos/${memberId}`, { content });
+    return response.data.data;
+  },
+
+  deleteMemo: async (memberId: number): Promise<void> => {
+    await axiosInstance.delete(`/api/member-memos/${memberId}`);
   },
 };

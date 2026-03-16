@@ -23,6 +23,8 @@ export const queryKeys = {
     rfm: (id: number) => [...queryKeys.customer.all, 'rfm', id] as const,
     ltv: (id: number) => [...queryKeys.customer.all, 'ltv', id] as const,
     subscriptions: (id: number) => [...queryKeys.customer.all, 'subscriptions', id] as const,
+    filter: (params: unknown) => [...queryKeys.customer.all, 'filter', params] as const,
+    memo: (id: number) => [...queryKeys.customer.all, 'memo', id] as const,
   },
 
   // Dashboard
