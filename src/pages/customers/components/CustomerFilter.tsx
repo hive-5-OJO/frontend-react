@@ -9,9 +9,10 @@ import { getParentCategories, getChildCategories, getCategoryPath } from '@/shar
 import { useState, useEffect } from 'react';
 
 interface Filters {
-  customerType?: string | null;
-  consultCategory?: number | null;
-  consultFrequency?: string | null;
+  segment?: string | null;
+  frequency?: string | null;
+  service?: string | null;
+  categoryId?: number | null;
 }
 
 interface Props {
@@ -20,16 +21,12 @@ interface Props {
 }
 
 const getFrequencyLabel = (val: string | null) => {
-  const map: { [key: string]: string } = {
-    high: 'HIGH',
-    medium: 'MEDIUM',
-    low: 'LOW',
-  };
+  const map: Record<string, string> = { high: 'HIGH', medium: 'MEDIUM', low: 'LOW' };
   return map[val || ''] || '';
 };
 
 const getFrequencyColor = (val: string | null) => {
-  const map: { [key: string]: string } = {
+  const map: Record<string, string> = {
     high: 'bg-red-100 text-red-700 border-red-300',
     medium: 'bg-yellow-100 text-yellow-700 border-yellow-300',
     low: 'bg-blue-100 text-blue-700 border-blue-300',
@@ -37,8 +34,8 @@ const getFrequencyColor = (val: string | null) => {
   return map[val || ''] || '';
 };
 
-const getCustomerTypeLabel = (val: string | null) => {
-  const map: { [key: string]: string } = {
+const getSegmentLabel = (val: string | null) => {
+  const map: Record<string, string> = {
     vip: 'VIP',
     potential_vip: '잠재 VIP',
     normal: '일반',
@@ -48,8 +45,8 @@ const getCustomerTypeLabel = (val: string | null) => {
   return map[val || ''] || '';
 };
 
-const getCustomerTypeColor = (val: string | null) => {
-  const map: { [key: string]: string } = {
+const getSegmentColor = (val: string | null) => {
+  const map: Record<string, string> = {
     vip: 'bg-purple-100 text-purple-700 border-purple-300',
     potential_vip: 'bg-indigo-100 text-indigo-700 border-indigo-300',
     normal: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -63,60 +60,66 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
   const [selectedParentCategory, setSelectedParentCategory] = useState<number | null>(null);
   const parentCategories = getParentCategories();
 
-  // 필터의 consultCategory가 외부에서 초기화될 때만 대분류도 초기화
+  // 필터의 categoryId가 외부에서 초기화될 때 대분류도 동기화
   useEffect(() => {
-    if (filters.consultCategory) {
-      const allChildCategories = parentCategories.flatMap(parent => 
+    if (filters.categoryId) {
+      const allChildCategories = parentCategories.flatMap(parent =>
         getChildCategories(parent.id)
       );
-      const selectedChild = allChildCategories.find(child => child.id === filters.consultCategory);
+      const selectedChild = allChildCategories.find(child => child.id === filters.categoryId);
       if (selectedChild?.parentId && selectedChild.parentId !== selectedParentCategory) {
         setSelectedParentCategory(selectedChild.parentId);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.consultCategory]);
+  }, [filters.categoryId]);
 
   const handleClearFilters = () => {
     onFiltersChange({});
     setSelectedParentCategory(null);
   };
 
-  const handleCustomerTypeChange = (val: string | null) => {
-    onFiltersChange({ ...filters, customerType: val });
+  // 필터는 한 번에 하나만 — 선택 시 다른 필터 초기화
+  const handleSegmentChange = (val: string | null) => {
+    setSelectedParentCategory(null);
+    onFiltersChange(val ? { segment: val } : {});
+  };
+
+  const handleFrequencyChange = (val: string | null) => {
+    setSelectedParentCategory(null);
+    onFiltersChange(val ? { frequency: val } : {});
+  };
+
+  const handleServiceChange = (val: string | null) => {
+    setSelectedParentCategory(null);
+    onFiltersChange(val ? { service: val } : {});
   };
 
   const handleParentCategoryChange = (val: string) => {
     if (val === 'all') {
       setSelectedParentCategory(null);
-      onFiltersChange({ ...filters, consultCategory: null });
+      onFiltersChange({});
     } else {
       const parentId = parseInt(val, 10);
       setSelectedParentCategory(parentId);
-      // 대분류만 선택하고 소분류는 초기화
-      onFiltersChange({ ...filters, consultCategory: null });
+      // 대분류 선택 시 대분류 ID를 categoryId로 전송
+      onFiltersChange({ categoryId: parentId });
     }
   };
 
   const handleChildCategoryChange = (val: string) => {
     if (val === 'all') {
-      onFiltersChange({ ...filters, consultCategory: null });
+      // 소분류 해제 시 대분류 ID로 복원
+      onFiltersChange(selectedParentCategory ? { categoryId: selectedParentCategory } : {});
     } else {
-      onFiltersChange({ ...filters, consultCategory: parseInt(val, 10) });
+      onFiltersChange({ categoryId: parseInt(val, 10) });
     }
   };
 
-  const handleFrequencyChange = (val: string | null) => {
-    onFiltersChange({ ...filters, consultFrequency: val });
-  };
+  const hasActiveFilters = filters.segment || filters.frequency || filters.service || filters.categoryId;
 
-  const hasActiveFilters =
-    filters.customerType ||
-    filters.consultCategory ||
-    filters.consultFrequency;
-
-  const childCategories = selectedParentCategory 
-    ? getChildCategories(selectedParentCategory) 
+  const childCategories = selectedParentCategory
+    ? getChildCategories(selectedParentCategory)
     : [];
 
   return (
@@ -126,8 +129,8 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
         {/* 고객 분류 필터 */}
         <div className="w-[140px]">
           <Select
-            value={filters.customerType || 'all'}
-            onValueChange={(val) => handleCustomerTypeChange(val === 'all' ? null : val)}
+            value={filters.segment || 'all'}
+            onValueChange={(val) => handleSegmentChange(val === 'all' ? null : val)}
           >
             <SelectTrigger>
               <SelectValue placeholder="고객 분류" />
@@ -146,7 +149,7 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
         {/* 상담 카테고리 대분류 필터 */}
         <div className="w-[160px]">
           <Select
-            value={selectedParentCategory?.toString() || 'all'}
+            value={filters.categoryId && selectedParentCategory ? selectedParentCategory.toString() : 'all'}
             onValueChange={handleParentCategoryChange}
           >
             <SelectTrigger>
@@ -163,18 +166,22 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
           </Select>
         </div>
 
-        {/* 상담 카테고리 소분류 필터 (대분류 선택 시에만 표시) */}
+        {/* 상담 카테고리 소분류 필터 */}
         {selectedParentCategory && childCategories.length > 0 && (
           <div className="w-[160px]">
             <Select
-              value={filters.consultCategory?.toString() || 'all'}
+              value={
+                filters.categoryId && !parentCategories.some(p => p.id === filters.categoryId)
+                  ? filters.categoryId.toString()
+                  : 'all'
+              }
               onValueChange={handleChildCategoryChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="세부 카테고리" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">세부 카테고리</SelectItem>
+                <SelectItem value="all">전체 (대분류)</SelectItem>
                 {childCategories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id.toString()}>
                     {cat.name}
@@ -188,7 +195,7 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
         {/* 상담 빈도 필터 */}
         <div className="w-[140px]">
           <Select
-            value={filters.consultFrequency || 'all'}
+            value={filters.frequency || 'all'}
             onValueChange={(val) => handleFrequencyChange(val === 'all' ? null : val)}
           >
             <SelectTrigger>
@@ -202,55 +209,83 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
             </SelectContent>
           </Select>
         </div>
+
+        {/* 이용 서비스 필터 */}
+        <div className="w-[140px]">
+          <Select
+            value={filters.service || 'all'}
+            onValueChange={(val) => handleServiceChange(val === 'all' ? null : val)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="이용 서비스" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">이용 서비스</SelectItem>
+              {/* <SelectItem value="INTERNET">인터넷</SelectItem> */}
+              {/* <SelectItem value="TV">TV</SelectItem> */}
+              {/* <SelectItem value="PHONE">전화</SelectItem> */}
+              {/* <SelectItem value="MOBILE">모바일</SelectItem> */}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* 선택된 필터 태그 표시 */}
       {hasActiveFilters && (
         <div className="flex flex-wrap gap-2 border-t border-gray-100 pt-4">
-          {filters.customerType && (
+          {filters.segment && (
             <button
-              onClick={() => handleCustomerTypeChange(null)}
-              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition ${getCustomerTypeColor(filters.customerType)}`}
+              onClick={() => handleSegmentChange(null)}
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition ${getSegmentColor(filters.segment)}`}
             >
-              <span>{getCustomerTypeLabel(filters.customerType)}</span>
+              <span>{getSegmentLabel(filters.segment)}</span>
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}
-          {filters.consultCategory && (
+          {filters.categoryId && (
             <button
               onClick={() => {
                 setSelectedParentCategory(null);
-                onFiltersChange({ ...filters, consultCategory: null });
+                onFiltersChange({});
               }}
               className="inline-flex items-center gap-2 rounded-full border border-green-300 bg-green-100 px-3 py-1 text-sm text-green-700 transition hover:bg-green-200"
             >
-              <span>{getCategoryPath(filters.consultCategory)}</span>
+              <span>{getCategoryPath(filters.categoryId)}</span>
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}
-          {filters.consultFrequency && (
+          {filters.frequency && (
             <button
               onClick={() => handleFrequencyChange(null)}
-              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition ${getFrequencyColor(filters.consultFrequency)}`}
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition ${getFrequencyColor(filters.frequency)}`}
             >
-              <span>상담 빈도: {getFrequencyLabel(filters.consultFrequency)}</span>
+              <span>상담 빈도: {getFrequencyLabel(filters.frequency)}</span>
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}
-          {hasActiveFilters && (
+          {filters.service && (
             <button
-              onClick={handleClearFilters}
-              className="ml-2 text-sm font-medium text-gray-500 transition hover:text-gray-700"
+              onClick={() => handleServiceChange(null)}
+              className="inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-cyan-100 px-3 py-1 text-sm text-cyan-700 transition hover:bg-cyan-200"
             >
-              전체 초기화
+              <span>서비스: {filters.service}</span>
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           )}
+          <button
+            onClick={handleClearFilters}
+            className="ml-2 text-sm font-medium text-gray-500 transition hover:text-gray-700"
+          >
+            전체 초기화
+          </button>
         </div>
       )}
     </div>

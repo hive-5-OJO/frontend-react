@@ -181,15 +181,29 @@ export const customerApi = {
   getList: async (params?: {
     page?: number;
     size?: number;
-    filters?: Record<string, unknown>;
   }): Promise<CustomerListResponse['data']> => {
     const response = await axiosInstance.get<CustomerListResponse>('/api/customers/list', {
       params: {
         page: params?.page ?? 0,
         size: params?.size ?? 10,
-        ...params?.filters,
       },
     });
+    return response.data.data;
+  },
+
+  filter: async (params: {
+    page?: number;
+    size?: number;
+    segment?: string;
+    frequency?: string;
+    service?: string;
+    categoryId?: number;
+  }): Promise<CustomerListResponse['data']> => {
+    const { page, size, ...body } = params;
+    const response = await axiosInstance.post<CustomerListResponse>(
+      `/api/customers/filter?page=${page ?? 0}&size=${size ?? 10}`,
+      body,
+    );
     return response.data.data;
   },
 
@@ -227,7 +241,7 @@ export const customerApi = {
   },
 
   getFeatures: async (id: number): Promise<CustomerFeature> => {
-    const response = await axiosInstance.get<CustomerFeatureResponse>(`/batch/features/${id}`);
+    const response = await axiosInstance.get<CustomerFeatureResponse>(`/api/batch/feature/${id}`);
     const apiData = response.data.data;
     
     return {

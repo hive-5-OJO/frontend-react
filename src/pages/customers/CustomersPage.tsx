@@ -15,14 +15,15 @@ import {
   SelectValue,
   FilterToggleButton,
 } from '@/shared/ui';
-import { useCustomerList, useCustomerSearch } from '@/entities/customer/model/useCustomerQueries';
+import { useCustomerList, useCustomerSearch, useCustomerFilter } from '@/entities/customer/model/useCustomerQueries';
 import CustomerFilter from './components/CustomerFilter';
 import type { Customer, CustomerType } from '@/entities/customer/model/types';
 
 interface Filters {
-  customerType?: string | null;
-  consultCategory?: number | null;
-  consultFrequency?: string | null;
+  segment?: string | null;
+  frequency?: string | null;
+  service?: string | null;
+  categoryId?: number | null;
 }
 
 interface SortField {
@@ -93,7 +94,7 @@ const CustomersPage = () => {
   });
   const [filters, setFilters] = useState<Filters>(() => {
     // 초기 상태에서 URL 파라미터 반영
-    return customerTypeParam ? { customerType: customerTypeParam } : {};
+    return customerTypeParam ? { segment: customerTypeParam } : {};
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [sorts, setSorts] = useState<SortField[]>([]);
@@ -112,12 +113,29 @@ const CustomersPage = () => {
   // 검색어가 있으면 검색 API, 없으면 목록 API 호출
   const isSearching = searchTerm.trim().length > 0;
 
-  // 목록 API 호출
+  // 활성 필터 파라미터 구성 (한 번에 하나만)
+  const activeFilterParam = (() => {
+    if (filters.segment) return { segment: filters.segment };
+    if (filters.frequency) return { frequency: filters.frequency };
+    if (filters.service) return { service: filters.service };
+    if (filters.categoryId) return { categoryId: filters.categoryId };
+    return null;
+  })();
+
+  const isFiltering = !!activeFilterParam;
+
+  // 목록 API 호출 (필터 없을 때)
   const { data: listResponse, isLoading: isLoadingList, error: listError } = useCustomerList({
     page,
     size: pageSize,
-    filters: filters as Record<string, unknown>,
   });
+
+  // 필터 API 호출 (필터 있을 때)
+  const { data: filterResponse, isLoading: isLoadingFilter, error: filterError } = useCustomerFilter({
+    page,
+    size: pageSize,
+    ...activeFilterParam,
+  }, isFiltering && !isSearching);
 
   // 검색 API 호출
   const { data: searchResponse, isLoading: isLoadingSearch, error: searchError } = useCustomerSearch({
@@ -126,20 +144,26 @@ const CustomersPage = () => {
     size: pageSize,
   }, isSearching);
 
-  // 검색 중이면 검색 결과, 아니면 목록 결과 사용
-  const apiResponse = isSearching ? searchResponse : listResponse;
-  const isLoading = isSearching ? isLoadingSearch : isLoadingList;
-  const error = isSearching ? searchError : listError;
+  // 우선순위: 검색 > 필터 > 목록
+  const isLoading = isSearching ? isLoadingSearch : isFiltering ? isLoadingFilter : isLoadingList;
+  const error = isSearching ? searchError : isFiltering ? filterError : listError;
 
   // API 데이터를 Customer 타입으로 변환
-  const customers = apiResponse?.content?.map(mapApiResponseToCustomer) || [];
-  const totalElements = apiResponse?.page?.totalElements || 0;
-  const totalPages = apiResponse?.page?.totalPages || 1;
+  const customers = (() => {
+    if (isFiltering && !isSearching) {
+      return filterResponse?.content?.map(mapApiResponseToCustomer) || [];
+    }
+    const resp = isSearching ? searchResponse : listResponse;
+    return resp?.content?.map(mapApiResponseToCustomer) || [];
+  })();
+  const pageInfo = isSearching ? searchResponse?.page : isFiltering ? filterResponse?.page : listResponse?.page;
+  const totalElements = pageInfo?.totalElements || 0;
+  const totalPages = pageInfo?.totalPages || 1;
 
   // URL 파라미터 변경 시 필터 업데이트 (초기 로드 제외)
   useEffect(() => {
-    if (customerTypeParam && filters.customerType !== customerTypeParam) {
-      setFilters((prev) => ({ ...prev, customerType: customerTypeParam }));
+    if (customerTypeParam && filters.segment !== customerTypeParam) {
+      setFilters({ segment: customerTypeParam });
       setIsFilterOpen(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -233,7 +257,7 @@ const CustomersPage = () => {
   const pageData = sortedData;
 
   const hasActiveFilters =
-    Object.keys(filters).some((k) => filters[k as keyof Filters]) || searchTerm || sorts.length > 0;
+    Object.values(filters).some((v) => v !== null && v !== undefined) || searchTerm || sorts.length > 0;
 
   return (
     <DashboardLayout>

@@ -8,11 +8,28 @@ import { queryKeys } from '@/shared/constants';
 export const useCustomerList = (params?: {
   page?: number;
   size?: number;
-  filters?: Record<string, unknown>;
 }) => {
   return useQuery({
     queryKey: queryKeys.customer.list(params || {}),
     queryFn: () => customerApi.getList(params),
+  });
+};
+
+/**
+ * 고객 필터 조회 쿼리
+ */
+export const useCustomerFilter = (params: {
+  page?: number;
+  size?: number;
+  segment?: string;
+  frequency?: string;
+  service?: string;
+  categoryId?: number;
+}, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.customer.filter(params),
+    queryFn: () => customerApi.filter(params),
+    enabled,
   });
 };
 
