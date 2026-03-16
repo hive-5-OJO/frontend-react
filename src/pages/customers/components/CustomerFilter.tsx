@@ -209,25 +209,6 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
             </SelectContent>
           </Select>
         </div>
-
-        {/* 이용 서비스 필터 */}
-        <div className="w-[140px]">
-          <Select
-            value={filters.service || 'all'}
-            onValueChange={(val) => handleServiceChange(val === 'all' ? null : val)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="이용 서비스" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">이용 서비스</SelectItem>
-              {/* <SelectItem value="INTERNET">인터넷</SelectItem> */}
-              {/* <SelectItem value="TV">TV</SelectItem> */}
-              {/* <SelectItem value="PHONE">전화</SelectItem> */}
-              {/* <SelectItem value="MOBILE">모바일</SelectItem> */}
-            </SelectContent>
-          </Select>
-        </div>
       </div>
 
       {/* 선택된 필터 태그 표시 */}
