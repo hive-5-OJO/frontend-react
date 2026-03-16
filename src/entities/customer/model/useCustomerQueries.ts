@@ -8,6 +8,7 @@ import { queryKeys } from '@/shared/constants';
 export const useCustomerList = (params?: {
   page?: number;
   size?: number;
+  sorts?: any[];
 }) => {
   return useQuery({
     queryKey: queryKeys.customer.list(params || {}),

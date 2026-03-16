@@ -126,6 +126,11 @@ const CustomersPage = () => {
   const { data: listResponse, isLoading: isLoadingList, error: listError } = useCustomerList({
     page,
     size: pageSize,
+<<<<<<< HEAD
+=======
+    filters: filters as Record<string, unknown>,
+    sorts,
+>>>>>>> origin/main
   });
 
   // 필터 API 호출 (필터 있을 때)
