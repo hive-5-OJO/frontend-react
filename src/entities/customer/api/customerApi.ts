@@ -281,7 +281,7 @@ export const customerApi = {
   },
 
   getConsultTimeline: async (id: number): Promise<ConsultTimelineItem[]> => {
-    const response = await axiosInstancePy.get<ConsultTimelineResponse>(`/api/advice/timeline/${id}`);
+    const response = await axiosInstance.get<ConsultTimelineResponse>(`/api/advice/${id}`);
     const timeline = response.data.data.timeline;
     
     return timeline.map((item) => ({
