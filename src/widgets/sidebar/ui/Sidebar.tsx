@@ -16,6 +16,9 @@ const Sidebar = ({ onClose }: Props) => {
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(
     location.pathname.startsWith('/analysis')
   );
+  const [isCustomerOpen, setIsCustomerOpen] = useState(
+    location.pathname.startsWith('/customers') || location.pathname.startsWith('/channels')
+  );
 
   const baseStyle =
     'flex items-center gap-3 font-md rounded-lg px-4 py-4 text-md transition-colors';
@@ -72,14 +75,49 @@ const Sidebar = ({ onClose }: Props) => {
           <span>대시보드</span>
         </NavLink>
 
-        <NavLink
-          to={ROUTES.CUSTOMERS}
-          onClick={onClose}
-          className={({ isActive }) => `${baseStyle} ${isActive ? activeStyle : hoverStyle}`}
-        >
-          <Icon src={customerIcon} alt="customers" size="md" />
-          <span>고객 관리</span>
-        </NavLink>
+        {/* 고객 관리 - 토글 가능 */}
+        <div>
+          <button
+            onClick={() => setIsCustomerOpen(!isCustomerOpen)}
+            className={`${baseStyle} ${hoverStyle} w-full justify-between`}
+          >
+            <div className="flex items-center gap-3">
+              <Icon src={customerIcon} alt="customers" size="md" />
+              <span>고객 관리</span>
+            </div>
+            <svg
+              className={`h-5 w-5 transition-transform ${isCustomerOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {isCustomerOpen && (
+            <div className="mt-1 space-y-1">
+              <NavLink
+                to={ROUTES.CUSTOMERS}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `${subItemStyle} ${isActive ? activeStyle : hoverStyle}`
+                }
+              >
+                <span>전체 고객</span>
+              </NavLink>
+              <NavLink
+                to={ROUTES.CHANNELS}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `${subItemStyle} ${isActive ? activeStyle : hoverStyle}`
+                }
+              >
+                <span>고객 채널</span>
+              </NavLink>
+            </div>
+          )}
+        </div>
 
         {/* 분석 및 통계 - 토글 가능 */}
         <div>

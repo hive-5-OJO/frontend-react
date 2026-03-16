@@ -3,6 +3,8 @@ import LoginPage from '@/pages/auth/LoginPage';
 import GoogleCallbackPage from '@/pages/auth/GoogleCallbackPage';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 import CustomersPage from '@/pages/customers/CustomersPage';
+import ChannelsPage from '@/pages/channels/ChannelsPage';
+import ChannelDetailPage from '@/pages/channels/ChannelDetailPage';
 import RFMAnalysisPage from '@/pages/analysis/RFMAnalysisPage';
 import CohortAnalysisPage from '@/pages/analysis/CohortAnalysisPage';
 import RegionalAnalysisPage from '@/pages/analysis/RegionalAnalysisPage';
@@ -42,6 +44,26 @@ export const router = createBrowserRouter([
       <ErrorBoundary>
         <ProtectedRoute>
           <CustomersPage />
+        </ProtectedRoute>
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: ROUTES.CHANNELS,
+    element: (
+      <ErrorBoundary>
+        <ProtectedRoute>
+          <ChannelsPage />
+        </ProtectedRoute>
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: `${ROUTES.CHANNELS}/:id`,
+    element: (
+      <ErrorBoundary>
+        <ProtectedRoute>
+          <ChannelDetailPage />
         </ProtectedRoute>
       </ErrorBoundary>
     ),

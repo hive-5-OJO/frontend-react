@@ -113,3 +113,7 @@ export { LoadingOverlay } from './loading-overlay';
 export type { LoadingOverlayProps } from './loading-overlay';
 
 export { FilterToggleButton } from './filter-toggle-button';
+
+export { DeleteConfirmModal } from './delete-confirm-modal';
+
+export { ConfirmModal } from './confirm-modal';

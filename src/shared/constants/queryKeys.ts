@@ -44,4 +44,12 @@ export const queryKeys = {
     cohort: () => [...queryKeys.analysis.all, 'cohort'] as const,
     regional: () => [...queryKeys.analysis.all, 'regional'] as const,
   },
+
+  // Channel
+  channel: {
+    all: ['channel'] as const,
+    lists: () => [...queryKeys.channel.all, 'list'] as const,
+    detail: (id: number) => [...queryKeys.channel.all, 'detail', id] as const,
+    members: (id: number) => [...queryKeys.channel.all, 'members', id] as const,
+  },
 } as const;

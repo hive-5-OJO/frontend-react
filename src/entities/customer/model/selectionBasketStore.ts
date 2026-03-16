@@ -4,22 +4,27 @@ import type { Customer } from './types';
 
 interface SelectionBasketState {
   selectedCustomers: Customer[];
+  activeChannelId: number | null;
+  isPanelOpen: boolean;
   addCustomer: (customer: Customer) => void;
   removeCustomer: (customerId: number) => void;
   addMultiple: (customers: Customer[]) => void;
   clearBasket: () => void;
   isSelected: (customerId: number) => boolean;
   getCount: () => number;
+  setActiveChannel: (channelId: number | null) => void;
+  setIsPanelOpen: (open: boolean) => void;
 }
 
 export const useSelectionBasket = create<SelectionBasketState>()(
   persist(
     (set, get) => ({
       selectedCustomers: [],
+      activeChannelId: null,
+      isPanelOpen: false,
       
       addCustomer: (customer) =>
         set((state) => {
-          // 중복 방지
           if (state.selectedCustomers.some((c) => c.id === customer.id)) {
             return state;
           }
@@ -38,17 +43,25 @@ export const useSelectionBasket = create<SelectionBasketState>()(
           return { selectedCustomers: [...state.selectedCustomers, ...newCustomers] };
         }),
       
-      clearBasket: () => set({ selectedCustomers: [] }),
+      clearBasket: () => set({ selectedCustomers: [], activeChannelId: null, isPanelOpen: false }),
       
       isSelected: (customerId) => {
         return get().selectedCustomers.some((c) => c.id === customerId);
       },
       
       getCount: () => get().selectedCustomers.length,
+
+      setActiveChannel: (channelId) => set({ activeChannelId: channelId }),
+
+      setIsPanelOpen: (open) => set({ isPanelOpen: open }),
     }),
     {
-      name: 'customer-selection-basket', // localStorage 키 이름
-      partialize: (state) => ({ selectedCustomers: state.selectedCustomers }), // 저장할 상태만 선택
+      name: 'customer-selection-basket',
+      partialize: (state) => ({
+        selectedCustomers: state.selectedCustomers,
+        activeChannelId: state.activeChannelId,
+        isPanelOpen: state.isPanelOpen,
+      }),
     }
   )
 );
