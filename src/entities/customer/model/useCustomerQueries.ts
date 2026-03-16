@@ -9,6 +9,7 @@ export const useCustomerList = (params?: {
   page?: number;
   size?: number;
   filters?: Record<string, unknown>;
+  sorts?: any[];
 }) => {
   return useQuery({
     queryKey: queryKeys.customer.list(params || {}),

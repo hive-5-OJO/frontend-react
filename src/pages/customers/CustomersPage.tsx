@@ -117,6 +117,7 @@ const CustomersPage = () => {
     page,
     size: pageSize,
     filters: filters as Record<string, unknown>,
+    sorts,
   });
 
   // 검색 API 호출
