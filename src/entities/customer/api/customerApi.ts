@@ -177,13 +177,19 @@ export interface SubscriptionListResponse {
   };
 }
 
+export interface SortRequest {
+  field: string;
+  order: 'asc' | 'desc';
+}
 export const customerApi = {
   getList: async (params?: {
     page?: number;
     size?: number;
     filters?: Record<string, unknown>;
+    sorts?: SortRequest[];
   }): Promise<CustomerListResponse['data']> => {
-    const response = await axiosInstance.get<CustomerListResponse>('/api/customers/list', {
+    const response = await axiosInstance.post<CustomerListResponse>('/api/customers/list', 
+      params?.sorts || [], {
       params: {
         page: params?.page ?? 0,
         size: params?.size ?? 10,
