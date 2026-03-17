@@ -519,11 +519,11 @@ const RegionalAnalysisPage = () => {
                     <tr key={data.region} className="hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">{data.region}</td>
                       <td className="px-6 py-4 text-center text-sm text-gray-600">
-                        {data.customers.toLocaleString()}
+                        {data.customers.toLocaleString()}명
                       </td>
                       <td className="px-6 py-4 text-center text-sm text-gray-600">{data.percentage.toFixed(2)}%</td>
-                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.vipCount.toLocaleString()}</td>
-                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.churnRiskCount.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.vipCount.toLocaleString()}명</td>
+                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.churnRiskCount.toLocaleString()}명</td>
                       <td className="px-6 py-4 text-center text-sm text-gray-600">₩{data.avgRevenue.toLocaleString()}</td>
                       <td className="px-6 py-4 text-center text-sm">
                         <span className="inline-block rounded bg-red-100 px-2 py-1 text-red-700">
