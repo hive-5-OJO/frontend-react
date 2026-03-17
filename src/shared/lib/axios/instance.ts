@@ -14,7 +14,7 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = sessionStorage.getItem('accessToken');
-    console.log('[Axios Request] URL:', config.url, 'Token:', accessToken ? 'exists' : 'missing');
+    // console.log('[Axios Request] URL:', config.url, 'Token:', accessToken ? 'exists' : 'missing');
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -29,12 +29,12 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    console.log('[Axios Response Error]', error.response?.status, error.response?.data);
+    // console.log('[Axios Response Error]', error.response?.status, error.response?.data);
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      console.log('[Axios] Attempting token refresh...');
+      // console.log('[Axios] Attempting token refresh...');
 
       try {
         const response = await axios.post(
@@ -45,12 +45,12 @@ axiosInstance.interceptors.response.use(
 
         const { accessToken } = response.data as { accessToken: string };
         sessionStorage.setItem('accessToken', accessToken);
-        console.log('[Axios] Token refreshed successfully');
+        // console.log('[Axios] Token refreshed successfully');
 
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        console.log('[Axios] Token refresh failed, redirecting to login');
+        // console.log('[Axios] Token refresh failed, redirecting to login');
         sessionStorage.removeItem('accessToken');
         window.location.href = '/login';
         return Promise.reject(refreshError);
