@@ -2,6 +2,7 @@ import type { LTVData } from '@/entities/customer/model/types';
 import { Card, CardContent, Badge } from '@/shared/ui';
 import { formatNumber } from '../../utils';
 import { Bar } from 'react-chartjs-2';
+import { Star } from 'lucide-react';
 
 interface Props {
   ltvData: LTVData;
@@ -10,10 +11,10 @@ interface Props {
 const LTVTab = ({ ltvData }: Props) => {
   // LTV 등급 계산 (LTV 값 기준)
   const getLTVGrade = (ltv: number) => {
-    if (ltv >= 5000000) return { label: 'TOP 10%', color: 'bg-purple-100 text-purple-700' };
-    if (ltv >= 3000000) return { label: 'TOP 30%', color: 'bg-blue-100 text-blue-700' };
-    if (ltv >= 1500000) return { label: '평균 이상', color: 'bg-green-100 text-green-700' };
-    return { label: '평균 이하', color: 'bg-gray-100 text-gray-700' };
+    if (ltv >= 2700000) return { label: 'TOP 10%', color: 'bg-purple-100 text-purple-700', icon: true };
+    if (ltv >= 1800000) return { label: 'TOP 30%', color: 'bg-blue-100 text-blue-700', icon: false };
+    if (ltv >= 900000) return { label: '평균 이상', color: 'bg-green-100 text-green-700', icon: false };
+    return { label: '평균 이하', color: 'bg-gray-100 text-gray-700', icon: false };
   };
 
   const ltvGradeInfo = getLTVGrade(ltvData.ltv);
@@ -24,11 +25,11 @@ const LTVTab = ({ ltvData }: Props) => {
       {
         label: '누적 수익 (원)',
         data: [
-          ltvData.avgValue,
-          ltvData.avgValue * 3,
-          ltvData.avgValue * 6,
-          ltvData.avgValue * 12,
-          ltvData.ltv,
+          Math.floor(ltvData.avgValue),
+          Math.floor(ltvData.avgValue * 3),
+          Math.floor(ltvData.avgValue * 6),
+          Math.floor(ltvData.avgValue * 12),
+          Math.floor(ltvData.ltv),
         ],
         backgroundColor: 'rgba(147, 51, 234, 0.8)',
         borderColor: 'rgba(147, 51, 234, 1)',
@@ -38,12 +39,14 @@ const LTVTab = ({ ltvData }: Props) => {
   };
 
   const ltvChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
           callback: function (value: string | number) {
-            return formatNumber(Number(value)) + '원';
+            return formatNumber(Math.floor(Number(value))) + '원';
           },
         },
       },
@@ -53,7 +56,7 @@ const LTVTab = ({ ltvData }: Props) => {
       tooltip: {
         callbacks: {
           label: function (context: { parsed: { y: number | null } }) {
-            return formatNumber(context.parsed.y || 0) + '원';
+            return formatNumber(Math.floor(context.parsed.y || 0)) + '원';
           },
         },
       },
@@ -67,11 +70,12 @@ const LTVTab = ({ ltvData }: Props) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium opacity-90">고객 생애 가치 (LTV)</p>
-              <h3 className="mt-1 text-4xl font-bold">{formatNumber(ltvData.ltv)}원</h3>
+              <h3 className="mt-1 text-4xl font-bold">{formatNumber(Math.floor(ltvData.ltv))}원</h3>
               <div className="mt-3 flex items-center gap-2">
                 <Badge
                   className={`${ltvGradeInfo.color} border-0 px-3 py-1`}
                 >
+                  {ltvGradeInfo.icon && <Star className="mr-1 h-3.5 w-3.5 fill-current" />}
                   {ltvGradeInfo.label}
                 </Badge>
                 <span className="text-sm opacity-90">등급</span>
@@ -103,13 +107,13 @@ const LTVTab = ({ ltvData }: Props) => {
               <div className="flex items-center justify-between border-b pb-3">
                 <span className="text-sm text-gray-600">평균 주문 금액</span>
                 <span className="text-base font-semibold text-gray-900">
-                  {formatNumber(ltvData.avgValue)}원
+                  {formatNumber(Math.floor(ltvData.avgValue))}원
                 </span>
               </div>
               <div className="flex items-center justify-between border-b pb-3">
                 <span className="text-sm text-gray-600">총 결제 금액</span>
                 <span className="text-base font-semibold text-gray-900">
-                  {formatNumber(ltvData.totalRevenue)}원
+                  {formatNumber(Math.floor(ltvData.totalRevenue))}원
                 </span>
               </div>
               <div className="flex items-center justify-between border-b pb-3">
@@ -136,6 +140,7 @@ const LTVTab = ({ ltvData }: Props) => {
               <Badge
                 className={`${ltvGradeInfo.color} border-0 px-4 py-2 text-base`}
               >
+                {ltvGradeInfo.icon && <Star className="mr-1 h-4 w-4 fill-current" />}
                 {ltvGradeInfo.label}
               </Badge>
             </div>
@@ -168,10 +173,10 @@ const LTVTab = ({ ltvData }: Props) => {
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
                 <span className="font-medium">
-                  {ltvData.ltv >= 5000000 && '최상위 고객입니다. VIP 대우와 특별 관리가 필요합니다.'}
-                  {ltvData.ltv >= 3000000 && ltvData.ltv < 5000000 && '상위 고객입니다. 프리미엄 서비스를 제공하세요.'}
-                  {ltvData.ltv >= 1500000 && ltvData.ltv < 3000000 && '평균 이상 고객입니다. 지속적인 관리가 필요합니다.'}
-                  {ltvData.ltv < 1500000 && '평균 이하 고객입니다. LTV 향상 전략이 필요합니다.'}
+                  {ltvData.ltv >= 2700000 && '최상위 고객입니다. VIP 대우와 특별 관리가 필요합니다.'}
+                  {ltvData.ltv >= 1800000 && ltvData.ltv < 2700000 && '상위 고객입니다. 프리미엄 서비스를 제공하세요.'}
+                  {ltvData.ltv >= 900000 && ltvData.ltv < 1800000 && '평균 이상 고객입니다. 지속적인 관리가 필요합니다.'}
+                  {ltvData.ltv < 900000 && '평균 이하 고객입니다. LTV 향상 전략이 필요합니다.'}
                 </span>
               </p>
             </div>

@@ -62,9 +62,9 @@ export const BulkEmailModal = ({ isOpen, onClose, customers = [] }: BulkEmailMod
 
   const handleSend = () => {
     // TODO: 실제 메일 전송 API 호출
-    console.log('Sending email to:', eligibleEmails);
-    console.log('Subject:', subject);
-    console.log('Content:', content);
+    // console.log('Sending email to:', eligibleEmails);
+    // console.log('Subject:', subject);
+    // console.log('Content:', content);
     
     alert(`${eligibleEmails.length}명에게 메일을 전송합니다.`);
     handleClose();
