@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
-import { Card, CardContent, PageHeader, Button, FormSelect, MonthPicker, FilterToggleButton } from '@/shared/ui';
+import { Card, CardContent, PageHeader, Button, FormSelect, MonthPicker, FilterToggleButton, ConfirmModal } from '@/shared/ui';
 import { useCohortAnalysis } from '@/entities/analysis';
 import type { SegmentType } from '@/entities/analysis';
 
@@ -46,7 +46,7 @@ const getHeatmapStyle = (value: number | null): { style: React.CSSProperties; cl
 
 const formatPercent = (value: number | null): string => {
   if (value === null) return '-';
-  return `${(value * 100).toFixed(1)}%`;
+  return `${(value * 100).toFixed(2)}%`;
 };
 
 // --- 메인 컴포넌트 ---
@@ -54,36 +54,63 @@ const CohortAnalysisPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [isQueried, setIsQueried] = useState(false);
   const [segmentType, setSegmentType] = useState<SegmentType>('all');
-  const [startMonth, setStartMonth] = useState('2025-01');
-  const [endMonth, setEndMonth] = useState('2026-03');
+  const [queriedSegment, setQueriedSegment] = useState<SegmentType>('all');
+  const [startMonth, setStartMonth] = useState('');
+  const [endMonth, setEndMonth] = useState('');
   const [analysisPeriod, setAnalysisPeriod] = useState('12');
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [queryTrigger, setQueryTrigger] = useState(0);
 
-  // API 호출 - segment만 전달
+  // API 호출 - 조회 버튼을 눌렀을 때의 segment로만 호출
   const { data: apiResponse, isLoading, error } = useCohortAnalysis(
     {
-      segment: segmentType,
+      segment: queriedSegment,
     },
-    isQueried // 조회하기 버튼을 눌렀을 때만 실행
+    isQueried
   );
-
-  const handleQuery = () => {
-    setIsQueried(true);
-  };
 
   // API 응답에서 데이터 추출 후 프론트에서 필터링
   const filteredData = useMemo(() => {
     if (!isQueried || !apiResponse?.data) return [];
     
-    // 1. 시작 월 ~ 끝 월 범위의 코호트만 선택
     return apiResponse.data
-      .filter((row) => row.join_month >= startMonth && row.join_month <= endMonth)
+      .filter((row) => {
+        if (startMonth && row.join_month < startMonth) return false;
+        if (endMonth && row.join_month > endMonth) return false;
+        return true;
+      })
       .sort((a, b) => a.join_month.localeCompare(b.join_month));
   }, [isQueried, apiResponse, startMonth, endMonth]);
 
-  // 열 헤더 계산 (0개월 ~ 분석기간)
+  const handleQuery = () => {
+    setQueriedSegment(segmentType);
+    setIsQueried(true);
+    setQueryTrigger((prev) => prev + 1);
+  };
+
+  // 조회 버튼을 눌러서 데이터가 로드된 후, 선택 범위가 데이터 범위를 벗어나면 알림
+  useEffect(() => {
+    if (queryTrigger > 0 && !isLoading && apiResponse?.data && apiResponse.data.length > 0) {
+      const months = apiResponse.data.map((r) => r.join_month).sort();
+      const dataMin = months[0];
+      const dataMax = months[months.length - 1];
+
+      const outOfRange =
+        (startMonth && startMonth < dataMin) ||
+        (endMonth && endMonth > dataMax);
+
+      if (outOfRange) {
+        setAlertOpen(true);
+        setIsQueried(false);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryTrigger, isLoading, apiResponse]);
+
+  // 열 헤더 계산 (1개월 ~ 분석기간)
   const columnHeaders = useMemo(() => {
     const maxPeriod = parseInt(analysisPeriod);
-    return Array.from({ length: maxPeriod + 1 }, (_, i) => `${i}개월`);
+    return Array.from({ length: maxPeriod }, (_, i) => i + 1);
   }, [analysisPeriod]);
 
   // 요약 통계
@@ -97,7 +124,7 @@ const CohortAnalysisPage = () => {
     const month6Values: number[] = [];
 
     for (const row of filteredData) {
-      for (let i = 0; i <= maxPeriod; i++) {
+      for (let i = 1; i <= maxPeriod; i++) {
         const val = row[String(i)];
         if (typeof val === 'number') {
           allValues.push(val);
@@ -118,7 +145,7 @@ const CohortAnalysisPage = () => {
     };
   }, [filteredData, analysisPeriod]);
 
-  const segmentLabel = SEGMENT_OPTIONS.find((o) => o.value === segmentType)?.label ?? '';
+  const segmentLabel = SEGMENT_OPTIONS.find((o) => o.value === queriedSegment)?.label ?? '';
 
   return (
     <DashboardLayout>
@@ -190,7 +217,7 @@ const CohortAnalysisPage = () => {
                   <CardContent className="p-5">
                     <p className="text-sm font-medium text-gray-500">+1개월 리텐션</p>
                     <p className="mt-1 text-2xl font-bold text-gray-900">
-                      {(summaryStats.retention1 * 100).toFixed(1)}%
+                      {(summaryStats.retention1 * 100).toFixed(2)}%
                     </p>
                     <p className="mt-1 text-xs text-gray-400">1개월 후 평균</p>
                   </CardContent>
@@ -199,7 +226,7 @@ const CohortAnalysisPage = () => {
                   <CardContent className="p-5">
                     <p className="text-sm font-medium text-gray-500">+3개월 리텐션</p>
                     <p className="mt-1 text-2xl font-bold text-gray-900">
-                      {(summaryStats.retention3 * 100).toFixed(1)}%
+                      {(summaryStats.retention3 * 100).toFixed(2)}%
                     </p>
                     <p className="mt-1 text-xs text-gray-400">3개월 후 평균</p>
                   </CardContent>
@@ -208,7 +235,7 @@ const CohortAnalysisPage = () => {
                   <CardContent className="p-5">
                     <p className="text-sm font-medium text-gray-500">+6개월 리텐션</p>
                     <p className="mt-1 text-2xl font-bold text-gray-900">
-                      {(summaryStats.retention6 * 100).toFixed(1)}%
+                      {(summaryStats.retention6 * 100).toFixed(2)}%
                     </p>
                     <p className="mt-1 text-xs text-gray-400">6개월 후 평균</p>
                   </CardContent>
@@ -233,12 +260,12 @@ const CohortAnalysisPage = () => {
                         <th className="sticky left-0 z-10 w-[1500px] min-w-[150px] max-w-[150px] border-b border-r border-gray-200 bg-gray-50 px-3 py-2.5 text-left text-xs font-semibold text-gray-600">
                           가입 월
                         </th>
-                        {columnHeaders.map((header, i) => (
+                        {columnHeaders.map((month) => (
                           <th
-                            key={i}
+                            key={month}
                             className="min-w-[70px] border-b border-gray-200 bg-gray-50 px-2 py-2.5 text-center text-xs font-semibold text-gray-600"
                           >
-                            {header}
+                            {month}개월
                           </th>
                         ))}
                       </tr>
@@ -249,11 +276,11 @@ const CohortAnalysisPage = () => {
                           <td className="sticky left-0 z-10 w-[100px] min-w-[100px] max-w-[100px] border-b border-r border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
                             {row.join_month}
                           </td>
-                          {columnHeaders.map((_, i) => {
-                            const val = row[String(i)] as number | null;
+                          {columnHeaders.map((month) => {
+                            const val = row[String(month)] as number | null;
                             const { style, className } = getHeatmapStyle(val);
                             return (
-                              <td key={i} className="border-b border-gray-100 px-0.5 py-0.5">
+                              <td key={month} className="border-b border-gray-100 px-0.5 py-0.5">
                                 <div
                                   className={`flex items-center justify-center rounded px-1 py-1.5 text-xs font-medium ${className}`}
                                   style={style}
@@ -344,6 +371,15 @@ const CohortAnalysisPage = () => {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        title="알림"
+        description="선택한 기간에 해당하는 분석 데이터가 존재하지 않습니다. 기간을 변경해 주세요."
+        confirmLabel="확인"
+        showCancel={false}
+      />
     </DashboardLayout>
   );
 };
