@@ -3,6 +3,16 @@ import { dashboardApi } from '../api/dashboardApi';
 import { queryKeys } from '@/shared/constants';
 
 /**
+ * 대시보드 요약 조회 쿼리
+ */
+export const useDashboardSummary = () => {
+  return useQuery({
+    queryKey: queryKeys.dashboard.stats(),
+    queryFn: () => dashboardApi.getSummary(),
+  });
+};
+
+/**
  * 상담 카테고리 통계 조회 쿼리
  */
 export const useConsultCategories = () => {

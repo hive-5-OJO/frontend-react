@@ -8,8 +8,25 @@ import ConsultCategoryCard from '@/widgets/consult-category-card/ui/ConsultCateg
 import ConsultTimeCard from '@/widgets/consult-time-card/ui/ConsultTimeCard';
 import OutboundCard from '@/widgets/outbound-card/ui/OutboundCard';
 import SatisfactionCard from '@/widgets/satisfaction-card/ui/SatisfactionCard';
+import { useDashboardSummary } from '@/entities/dashboard';
 
 const DashboardPage = () => {
+  const { data: summary, isLoading } = useDashboardSummary();
+
+  const cards = summary?.cards;
+  const dailyStats = summary?.dailyStats || [];
+  const segments = summary?.segments;
+
+  const formatCount = (count?: number) =>
+    count !== undefined ? count.toLocaleString() : '-';
+
+  const getTrendIcon = (percent?: number) => {
+    if (percent === undefined) return null;
+    return percent >= 0
+      ? <Icon src={increaseIcon} alt="increase" size="md" />
+      : <Icon src={decreaseIcon} alt="decrease" size="md" />;
+  };
+
   return (
     <DashboardLayout>
       <div className="my-3 ml-5 flex flex-col gap-2">
@@ -21,39 +38,55 @@ const DashboardPage = () => {
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           label="현재 고객"
-          value="100,850"
+          value={isLoading ? '...' : formatCount(cards?.currentCustomers.count)}
           unit="명"
-          trend={{ value: 5.2, isPositive: true, comparison: '지난주 대비' }}
-          icon={<Icon src={increaseIcon} alt="increase" size="md" />}
+          trend={cards ? {
+            value: cards.currentCustomers.percentChange,
+            isPositive: cards.currentCustomers.percentChange >= 0,
+            comparison: '지난달 대비',
+          } : undefined}
+          icon={getTrendIcon(cards?.currentCustomers.percentChange)}
         />
         <MetricCard
           label="이 달 새 활성 고객"
-          value="1,850"
+          value={isLoading ? '...' : formatCount(cards?.newActiveCustomers.count)}
           unit="명"
-          trend={{ value: 5.2, isPositive: true, comparison: '지난주 대비' }}
-          icon={<Icon src={increaseIcon} alt="increase" size="md" />}
+          trend={cards ? {
+            value: cards.newActiveCustomers.percentChange,
+            isPositive: cards.newActiveCustomers.percentChange >= 0,
+            comparison: '지난달 대비',
+          } : undefined}
+          icon={getTrendIcon(cards?.newActiveCustomers.percentChange)}
         />
         <MetricCard
           label="신규 고객"
-          value="850"
+          value={isLoading ? '...' : formatCount(cards?.newCustomers.count)}
           unit="명"
-          trend={{ value: 5.2, isPositive: true, comparison: '지난주 대비' }}
-          icon={<Icon src={increaseIcon} alt="increase" size="md" />}
+          trend={cards ? {
+            value: cards.newCustomers.percentChange,
+            isPositive: cards.newCustomers.percentChange >= 0,
+            comparison: '지난달 대비',
+          } : undefined}
+          icon={getTrendIcon(cards?.newCustomers.percentChange)}
         />
         <MetricCard
           label="이 달 위험 고객"
-          value="1,240"
+          value={isLoading ? '...' : formatCount(cards?.atRiskCustomers.count)}
           unit="명"
-          trend={{ value: 5.2, isPositive: false, comparison: '지난주 대비' }}
-          icon={<Icon src={decreaseIcon} alt="decrease" size="md" />}
+          trend={cards ? {
+            value: cards.atRiskCustomers.percentChange,
+            isPositive: cards.atRiskCustomers.percentChange >= 0,
+            comparison: '지난달 대비',
+          } : undefined}
+          icon={getTrendIcon(cards?.atRiskCustomers.percentChange)}
         />
       </div>
 
       {/* 고객 인사이트 */}
       <h2 className="mb-3 ml-3 text-xl font-bold text-gray-900">고객 인사이트</h2>
       <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <CustomerTrendChart />
-        <CustomerCompositionChart />
+        <CustomerTrendChart dailyStats={dailyStats} />
+        <CustomerCompositionChart segments={segments} />
       </div>
 
       {/* 상담 인사이트 요약 */}

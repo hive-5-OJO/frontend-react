@@ -1,5 +1,43 @@
 import axiosInstance from '@/shared/lib/axios/instance';
 
+// 대시보드 요약 타입
+export interface DashboardCardData {
+  count: number;
+  percentChange: number;
+}
+
+export interface DashboardDailyStat {
+  date: string;
+  newCustomers: number;
+  churnedCustomers: number;
+  activeCustomers: number;
+}
+
+export interface DashboardSegments {
+  vip: number;
+  potentialVip: number;
+  general: number;
+  atRisk: number;
+  churned: number;
+}
+
+export interface DashboardSummaryData {
+  cards: {
+    currentCustomers: DashboardCardData;
+    newActiveCustomers: DashboardCardData;
+    newCustomers: DashboardCardData;
+    atRiskCustomers: DashboardCardData;
+  };
+  dailyStats: DashboardDailyStat[];
+  segments: DashboardSegments;
+}
+
+export interface DashboardSummaryResponse {
+  status: string;
+  data: DashboardSummaryData;
+  message: string;
+}
+
 export interface ConsultCategoryData {
   totalCount: number;
   items: Array<{
@@ -59,6 +97,11 @@ export interface SatisfactionResponse {
 }
 
 export const dashboardApi = {
+  getSummary: async (): Promise<DashboardSummaryData> => {
+    const response = await axiosInstance.get<DashboardSummaryResponse>('/api/analysis/dashboard');
+    return response.data.data;
+  },
+
   getConsultCategories: async (): Promise<ConsultCategoryData> => {
     const response = await axiosInstance.get<ConsultCategoryResponse>('/api/advice/categories');
     return response.data.data;
