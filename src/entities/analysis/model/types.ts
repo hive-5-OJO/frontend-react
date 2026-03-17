@@ -63,25 +63,20 @@ export interface RFMKpiResponse {
 
 // 지역 분석 타입 정의
 
-export interface RegionDistribution {
+export interface RegionData {
   region: string;
   count: number;
+  totalRevenue: number;
+  totalMonthlyRevenue: number;
+  avgRevenue: number;
+  avgMonthlyRevenue: number;
   vipCount: number;
   churnRiskCount: number;
   ratio: number;
-  avgMonetary: number;
   churnRiskRatio: number;
-}
-
-export interface RegionalAnalysisRequest {
-  baseDate?: string; // YYYY-MM-DD 형식 (선택사항)
 }
 
 export interface RegionalAnalysisResponse {
   status: string;
-  data: {
-    baseDate: string;
-    distribution: RegionDistribution[];
-  };
-  message: string;
+  data: RegionData[];
 }

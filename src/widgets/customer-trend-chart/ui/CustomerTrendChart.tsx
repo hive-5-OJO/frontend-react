@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -9,17 +10,39 @@ import {
   Legend,
 } from 'chart.js';
 import { Card, CardContent } from '@/shared/ui';
-import { customerTrendData, monthlySummary } from '@/pages/dashboard/mockDashboardData';
+import type { DashboardDailyStat } from '@/entities/dashboard';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
-const CustomerTrendChart = () => {
+interface Props {
+  dailyStats: DashboardDailyStat[];
+}
+
+const CustomerTrendChart = ({ dailyStats }: Props) => {
+  const { labels, newCustomers, churnedCustomers, activeCustomers, summary } = useMemo(() => {
+    const sorted = [...dailyStats].sort((a, b) => a.date.localeCompare(b.date));
+    return {
+      labels: sorted.map((d) => {
+        const date = new Date(d.date);
+        return `${date.getMonth() + 1}/${date.getDate()}`;
+      }),
+      newCustomers: sorted.map((d) => d.newCustomers),
+      churnedCustomers: sorted.map((d) => d.churnedCustomers),
+      activeCustomers: sorted.map((d) => d.activeCustomers),
+      summary: {
+        newCustomers: sorted.reduce((s, d) => s + d.newCustomers, 0),
+        churnedCustomers: sorted.reduce((s, d) => s + d.churnedCustomers, 0),
+        activeCustomers: sorted.reduce((s, d) => s + d.activeCustomers, 0),
+      },
+    };
+  }, [dailyStats]);
+
   const chartData = {
-    labels: customerTrendData.labels,
+    labels,
     datasets: [
       {
         label: '신규 고객',
-        data: customerTrendData.datasets.current,
+        data: newCustomers,
         borderColor: 'rgb(59, 130, 246)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         tension: 0.4,
@@ -28,7 +51,7 @@ const CustomerTrendChart = () => {
       },
       {
         label: '이탈 고객',
-        data: customerTrendData.datasets.churned,
+        data: churnedCustomers,
         borderColor: 'rgb(239, 68, 68)',
         backgroundColor: 'rgba(239, 68, 68, 0.1)',
         tension: 0.4,
@@ -37,7 +60,7 @@ const CustomerTrendChart = () => {
       },
       {
         label: '활성 고객',
-        data: customerTrendData.datasets.netGrowth,
+        data: activeCustomers,
         borderColor: 'rgb(34, 197, 94)',
         backgroundColor: 'rgba(34, 197, 94, 0.1)',
         tension: 0.4,
@@ -85,19 +108,19 @@ const CustomerTrendChart = () => {
           <Line data={chartData} options={options} />
         </div>
         <div className="mt-4 flex items-center gap-4 rounded-lg bg-gray-50 p-3">
-          <span className="text-sm font-medium text-gray-500">{monthlySummary.month}</span>
+          <span className="text-sm font-medium text-gray-500">최근 7일</span>
           <div className="flex gap-4 text-sm">
             <span>
               <span className="mr-1 inline-block h-2 w-2 rounded-full bg-blue-500"></span>
-              신규 고객 <span className="font-bold">{monthlySummary.newCustomers}명</span>
+              신규 고객 <span className="font-bold">{summary.newCustomers.toLocaleString()}명</span>
             </span>
             <span>
               <span className="mr-1 inline-block h-2 w-2 rounded-full bg-red-500"></span>
-              이탈 고객 <span className="font-bold">{monthlySummary.churnedCustomers}명</span>
+              이탈 고객 <span className="font-bold">{summary.churnedCustomers.toLocaleString()}명</span>
             </span>
             <span>
               <span className="mr-1 inline-block h-2 w-2 rounded-full bg-green-500"></span>
-              활성 고객 <span className="font-bold">{monthlySummary.netGrowth}명</span>
+              활성 고객 <span className="font-bold">{summary.activeCustomers.toLocaleString()}명</span>
             </span>
           </div>
         </div>

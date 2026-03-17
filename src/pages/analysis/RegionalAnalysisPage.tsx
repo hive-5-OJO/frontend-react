@@ -29,12 +29,6 @@ const REGION_COORDINATES: Record<string, { lat: number; lng: number }> = {
   '제주': { lat: 33.4890, lng: 126.4983 },
 };
 
-const getUtilizationColor = (value: number) => {
-  if (value >= 0.65) return 'bg-green-100 text-green-700';
-  if (value >= 0.55) return 'bg-yellow-100 text-yellow-700';
-  return 'bg-orange-100 text-orange-700';
-};
-
 const getMarkerColor = (customers: number) => {
   if (customers >= 5000) return '#ef4444';
   if (customers >= 2000) return '#f59e0b';
@@ -51,7 +45,7 @@ const RegionalAnalysisPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
-  const [isFloatingEnabled, setIsFloatingEnabled] = useState(true);
+  const [isFloatingEnabled, setIsFloatingEnabled] = useState(false);
   const [isHeaderFixed, setIsHeaderFixed] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [headerPosition, setHeaderPosition] = useState({ left: 0, width: 'auto' as string | number });
@@ -67,9 +61,9 @@ const RegionalAnalysisPage = () => {
 
   // API 응답 데이터 가공
   const regionalData = useMemo(() => {
-    if (!apiResponse?.data?.distribution) return [];
+    if (!apiResponse?.data || !Array.isArray(apiResponse.data)) return [];
     
-    return apiResponse.data.distribution.map((region) => {
+    return apiResponse.data.map((region) => {
       const coords = REGION_COORDINATES[region.region] || { lat: 37.5665, lng: 126.978 };
       return {
         region: region.region,
@@ -79,7 +73,8 @@ const RegionalAnalysisPage = () => {
         percentage: region.ratio,
         vipCount: region.vipCount,
         churnRiskCount: region.churnRiskCount,
-        avgMonetary: region.avgMonetary,
+        avgRevenue: Math.round(region.avgRevenue),
+        avgMonthlyRevenue: Math.round(region.avgMonthlyRevenue),
         churnRiskRatio: region.churnRiskRatio,
       };
     });
@@ -190,7 +185,7 @@ const RegionalAnalysisPage = () => {
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
               <span>비율:</span>
-              <span style="font-weight: 600; color: #111827;">${data.percentage.toFixed(1)}%</span>
+              <span style="font-weight: 600; color: #111827;">${data.percentage.toFixed(2)}%</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
               <span>VIP 고객:</span>
@@ -202,7 +197,7 @@ const RegionalAnalysisPage = () => {
             </div>
             <div style="display: flex; justify-content: space-between;">
               <span>평균 결제액:</span>
-              <span style="font-weight: 600; color: #10b981;">₩${data.avgMonetary.toLocaleString()}</span>
+              <span style="font-weight: 600; color: #10b981;">₩${data.avgRevenue.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -270,9 +265,11 @@ const RegionalAnalysisPage = () => {
 
   const totalCustomers = regionalData.reduce((sum, d) => sum + d.customers, 0);
   const avgChurnRiskRatio = regionalData.length > 0 
-    ? (regionalData.reduce((sum, d) => sum + d.churnRiskRatio, 0) / regionalData.length * 100).toFixed(1)
+    ? (regionalData.reduce((sum, d) => sum + d.churnRiskRatio, 0) / regionalData.length).toFixed(2)
     : '0.0';
-  const topRegion = regionalData.length > 0 ? regionalData[0] : null;
+  const topRegion = regionalData.length > 0 
+    ? [...regionalData].sort((a, b) => b.customers - a.customers)[0] 
+    : null;
 
   return (
     <DashboardLayout>
@@ -457,7 +454,7 @@ const RegionalAnalysisPage = () => {
                 <CardContent className="p-6">
                   <h3 className="mb-2 text-sm font-semibold text-gray-500">최다 고객 지역</h3>
                   <p className="text-3xl font-bold text-gray-900">{topRegion?.region || '-'}</p>
-                  <p className="mt-1 text-xs text-gray-500">전체의 {topRegion?.percentage.toFixed(1) || '0'}%</p>
+                  <p className="mt-1 text-xs text-gray-500">전체의 {topRegion?.percentage.toFixed(2) || '0'}%</p>
                 </CardContent>
               </Card>
               <Card>
@@ -468,6 +465,33 @@ const RegionalAnalysisPage = () => {
                 </CardContent>
               </Card>
             </div>
+
+        {/* 지도 */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h4 className="text-base font-bold text-gray-900">지역별 고객 분포 지도</h4>
+                <p className="mt-1 text-sm text-gray-500">마커 크기와 색상은 고객 수를 나타냅니다</p>
+              </div>
+              <div className="flex gap-4 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                  <span className="text-gray-600">5,000명 이상</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                  <span className="text-gray-600">2,000-5,000명</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-blue-500"></div>
+                  <span className="text-gray-600">2,000명 미만</span>
+                </div>
+              </div>
+            </div>
+            <div ref={mapContainer} className="h-[500px] w-full rounded-lg" />
+          </CardContent>
+        </Card>
 
         {/* 지역별 테이블 */}
         <div className="flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
@@ -497,13 +521,13 @@ const RegionalAnalysisPage = () => {
                       <td className="px-6 py-4 text-center text-sm text-gray-600">
                         {data.customers.toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.percentage.toFixed(1)}%</td>
+                      <td className="px-6 py-4 text-center text-sm text-gray-600">{data.percentage.toFixed(2)}%</td>
                       <td className="px-6 py-4 text-center text-sm text-gray-600">{data.vipCount.toLocaleString()}</td>
                       <td className="px-6 py-4 text-center text-sm text-gray-600">{data.churnRiskCount.toLocaleString()}</td>
-                      <td className="px-6 py-4 text-center text-sm text-gray-600">₩{data.avgMonetary.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-center text-sm text-gray-600">₩{data.avgRevenue.toLocaleString()}</td>
                       <td className="px-6 py-4 text-center text-sm">
-                        <span className={`inline-block rounded px-2 py-1 ${getUtilizationColor(data.churnRiskRatio)}`}>
-                          {(data.churnRiskRatio * 100).toFixed(1)}%
+                        <span className="inline-block rounded bg-red-100 px-2 py-1 text-red-700">
+                          {data.churnRiskRatio}%
                         </span>
                       </td>
                     </tr>
@@ -512,33 +536,6 @@ const RegionalAnalysisPage = () => {
             </table>
           </div>
         </div>
-
-        {/* 지도 */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <h4 className="text-base font-bold text-gray-900">지역별 고객 분포 지도</h4>
-                <p className="mt-1 text-sm text-gray-500">마커 크기와 색상은 고객 수를 나타냅니다</p>
-              </div>
-              <div className="flex gap-4 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-red-500"></div>
-                  <span className="text-gray-600">5,000명 이상</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-orange-500"></div>
-                  <span className="text-gray-600">2,000-5,000명</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-                  <span className="text-gray-600">2,000명 미만</span>
-                </div>
-              </div>
-            </div>
-            <div ref={mapContainer} className="h-[500px] w-full rounded-lg" />
-          </CardContent>
-        </Card>
           </>
         )}
       </div>
