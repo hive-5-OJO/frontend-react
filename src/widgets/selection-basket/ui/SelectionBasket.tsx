@@ -7,6 +7,8 @@ import { Button, Badge, ConfirmModal } from '@/shared/ui';
 import { BulkEmailModal } from '@/widgets/bulk-email-modal';
 import { CreateChannelModal } from '@/widgets/create-channel-modal';
 import { UsersRound, X, Hash } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/shared/constants/routes';
 import type { Customer, CustomerType } from '@/entities/customer/model/types';
 
 const mapApiResponseToCustomer = (apiData: {
@@ -113,6 +115,7 @@ export const SelectionBasket = () => {
 
   const { data: channels } = useChannelList();
   const addMembers = useAddChannelMembers();
+  const navigate = useNavigate();
 
   // 전체 고객 목록 (채널 클릭 시 멤버 매칭용)
   const { data: listResponse } = useCustomerList({ page: 0, size: 1000 });
@@ -356,10 +359,15 @@ export const SelectionBasket = () => {
         isOpen={confirmModal.isOpen}
         onClose={() => {
           const wasSuccess = confirmModal.title === '고객 추가 완료';
+          const channelId = activeChannelId;
           setConfirmModal({ ...confirmModal, isOpen: false });
           if (wasSuccess) {
             clearBasket();
             setIsPanelOpen(false);
+            setPanelPos(null);
+            if (channelId) {
+              navigate(`${ROUTES.CHANNELS}/${channelId}`);
+            }
           }
         }}
         title={confirmModal.title}
