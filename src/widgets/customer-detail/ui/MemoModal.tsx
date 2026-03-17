@@ -6,6 +6,8 @@ import {
   DialogTitle,
   DialogFooter,
   Button,
+  DeleteConfirmModal,
+  ConfirmModal,
 } from '@/shared/ui';
 import { useCustomerMemo, useCreateMemo, useDeleteMemo } from '@/entities/customer/model/useCustomerQueries';
 
@@ -24,6 +26,10 @@ const MemoModal = ({ memberId, isOpen, onClose }: Props) => {
   const [content, setContent] = useState('');
   const [isEditing, setIsEditing] = useState(!hasMemo);
   const [lastMemoContent, setLastMemoContent] = useState<string | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [resultModal, setResultModal] = useState<{ isOpen: boolean; title: string; description: string }>({
+    isOpen: false, title: '', description: '',
+  });
 
   // memo 데이터가 변경되면 동기적으로 반영 (렌더 중 setState 대신 ref 비교)
   const memoContent = memo?.content ?? null;
@@ -42,18 +48,37 @@ const MemoModal = ({ memberId, isOpen, onClose }: Props) => {
     if (!content.trim()) return;
     createMemo.mutate(
       { memberId, content: content.trim() },
-      { onSuccess: () => onClose() },
+      {
+        onSuccess: () => {
+          setResultModal({
+            isOpen: true,
+            title: '저장 완료',
+            description: '메모가 저장되었습니다.',
+          });
+        },
+      },
     );
   };
 
   const handleDelete = () => {
-    if (!confirm('메모를 삭제하시겠습니까?')) return;
+    setIsDeleteOpen(true);
+  };
+
+  const confirmDelete = () => {
     deleteMemo.mutate(memberId, {
-      onSuccess: () => onClose(),
+      onSuccess: () => {
+        setIsDeleteOpen(false);
+        setResultModal({
+          isOpen: true,
+          title: '삭제 완료',
+          description: '메모가 삭제되었습니다.',
+        });
+      },
     });
   };
 
   const handleClose = () => {
+    if (resultModal.isOpen || isDeleteOpen) return;
     if (memo) {
       setContent(memo.content);
       setIsEditing(false);
@@ -62,6 +87,7 @@ const MemoModal = ({ memberId, isOpen, onClose }: Props) => {
   };
 
   return (
+  <>
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-3xl w-[95vw]">
         <DialogHeader>
@@ -134,6 +160,28 @@ const MemoModal = ({ memberId, isOpen, onClose }: Props) => {
         )}
       </DialogContent>
     </Dialog>
+
+    <DeleteConfirmModal
+      isOpen={isDeleteOpen}
+      onClose={() => setIsDeleteOpen(false)}
+      onConfirm={confirmDelete}
+      title="메모 삭제"
+      description="메모를 삭제하시겠습니까?"
+      isPending={deleteMemo.isPending}
+    />
+
+    <ConfirmModal
+      isOpen={resultModal.isOpen}
+      onClose={() => {
+        setResultModal({ isOpen: false, title: '', description: '' });
+        onClose();
+      }}
+      title={resultModal.title}
+      description={resultModal.description}
+      confirmLabel="확인"
+      showCancel={false}
+    />
+  </>
   );
 };
 
