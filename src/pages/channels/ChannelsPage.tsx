@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
-import { Card, CardContent, Badge, Button, PageHeader, DeleteConfirmModal } from '@/shared/ui';
+import { Card, CardContent, Badge, Button, PageHeader, DeleteConfirmModal, ConfirmModal } from '@/shared/ui';
 import { useChannelList, useDeleteChannel } from '@/entities/channel';
 import { ROUTES } from '@/shared/constants/routes';
 import { Trash2, Users, ArrowRight } from 'lucide-react';
@@ -12,6 +12,7 @@ const ChannelsPage = () => {
   const navigate = useNavigate();
 
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; name: string }>({ isOpen: false, name: '' });
 
   const handleDelete = (id: number, name: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -20,8 +21,12 @@ const ChannelsPage = () => {
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
+    const name = deleteTarget.name;
     deleteChannel.mutate(deleteTarget.id, {
-      onSuccess: () => setDeleteTarget(null),
+      onSuccess: () => {
+        setDeleteTarget(null);
+        setConfirmModal({ isOpen: true, name });
+      },
     });
   };
 
@@ -120,6 +125,18 @@ const ChannelsPage = () => {
         title="채널 삭제"
         description={`"${deleteTarget?.name}" 채널을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
         isPending={deleteChannel.isPending}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => {
+          setConfirmModal({ isOpen: false, name: '' });
+          navigate(ROUTES.CHANNELS);
+        }}
+        title="삭제 완료"
+        description={`"${confirmModal.name}" 채널이 삭제되었습니다.`}
+        confirmLabel="확인"
+        showCancel={false}
       />
     </DashboardLayout>
   );

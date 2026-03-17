@@ -98,7 +98,7 @@ const ChannelDetailPage = () => {
 
   const isLoading = isLoadingChannels || isLoadingMembers || isLoadingCustomers;
 
-  if (!isLoadingChannels && !channel) {
+  if (!isLoadingChannels && !channel && !confirmModal.isOpen) {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center py-20">
@@ -144,13 +144,14 @@ const ChannelDetailPage = () => {
   };
 
   const handleDeleteChannel = () => {
+    const channelName = channel?.name || '';
     deleteChannel.mutate(channelId, {
       onSuccess: () => {
         setIsDeleteChannelOpen(false);
         setConfirmModal({
           isOpen: true,
           title: '삭제 완료',
-          description: `"${channel?.name}" 채널이 삭제되었습니다.`,
+          description: `"${channelName}" 채널이 삭제되었습니다.`,
           onClose: () => navigate(ROUTES.CHANNELS),
         });
       },
