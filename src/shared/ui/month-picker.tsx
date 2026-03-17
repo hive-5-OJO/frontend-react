@@ -7,9 +7,10 @@ interface MonthPickerProps {
   value?: string; // Format: YYYY-MM
   onChange?: (value: string) => void;
   className?: string;
+  placeholder?: string;
 }
 
-export const MonthPicker = ({ label, value, onChange, className = '' }: MonthPickerProps) => {
+export const MonthPicker = ({ label, value, onChange, className = '', placeholder }: MonthPickerProps) => {
   const [open, setOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState(() => {
     if (value) return parseInt(value.split('-')[0]);
@@ -55,7 +56,7 @@ export const MonthPicker = ({ label, value, onChange, className = '' }: MonthPic
     setYearRangeStart(yearRangeStart + 10);
   };
 
-  const displayValue = `${selectedYear}년 ${selectedMonth}월`;
+  const displayValue = value ? `${selectedYear}년 ${selectedMonth}월` : null;
 
   return (
     <div className={className}>
@@ -72,7 +73,7 @@ export const MonthPicker = ({ label, value, onChange, className = '' }: MonthPic
               'disabled:cursor-not-allowed disabled:opacity-50'
             )}
           >
-            <span>{displayValue}</span>
+            <span className={displayValue ? '' : 'text-gray-400'}>{displayValue || placeholder || '선택'}</span>
             <svg
               className="size-4 shrink-0 text-gray-400"
               fill="none"

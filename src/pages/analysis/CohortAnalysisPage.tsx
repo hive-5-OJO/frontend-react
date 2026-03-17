@@ -53,13 +53,19 @@ const formatPercent = (value: number | null): string => {
 const CohortAnalysisPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [isQueried, setIsQueried] = useState(false);
-  const [segmentType, setSegmentType] = useState<SegmentType>('all');
+  const [segmentType, setSegmentType] = useState<SegmentType | ''>('');
   const [queriedSegment, setQueriedSegment] = useState<SegmentType>('all');
   const [startMonth, setStartMonth] = useState('');
   const [endMonth, setEndMonth] = useState('');
-  const [analysisPeriod, setAnalysisPeriod] = useState('12');
+  const [analysisPeriod, setAnalysisPeriod] = useState('');
   const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
   const [queryTrigger, setQueryTrigger] = useState(0);
+
+  // 조회 시점의 필터 스냅샷
+  const [queriedStartMonth, setQueriedStartMonth] = useState('');
+  const [queriedEndMonth, setQueriedEndMonth] = useState('');
+  const [queriedAnalysisPeriod, setQueriedAnalysisPeriod] = useState('12');
 
   // API 호출 - 조회 버튼을 눌렀을 때의 segment로만 호출
   const { data: apiResponse, isLoading, error } = useCohortAnalysis(
@@ -75,15 +81,23 @@ const CohortAnalysisPage = () => {
     
     return apiResponse.data
       .filter((row) => {
-        if (startMonth && row.join_month < startMonth) return false;
-        if (endMonth && row.join_month > endMonth) return false;
+        if (queriedStartMonth && row.join_month < queriedStartMonth) return false;
+        if (queriedEndMonth && row.join_month > queriedEndMonth) return false;
         return true;
       })
       .sort((a, b) => a.join_month.localeCompare(b.join_month));
-  }, [isQueried, apiResponse, startMonth, endMonth]);
+  }, [isQueried, apiResponse, queriedStartMonth, queriedEndMonth]);
 
   const handleQuery = () => {
+    if (!segmentType || !startMonth || !endMonth || !analysisPeriod) {
+      setAlertMessage('분석 기준, 가입 월 (시작/끝), 분석 기간을 모두 선택해 주세요.');
+      setAlertOpen(true);
+      return;
+    }
     setQueriedSegment(segmentType);
+    setQueriedStartMonth(startMonth);
+    setQueriedEndMonth(endMonth);
+    setQueriedAnalysisPeriod(analysisPeriod);
     setIsQueried(true);
     setQueryTrigger((prev) => prev + 1);
   };
@@ -100,6 +114,7 @@ const CohortAnalysisPage = () => {
         (endMonth && endMonth > dataMax);
 
       if (outOfRange) {
+        setAlertMessage('선택한 기간에 해당하는 분석 데이터가 존재하지 않습니다. 기간을 변경해 주세요.');
         setAlertOpen(true);
         setIsQueried(false);
       }
@@ -109,15 +124,15 @@ const CohortAnalysisPage = () => {
 
   // 열 헤더 계산 (1개월 ~ 분석기간)
   const columnHeaders = useMemo(() => {
-    const maxPeriod = parseInt(analysisPeriod);
+    const maxPeriod = parseInt(queriedAnalysisPeriod);
     return Array.from({ length: maxPeriod }, (_, i) => i + 1);
-  }, [analysisPeriod]);
+  }, [queriedAnalysisPeriod]);
 
   // 요약 통계
   const summaryStats = useMemo(() => {
     if (filteredData.length === 0) return null;
 
-    const maxPeriod = parseInt(analysisPeriod);
+    const maxPeriod = parseInt(queriedAnalysisPeriod);
     const allValues: number[] = [];
     const month1Values: number[] = [];
     const month3Values: number[] = [];
@@ -143,7 +158,7 @@ const CohortAnalysisPage = () => {
       retention3: avg(month3Values),
       retention6: avg(month6Values),
     };
-  }, [filteredData, analysisPeriod]);
+  }, [filteredData, queriedAnalysisPeriod]);
 
   const segmentLabel = SEGMENT_OPTIONS.find((o) => o.value === queriedSegment)?.label ?? '';
 
@@ -169,27 +184,29 @@ const CohortAnalysisPage = () => {
                   label="분석 기준"
                   placeholder="기준 선택"
                   value={segmentType}
-                  onChange={(v) => setSegmentType(v as SegmentType)}
+                  onChange={(v) => { setSegmentType(v as SegmentType); }}
                   className="w-[160px]"
                   options={SEGMENT_OPTIONS}
                 />
                 <MonthPicker
                   label="가입 월 (시작)"
                   value={startMonth}
-                  onChange={setStartMonth}
+                  onChange={(v) => { setStartMonth(v); }}
                   className="w-[160px]"
+                  placeholder="시작 월 선택"
                 />
                 <MonthPicker
                   label="가입 월 (끝)"
                   value={endMonth}
-                  onChange={setEndMonth}
+                  onChange={(v) => { setEndMonth(v); }}
                   className="w-[160px]"
+                  placeholder="종료 월 선택"
                 />
                 <FormSelect
                   label="분석 기간"
                   placeholder="기간 선택"
                   value={analysisPeriod}
-                  onChange={setAnalysisPeriod}
+                  onChange={(v) => { setAnalysisPeriod(v); }}
                   className="w-[140px]"
                   options={ANALYSIS_PERIOD_OPTIONS}
                 />
@@ -376,7 +393,7 @@ const CohortAnalysisPage = () => {
         isOpen={alertOpen}
         onClose={() => setAlertOpen(false)}
         title="알림"
-        description="선택한 기간에 해당하는 분석 데이터가 존재하지 않습니다. 기간을 변경해 주세요."
+        description={alertMessage}
         confirmLabel="확인"
         showCancel={false}
       />
