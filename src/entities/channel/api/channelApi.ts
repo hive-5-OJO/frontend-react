@@ -1,10 +1,7 @@
 import axiosInstance from '@/shared/lib/axios/instance';
 import type {
   Channel,
-  ChannelListResponse,
   ChannelMember,
-  ChannelMembersResponse,
-  AddMembersResponse,
 } from '../model/types';
 
 interface CommonResponse<T> {
