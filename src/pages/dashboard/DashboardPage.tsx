@@ -2,6 +2,8 @@ import { DashboardLayout } from '@/widgets/dashboard-layout';
 import { Icon, MetricCard } from '@/shared/ui';
 import increaseIcon from '@/assets/icons/increase-icon.svg';
 import decreaseIcon from '@/assets/icons/decrease-icon.svg';
+import increaseRedIcon from '@/assets/icons/increase-red-icon.svg';
+import decreaseBlueIcon from '@/assets/icons/decrease-blue-icon.svg';
 import CustomerTrendChart from '@/widgets/customer-trend-chart/ui/CustomerTrendChart';
 import CustomerCompositionChart from '@/widgets/customer-composition-chart/ui/CustomerCompositionChart';
 import ConsultCategoryCard from '@/widgets/consult-category-card/ui/ConsultCategoryCard';
@@ -25,6 +27,14 @@ const DashboardPage = () => {
     return percent >= 0
       ? <Icon src={increaseIcon} alt="increase" size="md" />
       : <Icon src={decreaseIcon} alt="decrease" size="md" />;
+  };
+
+  // 위험 고객용 -> 감소하면 좋음(Blue), 증가하면 나쁨(Red)
+  const getAtRiskTrendIcon = (percent?: number) => {
+    if (percent === undefined) return null;
+    return percent <= 0
+      ? <Icon src={decreaseBlueIcon} alt="decrease" size="md" />
+      : <Icon src={increaseRedIcon} alt="increase" size="md" />;
   };
 
   return (
@@ -75,10 +85,10 @@ const DashboardPage = () => {
           unit="명"
           trend={cards ? {
             value: cards.atRiskCustomers.percentChange,
-            isPositive: cards.atRiskCustomers.percentChange >= 0,
+            isPositive: cards.atRiskCustomers.percentChange <= 0,
             comparison: '지난달 대비',
           } : undefined}
-          icon={getTrendIcon(cards?.atRiskCustomers.percentChange)}
+          icon={getAtRiskTrendIcon(cards?.atRiskCustomers.percentChange)}
         />
       </div>
 
