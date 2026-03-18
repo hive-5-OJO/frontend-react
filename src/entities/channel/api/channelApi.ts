@@ -15,10 +15,6 @@ interface CreateChannelRequest {
   description: string;
 }
 
-interface AddChannelMembersRequest {
-  memberIds: number[];
-}
-
 export const channelApi = {
   getList: async (): Promise<Channel[]> => {
     const response = await axiosInstance.get<CommonResponse<Channel[]>>('/api/channels');
