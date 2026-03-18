@@ -37,36 +37,48 @@ export const getAlertLevel = (count: number) => {
   return 'low';
 };
 
-export const getRecencyScore = (recencyDate: string) => {
-  const recency = new Date(recencyDate);
-  const now = new Date('2026-02-10');
-  const daysDiff = Math.floor(
-    (now.getTime() - recency.getTime()) / (1000 * 60 * 60 * 24),
-  );
-  if (daysDiff <= 7) return 5;
-  if (daysDiff <= 30) return 4;
-  if (daysDiff <= 60) return 3;
-  if (daysDiff <= 90) return 2;
-  return 1;
-};
+// export const getRecencyScore = (recencyDate: string) => {
+//   const recency = new Date(recencyDate);
+//   const now = new Date('2026-02-10');
+//   const daysDiff = Math.floor(
+//     (now.getTime() - recency.getTime()) / (1000 * 60 * 60 * 24),
+//   );
+//   if (daysDiff <= 7) return 5;
+//   if (daysDiff <= 30) return 4;
+//   if (daysDiff <= 60) return 3;
+//   if (daysDiff <= 90) return 2;
+//   return 1;
+// };
 
-export const getFrequencyScore = (frequency: number) => {
-  return Math.min(5, Math.ceil(frequency / 2));
-};
+// export const getFrequencyScore = (frequency: number) => {
+//   return Math.min(5, Math.ceil(frequency / 2));
+// };
 
-export const getMonetaryScore = (monetary: number) => {
-  return Math.min(5, Math.ceil(monetary / 20000));
-};
+// export const getMonetaryScore = (monetary: number) => {
+//   return Math.min(5, Math.ceil(monetary / 20000));
+// };
 
-export const getRFMSegment = (totalScore: number) => {
-  if (totalScore >= 13)
-    return { label: 'Champions', color: 'text-green-600' };
-  if (totalScore >= 10)
-    return { label: 'Loyal Customers', color: 'text-blue-600' };
-  if (totalScore >= 7)
-    return { label: 'Potential Loyalists', color: 'text-indigo-600' };
-  if (totalScore >= 5) return { label: 'At Risk', color: 'text-orange-600' };
-  return { label: 'Lost', color: 'text-red-600' };
+// export const getRFMSegment = (totalScore: number) => {
+//   if (totalScore >= 13)
+//     return { label: 'Champions', color: 'text-green-600' };
+//   if (totalScore >= 10)
+//     return { label: 'Loyal Customers', color: 'text-blue-600' };
+//   if (totalScore >= 7)
+//     return { label: 'Potential Loyalists', color: 'text-indigo-600' };
+//   if (totalScore >= 5) return { label: 'At Risk', color: 'text-orange-600' };
+//   return { label: 'Lost', color: 'text-red-600' };
+// };
+
+export const getRFMSegment = (segmentType: string) => {
+  const map: { [key: string]: { label: string; color: string } } = {
+    VIP: { label: 'Champions', color: 'text-green-600' },
+    LOYAL: { label: 'Loyal Customers', color: 'text-blue-600' },
+    COMMON: { label: 'Potential Loyalists', color: 'text-indigo-600' },
+    RISK: { label: 'At Risk', color: 'text-orange-600' },
+    LOST: { label: 'Lost', color: 'text-red-600' },
+  };
+  
+  return map[segmentType] || { label: segmentType, color: 'text-gray-600' };
 };
 
 export const getLTVGradeInfo = (grade: string) => {

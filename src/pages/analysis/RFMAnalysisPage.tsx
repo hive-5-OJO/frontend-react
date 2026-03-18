@@ -40,10 +40,10 @@ const SEGMENT_CONFIG: Record<CustomerType, { label: string; color: string; badge
 // RFM API 타입을 CustomerType으로 매핑
 const RFM_TYPE_TO_CUSTOMER_TYPE: Record<RFMSegmentType, CustomerType> = {
   VIP: 'vip',
-  POTENTIAL_VIP: 'potential_vip',
-  NORMAL: 'normal',
-  CHURN_RISK: 'churn_risk',
-  CHURNED: 'churned',
+  LOYAL: 'potential_vip',
+  COMMON: 'normal',
+  RISK: 'churn_risk',
+  LOST: 'churned',
 };
 
 const STATUS_STYLE: Record<KpiStatus, { label: string; className: string }> = {
@@ -90,10 +90,17 @@ const KPI_MESSAGES: Record<string, Record<KpiStatus, string>> = {
 
 // --- 메인 컴포넌트 ---
 const RFMAnalysisPage = () => {
+  const getCurrentMonth = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  };
+
   const navigate = useNavigate();
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [isQueried, setIsQueried] = useState(false);
-  const [baseMonth, setBaseMonth] = useState('2026-02');
+  const [baseMonth, setBaseMonth] = useState(getCurrentMonth);
 
   // API 호출 - 세그먼트 데이터
   const { data: apiResponse, isLoading: isLoadingSegments, error: errorSegments } = useRFMAnalysis(
@@ -120,18 +127,26 @@ const RFMAnalysisPage = () => {
   };
 
   // API 응답 데이터 가공
+  const SEGMENT_ORDER: CustomerType[] = ['vip', 'potential_vip', 'normal', 'churn_risk', 'churned'];
+
   const segmentsData = useMemo(() => {
-    if (!apiResponse?.data?.segmentsDetail) return [];
+    if (!apiResponse?.data?.segmentDetailList) return [];
     
-    return apiResponse.data.segmentsDetail.map((segment) => ({
-      type: RFM_TYPE_TO_CUSTOMER_TYPE[segment.type],
-      label: SEGMENT_CONFIG[RFM_TYPE_TO_CUSTOMER_TYPE[segment.type]].label,
-      count: segment.count,
-      ratio: segment.ratio,
-      avgR: segment.avgR,
-      avgF: segment.avgF,
-      avgM: segment.avgM,
-    }));
+    return apiResponse.data.segmentDetailList.map((segment) => {
+      const customerType = RFM_TYPE_TO_CUSTOMER_TYPE[segment.type];
+      return {
+        type: customerType,
+        label: SEGMENT_CONFIG[customerType].label,
+        count: segment.count,
+        ratio: segment.ratio,
+        avgR: segment.avgR,
+        avgF: segment.avgF,
+        avgM: segment.avgM,
+      };
+    })
+    .sort((a, b) => 
+      SEGMENT_ORDER.indexOf(a.type) - SEGMENT_ORDER.indexOf(b.type)
+    );
   }, [apiResponse]);
 
   const totalCustomers = apiResponse?.data?.totalCount || 0;

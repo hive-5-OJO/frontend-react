@@ -2,9 +2,9 @@ import type { RFMScore } from '@/entities/customer/model/types';
 import { Card, CardContent, Badge, Alert, AlertDescription } from '@/shared/ui';
 import {
   formatNumber,
-  getRecencyScore,
-  getFrequencyScore,
-  getMonetaryScore,
+  // getRecencyScore,
+  // getFrequencyScore,
+  // getMonetaryScore,
   getRFMSegment,
 } from '../../utils';
 import { Radar, Bar } from 'react-chartjs-2';
@@ -15,10 +15,14 @@ interface Props {
 }
 
 const RFMTab = ({ rfmData }: Props) => {
-  const recencyScore = getRecencyScore(rfmData.recency);
-  const frequencyScore = getFrequencyScore(rfmData.frequency);
-  const monetaryScore = getMonetaryScore(rfmData.monetary);
-  const segment = getRFMSegment(recencyScore + frequencyScore + monetaryScore);
+  console.log('RFMTab check:', rfmData);
+  // const recencyScore = getRecencyScore(rfmData.rScore);
+  // const frequencyScore = getFrequencyScore(rfmData.fScore);
+  // const monetaryScore = getMonetaryScore(rfmData.mScore);
+  const recencyScore = rfmData.rScore;
+  const frequencyScore = rfmData.fScore;
+  const monetaryScore = rfmData.mScore;
+  const segment = getRFMSegment(rfmData.segmentType);
 
   const radarData = {
     labels: ['Recency', 'Frequency', 'Monetary'],

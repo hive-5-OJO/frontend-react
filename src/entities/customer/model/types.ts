@@ -69,6 +69,10 @@ export interface RFMScore {
   monetary: number;
   score: number;
   updatedAt: string;
+  rScore: number;     
+  fScore: number;     
+  mScore: number;     
+  segmentType: string;
 }
 
 export interface LTVData {
