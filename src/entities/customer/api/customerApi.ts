@@ -135,12 +135,16 @@ export interface RFMScoreResponse {
   message: string | null;
   data: {
     memberId: number;
-    rfmScore: {
+    rfmDetail: {
       recency: string;
       frequency: number;
       monetary: number;
-      score: number;
+      rfmScore: number;
       updatedAt: string;
+      rScore:number;
+      fScore:number;
+      mScore:number;
+      segmentType:string;
     };
   };
 }
@@ -315,14 +319,18 @@ export const customerApi = {
 
   getRFMScore: async (id: number): Promise<RFMScore> => {
     const response = await axiosInstance.get<RFMScoreResponse>(`/api/analysis/rfm/${id}`);
-    const rfmScore = response.data.data.rfmScore;
+    const rfmScore = response.data.data.rfmDetail;
     
     return {
       recency: rfmScore.recency,
       frequency: rfmScore.frequency,
       monetary: rfmScore.monetary,
-      score: rfmScore.score,
+      score: rfmScore.rfmScore,
       updatedAt: rfmScore.updatedAt,
+      rScore:rfmScore.rScore,
+      fScore:rfmScore.fScore,
+      mScore:rfmScore.mScore,
+      segmentType:rfmScore.segmentType,
     };
   },
 
