@@ -126,11 +126,11 @@ const CustomerFilter = ({ filters, onFiltersChange }: Props) => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">고객 분류</SelectItem>
-              <SelectItem value="vip">VIP</SelectItem>
-              <SelectItem value="potential_vip">잠재 VIP</SelectItem>
-              <SelectItem value="normal">일반</SelectItem>
-              <SelectItem value="churn_risk">이탈 우려</SelectItem>
-              <SelectItem value="churned">이탈</SelectItem>
+              <SelectItem value="VIP">VIP</SelectItem>
+              <SelectItem value="LOYAL">잠재 VIP</SelectItem>
+              <SelectItem value="COMMON">일반</SelectItem>
+              <SelectItem value="RISK">이탈 우려</SelectItem>
+              <SelectItem value="LOST">이탈</SelectItem>
             </SelectContent>
           </Select>
         </div>
