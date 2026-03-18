@@ -18,7 +18,7 @@ export interface CohortAnalysisResponse {
 
 // RFM 분석 타입 정의
 
-export type RFMSegmentType = 'VIP' | 'POTENTIAL_VIP' | 'NORMAL' | 'CHURN_RISK' | 'CHURNED';
+export type RFMSegmentType = 'VIP' | 'LOYAL' | 'COMMON' | 'RISK' | 'LOST';
 export type KpiStatus = 'HEALTHY' | 'WARNING' | 'DANGER';
 
 export interface RFMSegmentDetail {
@@ -38,7 +38,7 @@ export interface RFMAnalysisResponse {
   status: string;
   data: {
     totalCount: number;
-    segmentsDetail: RFMSegmentDetail[];
+    segmentDetailList: RFMSegmentDetail[];
   };
   message: string;
 }
