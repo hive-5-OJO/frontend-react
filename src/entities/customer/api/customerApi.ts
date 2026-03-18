@@ -325,7 +325,7 @@ export const customerApi = {
       recency: rfmScore.recency,
       frequency: rfmScore.frequency,
       monetary: rfmScore.monetary,
-      score: rfmScore.rfmScore,
+      rfmScore: rfmScore.rfmScore,
       updatedAt: rfmScore.updatedAt,
       rScore:rfmScore.rScore,
       fScore:rfmScore.fScore,

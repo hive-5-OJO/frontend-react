@@ -15,7 +15,7 @@ interface Props {
 }
 
 const RFMTab = ({ rfmData }: Props) => {
-  console.log('RFMTab check:', rfmData);
+  // console.log('RFMTab check:', rfmData);
   // const recencyScore = getRecencyScore(rfmData.rScore);
   // const frequencyScore = getFrequencyScore(rfmData.fScore);
   // const monetaryScore = getMonetaryScore(rfmData.mScore);
@@ -76,7 +76,7 @@ const RFMTab = ({ rfmData }: Props) => {
               <p className="text-sm font-medium opacity-90">고객 세그먼트</p>
               <h3 className="mt-1 text-3xl font-bold">{segment.label}</h3>
               <p className="mt-2 text-sm opacity-90">
-                총 RFM 점수: {recencyScore + frequencyScore + monetaryScore}/15
+                rfmScore: {rfmData.rfmScore}점
               </p>
             </div>
             <div className="text-right">
@@ -96,31 +96,25 @@ const RFMTab = ({ rfmData }: Props) => {
             <span>추천 마케팅 전략</span>
           </h3>
           <div className="space-y-2 text-sm">
-            {segment.label === 'Champions' && (
+            {segment.label === 'VIP 고객' && (
               <>
                 <p>• 최우수 고객입니다. VIP 프로그램 제공을 권장합니다.</p>
                 <p>• 신제품 출시 시 우선 안내 대상입니다.</p>
               </>
             )}
-            {segment.label === 'Loyal Customers' && (
+            {segment.label === '잠재 VIP 고객' && (
               <>
                 <p>• 충성도 높은 고객입니다. 리워드 프로그램을 제공하세요.</p>
                 <p>• 업셀링/크로스셀링 기회를 모색하세요.</p>
               </>
             )}
-            {segment.label === 'Potential Loyalists' && (
+            {segment.label === '일반 고객' && (
               <>
                 <p>• 잠재 충성 고객입니다. 멤버십 혜택을 제공하세요.</p>
                 <p>• 정기적인 소통으로 관계를 강화하세요.</p>
               </>
             )}
-            {segment.label === 'New Customers' && (
-              <>
-                <p>• 신규 고객입니다. 온보딩 프로그램을 제공하세요.</p>
-                <p>• 첫 구매 후 만족도 조사를 진행하세요.</p>
-              </>
-            )}
-            {segment.label === 'At Risk' && (
+            {segment.label === '이탈 우려 고객' && (
               <>
                 <p className="text-warning-700">
                   • 이탈 위험이 있습니다. 즉각적인 관리가 필요합니다.
@@ -128,7 +122,7 @@ const RFMTab = ({ rfmData }: Props) => {
                 <p>• 특별 할인이나 프로모션을 제공하세요.</p>
               </>
             )}
-            {segment.label === 'Lost' && (
+            {segment.label === '이탈 고객' && (
               <>
                 <p className="text-error-700">
                   • 이탈한 고객입니다. 재활성화 캠페인이 필요합니다.
@@ -137,12 +131,11 @@ const RFMTab = ({ rfmData }: Props) => {
               </>
             )}
             {![
-              'Champions',
-              'Loyal Customers',
-              'Potential Loyalists',
-              'New Customers',
-              'At Risk',
-              'Lost',
+              'VIP 고객',
+              '잠재 VIP 고객',
+              '일반 고객',
+              '이탈 우려 고객',
+              '이탈 고객',
             ].includes(segment.label) && (
               <>
                 <p>• 고객 세그먼트에 맞는 맞춤형 마케팅을 진행하세요.</p>
