@@ -1,29 +1,54 @@
 import axiosInstance from '@/shared/lib/axios/instance';
-import type { Channel, ChannelResponse, ChannelListResponse, AddMembersResponse, ChannelMember, ChannelMembersResponse } from '../model/types';
+import type {
+  Channel,
+  ChannelListResponse,
+  ChannelMember,
+  ChannelMembersResponse,
+  AddMembersResponse,
+} from '../model/types';
+
+interface CommonResponse<T> {
+  status: string;
+  data: T;
+  message: string;
+}
+
+interface CreateChannelRequest {
+  name: string;
+  description: string;
+}
+
+interface AddChannelMembersRequest {
+  memberIds: number[];
+}
 
 export const channelApi = {
   getList: async (): Promise<Channel[]> => {
-    const response = await axiosInstance.get<ChannelListResponse>('/api/channels');
-    return response.data.data;
-  },
-
-  create: async (data: { name: string; description: string }): Promise<Channel> => {
-    const response = await axiosInstance.post<ChannelResponse>('/api/channels', data);
+    const response = await axiosInstance.get<CommonResponse<Channel[]>>('/api/channels');
     return response.data.data;
   },
 
   getMembers: async (channelId: number): Promise<ChannelMember[]> => {
-    const response = await axiosInstance.get<ChannelMembersResponse>(
+    const response = await axiosInstance.get<CommonResponse<ChannelMember[]>>(
       `/api/channels/${channelId}/members`,
     );
     return response.data.data;
   },
 
-  addMembers: async (channelId: number, memberIds: number[]): Promise<void> => {
-    await axiosInstance.post<AddMembersResponse>(
+  create: async (data: CreateChannelRequest): Promise<Channel> => {
+    const response = await axiosInstance.post<CommonResponse<Channel>>('/api/channels', data);
+    return response.data.data;
+  },
+
+  addMembers: async (
+    channelId: number,
+    memberIds: number[],
+  ): Promise<ChannelMember[]> => {
+    const response = await axiosInstance.post<CommonResponse<ChannelMember[]>>(
       `/api/channels/${channelId}/members`,
       { memberIds },
     );
+    return response.data.data;
   },
 
   delete: async (channelId: number): Promise<void> => {
