@@ -10,27 +10,17 @@ import {
   useDeleteChannel,
   useRemoveChannelMember,
 } from '@/entities/channel';
-import { useCustomerList } from '@/entities/customer/model/useCustomerQueries';
 import { maskPhone, maskEmail } from '@/shared/utils';
 import { ROUTES } from '@/shared/constants/routes';
 import type { Customer, CustomerType } from '@/entities/customer/model/types';
 import { CUSTOMER_TYPE_LABELS } from '@/entities/customer/model/types';
 import { ArrowLeft, Trash2, Users, UserPlus } from 'lucide-react';
 import { useSelectionBasket } from '@/entities/customer/model/selectionBasketStore';
+import type { ChannelMember } from '@/entities/channel/model/types';
 
-const mapApiResponseToCustomer = (apiData: {
-  memberId: number;
-  name: string;
-  phone?: string | null;
-  email?: string | null;
-  service: string | null;
-  servicePeriod: string;
-  consultCategory: string | null;
-  consultFrequency: string;
-  vip: string;
-}): Customer => {
-  const getCustomerType = (vip: string): CustomerType => {
-    const vipLower = vip.toLowerCase();
+const mapChannelMemberToCustomer = (member: ChannelMember): Customer => {
+  const getCustomerType = (vip?: string | null): CustomerType => {
+    const vipLower = (vip || '').toLowerCase();
     if (vipLower.includes('vip') && !vipLower.includes('잠재')) return 'vip';
     if (vipLower.includes('잠재')) return 'potential_vip';
     if (vipLower.includes('이탈 우려')) return 'churn_risk';
@@ -38,24 +28,25 @@ const mapApiResponseToCustomer = (apiData: {
     return 'normal';
   };
 
-  const getConsultFrequency = (freq: string) => {
-    const freqUpper = freq.toUpperCase();
+  const getConsultFrequency = (freq?: string | null) => {
+    const freqUpper = (freq || '').toUpperCase();
     if (freqUpper === 'HIGH') return 'high';
     if (freqUpper === 'MEDIUM') return 'medium';
+    if (freqUpper === 'LOW') return 'low';
     return 'low';
   };
 
   return {
-    id: apiData.memberId,
-    name: apiData.name,
-    phone: apiData.phone || '',
-    email: apiData.email || '',
-    joinedAt: apiData.servicePeriod?.split(' ~ ')[0] || '',
-    service: apiData.service || undefined,
-    period: apiData.servicePeriod || '',
-    consultCategory: apiData.consultCategory || undefined,
-    consultFrequency: getConsultFrequency(apiData.consultFrequency || ''),
-    customerType: getCustomerType(apiData.vip || ''),
+    id: member.memberId,
+    name: member.name,
+    phone: member.phone || '',
+    email: member.email || '',
+    joinedAt: member.servicePeriod?.split(' ~ ')[0] || '',
+    service: member.service || undefined,
+    period: member.servicePeriod || '',
+    consultCategory: member.consultCategory || undefined,
+    consultFrequency: getConsultFrequency(member.consultFrequency),
+    customerType: getCustomerType(member.vip),
   };
 };
 
@@ -74,7 +65,6 @@ const ChannelDetailPage = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isMemoOpen, setIsMemoOpen] = useState(false);
 
-  // 삭제 모달 상태
   const [isDeleteChannelOpen, setIsDeleteChannelOpen] = useState(false);
   const [isDeleteMembersOpen, setIsDeleteMembersOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{
@@ -86,17 +76,9 @@ const ChannelDetailPage = () => {
 
   const { addMultiple, setActiveChannel, clearBasket, setIsPanelOpen } = useSelectionBasket();
 
-  // 체크박스 선택 상태 (memberId Set)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
-  const memberIds = members?.map((m) => m.memberId) || [];
-
-  const { data: listResponse, isLoading: isLoadingCustomers } = useCustomerList({
-    page: 0,
-    size: 1000,
-  });
-
-  const isLoading = isLoadingChannels || isLoadingMembers || isLoadingCustomers;
+  const isLoading = isLoadingChannels || isLoadingMembers;
 
   if (!isLoadingChannels && !channel && !confirmModal.isOpen) {
     return (
@@ -109,9 +91,7 @@ const ChannelDetailPage = () => {
     );
   }
 
-  const memberSet = new Set(memberIds);
-  const allCustomers = listResponse?.content?.map(mapApiResponseToCustomer) || [];
-  const channelMembers = allCustomers.filter((c) => memberSet.has(c.id));
+  const channelMembers = (members || []).map(mapChannelMemberToCustomer);
 
   const allSelected = channelMembers.length > 0 && channelMembers.every((c) => selectedIds.has(c.id));
   const someSelected = channelMembers.some((c) => selectedIds.has(c.id));
@@ -173,7 +153,6 @@ const ChannelDetailPage = () => {
         description: `${deletedCount}명의 고객이 채널에서 삭제되었습니다.`,
       });
     } catch {
-      // 에러 시에도 이미 삭제된 건 반영됨
       setIsDeleteMembersOpen(false);
     }
   };
@@ -188,7 +167,6 @@ const ChannelDetailPage = () => {
   };
 
   const handleAddMembers = () => {
-    // 현재 채널 멤버들을 바구니에 넣고 전체 고객 페이지로 이동
     clearBasket();
     addMultiple(channelMembers);
     setActiveChannel(channelId);

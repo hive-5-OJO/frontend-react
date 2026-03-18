@@ -2,7 +2,6 @@ import { useState, useRef, useCallback } from 'react';
 import { useSelectionBasket } from '@/entities/customer/model/selectionBasketStore';
 import { useChannelList, useAddChannelMembers } from '@/entities/channel';
 import { channelApi } from '@/entities/channel/api/channelApi';
-import { useCustomerList } from '@/entities/customer/model/useCustomerQueries';
 import { Button, Badge, ConfirmModal } from '@/shared/ui';
 import { BulkEmailModal } from '@/widgets/bulk-email-modal';
 import { CreateChannelModal } from '@/widgets/create-channel-modal';
@@ -10,45 +9,37 @@ import { UsersRound, X, Hash } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import type { Customer, CustomerType } from '@/entities/customer/model/types';
+import type { ChannelMember } from '@/entities/channel/model/types';
 
-const mapApiResponseToCustomer = (apiData: {
-  memberId: number;
-  name: string;
-  phone?: string | null;
-  email?: string | null;
-  service: string | null;
-  servicePeriod: string;
-  consultCategory: string | null;
-  consultFrequency: string;
-  vip: string;
-}): Customer => {
-  const getCustomerType = (vip: string): CustomerType => {
-    const vipLower = vip.toLowerCase();
-    if (vipLower.includes('vip') && !vipLower.includes('잠재')) return 'vip';
-    if (vipLower.includes('잠재')) return 'potential_vip';
-    if (vipLower.includes('이탈 우려')) return 'churn_risk';
-    if (vipLower.includes('이탈')) return 'churned';
+const mapChannelMemberToCustomer = (member: ChannelMember): Customer => {
+  const getCustomerType = (vip?: string | null): CustomerType => {
+    const vipValue = (vip || '').toLowerCase();
+    if (vipValue.includes('vip') && !vipValue.includes('잠재')) return 'vip';
+    if (vipValue.includes('잠재')) return 'potential_vip';
+    if (vipValue.includes('이탈 우려')) return 'churn_risk';
+    if (vipValue.includes('이탈')) return 'churned';
     return 'normal';
   };
 
-  const getConsultFrequency = (freq: string) => {
-    const freqUpper = freq.toUpperCase();
+  const getConsultFrequency = (freq?: string | null) => {
+    const freqUpper = (freq || '').toUpperCase();
     if (freqUpper === 'HIGH') return 'high';
     if (freqUpper === 'MEDIUM') return 'medium';
+    if (freqUpper === 'LOW') return 'low';
     return 'low';
   };
 
   return {
-    id: apiData.memberId,
-    name: apiData.name,
-    phone: apiData.phone || '',
-    email: apiData.email || '',
-    joinedAt: apiData.servicePeriod?.split(' ~ ')[0] || '',
-    service: apiData.service || undefined,
-    period: apiData.servicePeriod || '',
-    consultCategory: apiData.consultCategory || undefined,
-    consultFrequency: getConsultFrequency(apiData.consultFrequency || ''),
-    customerType: getCustomerType(apiData.vip || ''),
+    id: member.memberId,
+    name: member.name,
+    phone: member.phone || '',
+    email: member.email || '',
+    joinedAt: member.servicePeriod?.split(' ~ ')[0] || '',
+    service: member.service || undefined,
+    period: member.servicePeriod || '',
+    consultCategory: member.consultCategory || undefined,
+    consultFrequency: getConsultFrequency(member.consultFrequency),
+    customerType: getCustomerType(member.vip),
   };
 };
 
@@ -73,13 +64,11 @@ export const SelectionBasket = () => {
     description: string;
   }>({ isOpen: false, title: '', description: '' });
 
-  // 드래그 관련 상태
   const [panelPos, setPanelPos] = useState<{ x: number; y: number } | null>(null);
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const handleDragStart = useCallback((e: React.MouseEvent) => {
-    // 패널의 현재 위치 계산
     const panel = panelRef.current;
     if (!panel) return;
     const rect = panel.getBoundingClientRect();
@@ -117,10 +106,6 @@ export const SelectionBasket = () => {
   const addMembers = useAddChannelMembers();
   const navigate = useNavigate();
 
-  // 전체 고객 목록 (채널 클릭 시 멤버 매칭용)
-  const { data: listResponse } = useCustomerList({ page: 0, size: 1000 });
-  const allCustomers = listResponse?.content?.map(mapApiResponseToCustomer) || [];
-
   const count = getCount();
 
   if (count === 0 && !isPanelOpen && !confirmModal.isOpen) {
@@ -128,13 +113,11 @@ export const SelectionBasket = () => {
   }
 
   const handleChannelClick = async (channelId: number) => {
-    // 채널 클릭 시: 해당 채널의 멤버를 불러와서 바구니에 세팅 (페이지 이동 없음)
     setIsLoadingChannel(true);
     try {
       const members = await channelApi.getMembers(channelId);
-      const memberIdSet = new Set(members.map((m) => m.memberId));
-      const channelMembers = allCustomers.filter((c) => memberIdSet.has(c.id));
-      // 바구니 교체
+      const channelMembers = members.map(mapChannelMemberToCustomer);
+
       clearBasket();
       addMultiple(channelMembers);
       setActiveChannel(channelId);
@@ -147,7 +130,6 @@ export const SelectionBasket = () => {
   const handleAddToActiveChannel = async () => {
     if (!activeChannelId) return;
 
-    // 현재 채널의 기존 멤버 조회
     try {
       const existingMembers = await channelApi.getMembers(activeChannelId);
       const existingIds = new Set(existingMembers.map((m) => m.memberId));
@@ -187,7 +169,6 @@ export const SelectionBasket = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {/* 바구니 버튼 */}
       <button
         onClick={() => setIsPanelOpen(!isPanelOpen)}
         className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg transition hover:bg-primary-700 hover:shadow-xl"
@@ -203,7 +184,6 @@ export const SelectionBasket = () => {
         )}
       </button>
 
-      {/* 바구니 패널 */}
       {isPanelOpen && (
         <div
           ref={panelRef}
@@ -214,7 +194,6 @@ export const SelectionBasket = () => {
               : { position: 'absolute', bottom: '4rem', right: 0 }
           }
         >
-          {/* 왼쪽: 채널 목록 */}
           {channels && channels.length > 0 && (
             <div className="w-52 border-r border-gray-200">
               <div className="border-b border-gray-200 px-4 py-3">
@@ -226,7 +205,7 @@ export const SelectionBasket = () => {
                     key={ch.id}
                     onClick={() => handleChannelClick(ch.id)}
                     disabled={isLoadingChannel}
-                    className={`flex w-full items-center mb-1 gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition hover:bg-primary-50 ${
+                    className={`mb-1 flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition hover:bg-primary-50 ${
                       activeChannelId === ch.id
                         ? 'bg-primary-50 ring-1 ring-primary-300'
                         : ''
@@ -248,9 +227,7 @@ export const SelectionBasket = () => {
             </div>
           )}
 
-          {/* 오른쪽: 고객 목록 + 액션 */}
           <div className="w-[28rem]">
-            {/* 헤더 (드래그 핸들) */}
             <div
               className="flex cursor-grab items-center justify-between border-b border-gray-200 p-4 select-none active:cursor-grabbing"
               onMouseDown={handleDragStart}
@@ -270,7 +247,6 @@ export const SelectionBasket = () => {
               </button>
             </div>
 
-            {/* 고객 목록 */}
             <div className="max-h-72 overflow-y-auto">
               {selectedCustomers.map((customer) => (
                 <div
@@ -293,7 +269,6 @@ export const SelectionBasket = () => {
               ))}
             </div>
 
-            {/* 액션 버튼 */}
             <div className="space-y-2 border-t border-gray-200 p-4">
               {activeChannelId && count > 0 && (
                 <Button
@@ -340,21 +315,18 @@ export const SelectionBasket = () => {
         </div>
       )}
 
-      {/* 단체 메일 모달 */}
       <BulkEmailModal
         isOpen={isEmailModalOpen}
         onClose={() => setIsEmailModalOpen(false)}
         customers={selectedCustomers}
       />
 
-      {/* 채널 만들기 모달 */}
       <CreateChannelModal
         isOpen={isChannelModalOpen}
         onClose={() => setIsChannelModalOpen(false)}
         customers={selectedCustomers}
       />
 
-      {/* 결과 확인 모달 */}
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         onClose={() => {
