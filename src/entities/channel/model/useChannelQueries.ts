@@ -33,8 +33,9 @@ export const useAddChannelMembers = () => {
   return useMutation({
     mutationFn: ({ channelId, memberIds }: { channelId: number; memberIds: number[] }) =>
       channelApi.addMembers(channelId, memberIds),
-    onSuccess: () => {
+    onSuccess: (_, { channelId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.channel.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.channel.members(channelId) });
     },
   });
 };
