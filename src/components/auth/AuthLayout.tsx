@@ -1,4 +1,5 @@
 import mascotLogin from '/src/assets/images/landing-mascot.png';
+import dashboard from '/src/assets/images/dashboard.png';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -34,7 +35,11 @@ const AuthLayout = ({ children, title, footer }: AuthLayoutProps) => {
 
       {/* 오른쪽 영역 */}
       <div className="hidden items-center justify-center rounded-tl-[80px] bg-gray-200 md:flex md:w-1/2">
-        <span className="text-lg text-gray-500">이미지</span>
+        <span className="text-lg text-gray-500"><img
+              src={dashboard}
+              alt="dashboard"
+              className="h-auto w-full drop-shadow-lg"
+            /></span>
       </div>
     </div>
   );
