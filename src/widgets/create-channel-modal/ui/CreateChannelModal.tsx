@@ -38,20 +38,27 @@ export const CreateChannelModal = ({ isOpen, onClose, customers = [] }: Props) =
     if (!name.trim() || safeCustomers.length === 0) return;
 
     try {
-      const channel = await createChannel.mutateAsync({
+      const createdChannel = await createChannel.mutateAsync({
         name: name.trim(),
         description: description.trim(),
       });
 
+      console.log('createdChannel = ', createdChannel);
+
+      if (!createdChannel?.id) {
+        throw new Error('채널 생성 응답에 id가 없습니다.');
+      }
+
       await addMembers.mutateAsync({
-        channelId: channel.id,
+        channelId: createdChannel.id,
         memberIds: safeCustomers.map((c) => c.id),
       });
 
       clearBasket();
       handleClose();
       navigate(ROUTES.CHANNELS);
-    } catch {
+    } catch (error) {
+      console.error('채널 생성 플로우 실패', error);
       alert('채널 생성에 실패했습니다. 다시 시도해주세요.');
     }
   };
@@ -70,7 +77,6 @@ export const CreateChannelModal = ({ isOpen, onClose, customers = [] }: Props) =
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* 대상 고객 */}
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-700">대상 고객</h3>
@@ -86,6 +92,7 @@ export const CreateChannelModal = ({ isOpen, onClose, customers = [] }: Props) =
                     >
                       {c.name}
                       <button
+                        type="button"
                         className="ml-1 text-primary-400 hover:text-primary-600"
                         onClick={() => useSelectionBasket.getState().removeCustomer(c.id)}
                       >
@@ -100,7 +107,6 @@ export const CreateChannelModal = ({ isOpen, onClose, customers = [] }: Props) =
             </div>
           </div>
 
-          {/* 채널 이름 */}
           <div className="space-y-2">
             <Label htmlFor="channel-name">채널 이름</Label>
             <Input
@@ -111,7 +117,6 @@ export const CreateChannelModal = ({ isOpen, onClose, customers = [] }: Props) =
             />
           </div>
 
-          {/* 설명 */}
           <div className="space-y-2">
             <Label htmlFor="channel-desc">설명</Label>
             <textarea
