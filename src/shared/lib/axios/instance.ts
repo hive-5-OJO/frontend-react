@@ -2,15 +2,6 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
-interface RefreshTokenResponse {
-  status: string;
-  data: {
-    accessToken: string;
-    refreshToken?: string;
-  };
-  message: string;
-}
-
 export const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
@@ -23,11 +14,10 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = sessionStorage.getItem('accessToken');
-
+    // console.log('[Axios Request] URL:', config.url, 'Token:', accessToken ? 'exists' : 'missing');
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
-
     return config;
   },
   (error) => Promise.reject(error),
@@ -39,38 +29,29 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // console.log('[Axios Response Error]', error.response?.status, error.response?.data);
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
+      // console.log('[Axios] Attempting token refresh...');
+
       try {
-        const refreshToken = sessionStorage.getItem('refreshToken');
-
-        if (!refreshToken) {
-          sessionStorage.removeItem('accessToken');
-          window.location.href = '/login';
-          return Promise.reject(error);
-        }
-
-        const response = await axios.post<RefreshTokenResponse>(
+        const response = await axios.post(
           `${API_URL}/api/auth/refresh`,
-          { refreshToken },
+          {},
           { withCredentials: true },
         );
 
-        const newAccessToken = response.data.data.accessToken;
-        const newRefreshToken = response.data.data.refreshToken;
+        const { accessToken } = response.data as { accessToken: string };
+        sessionStorage.setItem('accessToken', accessToken);
+        // console.log('[Axios] Token refreshed successfully');
 
-        sessionStorage.setItem('accessToken', newAccessToken);
-
-        if (newRefreshToken) {
-          sessionStorage.setItem('refreshToken', newRefreshToken);
-        }
-
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
+        // console.log('[Axios] Token refresh failed, redirecting to login');
         sessionStorage.removeItem('accessToken');
-        sessionStorage.removeItem('refreshToken');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }

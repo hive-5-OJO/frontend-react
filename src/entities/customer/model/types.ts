@@ -67,7 +67,7 @@ export interface RFMScore {
   recency: string;
   frequency: number;
   monetary: number;
-  rfmScore: number;
+  score: number;
   updatedAt: string;
   rScore: number;     
   fScore: number;     

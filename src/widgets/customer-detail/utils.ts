@@ -71,11 +71,11 @@ export const getAlertLevel = (count: number) => {
 
 export const getRFMSegment = (segmentType: string) => {
   const map: { [key: string]: { label: string; color: string } } = {
-    VIP: { label: 'VIP 고객', color: 'text-green-600' },
-    LOYAL: { label: '잠재 VIP 고객', color: 'text-blue-600' },
-    COMMON: { label: '일반 고객', color: 'text-indigo-600' },
-    RISK: { label: '이탈 우려 고객', color: 'text-orange-600' },
-    LOST: { label: '이탈 고객', color: 'text-red-600' },
+    VIP: { label: 'Champions', color: 'text-green-600' },
+    LOYAL: { label: 'Loyal Customers', color: 'text-blue-600' },
+    COMMON: { label: 'Potential Loyalists', color: 'text-indigo-600' },
+    RISK: { label: 'At Risk', color: 'text-orange-600' },
+    LOST: { label: 'Lost', color: 'text-red-600' },
   };
   
   return map[segmentType] || { label: segmentType, color: 'text-gray-600' };
