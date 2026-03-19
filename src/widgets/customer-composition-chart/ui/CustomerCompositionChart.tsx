@@ -122,10 +122,7 @@ const CustomerCompositionChart = ({ segments }: Props) => {
                   <span className="min-w-0 flex-1 truncate font-semibold text-gray-900">
                     {formatNumber(s.count)}명
                   </span>
-                  <span
-                    className="flex-shrink-0 rounded px-1.5 py-0.5 text-xs font-medium"
-                    style={{ backgroundColor: `${s.color}18`, color: s.color }}
-                  >
+                  <span className="flex-shrink-0 rounded bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-500">
                     {ratio}%
                   </span>
                 </div>
