@@ -1,4 +1,7 @@
 import mascotLogin from '/src/assets/images/landing-mascot.png';
+import dashboard from '/src/assets/images/dashboard.png';
+import customerPage from '/src/assets/images/customerPage.png';
+import cohort from '/src/assets/images/cohort.png';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -33,8 +36,37 @@ const AuthLayout = ({ children, title, footer }: AuthLayoutProps) => {
       </div>
 
       {/* 오른쪽 영역 */}
-      <div className="hidden items-center justify-center rounded-tl-[80px] bg-gray-200 md:flex md:w-1/2">
-        <span className="text-lg text-gray-500">이미지</span>
+      <div className="hidden flex-col items-center overflow-y-auto rounded-tl-[100px] bg-slate-100 p-12 md:flex md:w-1/2">
+        <div className="flex w-full max-w-[90%] flex-col gap-8">
+
+          <div className="group relative">
+            <div className="mb-2 ml-2 text-sm font-semibold text-gray-500">Main Dashboard</div>
+            <img
+              src={dashboard}
+              alt="dashboard-main"
+              className="w-full rounded-2xl border border-white/50 bg-white shadow-xl transition-transform duration-500 hover:scale-[1.01]"
+            />
+          </div>
+
+          <div className="group relative">
+            <div className="mb-2 ml-2 text-sm font-semibold text-gray-500">Customer Care</div>
+            <img
+              src={customerPage}
+              alt="statistics"
+              className="w-full rounded-2xl border border-white/50 bg-white shadow-xl transition-transform duration-500 hover:scale-[1.01]"
+            />
+          </div>
+
+          <div className="group relative">
+            <div className="mb-2 ml-2 text-sm font-semibold text-gray-500">Data Analysis</div>
+            <img
+              src={cohort}
+              alt="analysis-report"
+              className="w-full rounded-2xl border border-white/50 bg-white shadow-xl transition-transform duration-500 hover:scale-[1.01]"
+            />
+          </div>
+
+        </div>
       </div>
     </div>
   );

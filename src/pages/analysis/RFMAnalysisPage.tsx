@@ -72,9 +72,9 @@ const STATUS_STYLE: Record<KpiStatus, { label: string; className: string }> = {
  */
 const KPI_MESSAGES: Record<string, Record<KpiStatus, string>> = {
   crr: {
-    HEALTHY: '고객 유지가 안정적입니다. 현재 리텐션 전략을 유지하세요.',
-    WARNING: '이탈 고객이 증가하고 있습니다. 리텐션 캠페인을 검토하세요.',
-    DANGER: '고객 이탈이 심각한 수준입니다. 즉각적인 대응이 필요합니다.',
+    HEALTHY: 'VIP 유지가 안정적입니다. 현재 리텐션 전략을 유지하세요.',
+    WARNING: 'VIP 이탈이 증가하고 있습니다. 리텐션 캠페인을 검토하세요.',
+    DANGER: 'VIP 고객 이탈이 심각한 수준입니다. 즉각적인 대응이 필요합니다.',
   },
   nrr: {
     HEALTHY: '기존 고객 매출이 성장 중입니다. 업셀링 전략이 효과적입니다.',
@@ -259,7 +259,7 @@ const RFMAnalysisPage = () => {
                 <Card>
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-500">고객 유지율 (CRR)</p>
+                      <p className="text-sm font-medium text-gray-500">VIP 고객 유지율 (CRR)</p>
                       <span className={`text-xs font-semibold ${STATUS_STYLE[kpiData.crrStatus].className}`}>
                         {STATUS_STYLE[kpiData.crrStatus].label}
                       </span>

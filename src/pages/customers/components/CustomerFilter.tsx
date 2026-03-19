@@ -35,22 +35,22 @@ const getFrequencyColor = (val: string | null) => {
 
 const getSegmentLabel = (val: string | null) => {
   const map: Record<string, string> = {
-    vip: 'VIP',
-    potential_vip: '잠재 VIP',
-    normal: '일반',
-    churn_risk: '이탈 우려',
-    churned: '이탈',
+    VIP: 'VIP',
+    LOYAL: '잠재 VIP',
+    COMMON: '일반',
+    RISK: '이탈 우려',
+    LOST: '이탈',
   };
   return map[val || ''] || '';
 };
 
 const getSegmentColor = (val: string | null) => {
   const map: Record<string, string> = {
-    vip: 'bg-purple-100 text-purple-700 border-purple-300',
-    potential_vip: 'bg-indigo-100 text-indigo-700 border-indigo-300',
-    normal: 'bg-gray-100 text-gray-700 border-gray-300',
-    churn_risk: 'bg-orange-100 text-orange-700 border-orange-300',
-    churned: 'bg-red-100 text-red-700 border-red-300',
+    VIP: 'bg-purple-100 text-purple-700 border-purple-300',
+    LOYAL: 'bg-indigo-100 text-indigo-700 border-indigo-300',
+    COMMON: 'bg-gray-100 text-gray-700 border-gray-300',
+    RISK: 'bg-orange-100 text-orange-700 border-orange-300',
+    LOST: 'bg-red-100 text-red-700 border-red-300',
   };
   return map[val || ''] || '';
 };
