@@ -1,5 +1,5 @@
 import axiosInstance from '@/shared/lib/axios/instance';
-import type { Customer, CustomerFeature, ConsultTimelineItem, RFMScore, LTVData, Subscription } from '../model/types';
+import type { Customer, CustomerFeature, ConsultTimelineItem, RFMScore, LTVData, Subscription, Recommendation } from '../model/types';
 import axiosInstancePy from '@/shared/lib/axios/pythonInstance';
 
 export interface CustomerListResponse {
@@ -180,6 +180,20 @@ export interface SubscriptionListResponse {
       status: string;
     }>;
   };
+}
+
+export interface RecommendationResponse {
+  status: string;
+  message: string | null;
+  data: Array<{
+    member_id: number;
+    rank: number;
+    recommended_product: string;
+    price: number;
+    score: string;
+    reason: string;
+    created_at: string;
+  }>;
 }
 
 export interface SortRequest {
@@ -372,5 +386,18 @@ export const customerApi = {
 
   deleteMemo: async (memberId: number): Promise<void> => {
     await axiosInstance.delete(`/api/member-memos/${memberId}`);
+  },
+
+  getRecommendation: async (id: number): Promise<Recommendation> => {
+    const response = await axiosInstancePy.get<RecommendationResponse>(`/api/analysis/recommend/${id}`);
+    return response.data.data.map((item) => ({
+      memberId: item.member_id,
+      rank: item.rank,
+      recommendedProduct: item.recommended_product,
+      price: item.price,
+      score: item.score,
+      reason: item.reason,
+      createdAt: item.created_at,
+    }));
   },
 };

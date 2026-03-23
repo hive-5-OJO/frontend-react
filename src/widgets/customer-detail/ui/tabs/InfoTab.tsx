@@ -1,7 +1,7 @@
 import type { Customer } from '@/entities/customer/model/types';
 import { Badge, Card, CardContent } from '@/shared/ui';
 import { CUSTOMER_TYPE_LABELS, type CustomerType } from '@/entities/customer/model/types';
-import { useCustomerMemo } from '@/entities/customer/model/useCustomerQueries';
+import { useCustomerMemo, useCustomerRecommendation } from '@/entities/customer/model/useCustomerQueries';
 import { useAuthStore } from '@/entities/user/model/store';
 import { maskPhone, maskEmail } from '@/shared/utils';
 
@@ -75,6 +75,7 @@ const getSubscriptionStatusLabel = (status: string) => {
 
 const InfoTab = ({ customer, onMemoClick }: Props) => {
   const { data: memo } = useCustomerMemo(customer.id);
+  // const { data: recommendation, isLoading: isLoadingRecommend } = useCustomerRecommendation(customer.id);
   const user = useAuthStore((state) => state.user);
   const isMarketing = user?.role === 'MARKETING';
 
@@ -82,7 +83,49 @@ const InfoTab = ({ customer, onMemoClick }: Props) => {
   const displayEmail = isMarketing ? maskEmail(customer.email) : customer.email;
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
+    <div className="space-y-4 md:space-y-6">
+      {/* AI 맞춤 서비스 추천 -> 임시 주석처리*/}
+      {/* {isLoadingRecommend ? (
+        <div className="rounded-lg border-2 border-indigo-200 bg-indigo-50 p-6 shadow-md">
+          <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-indigo-900">
+            <span>🎯</span>
+            <span>AI 맞춤 서비스 추천</span>
+          </h3>
+          <p className="text-sm text-indigo-700">추천 정보를 불러오는 중...</p>
+        </div>
+      ) : recommendation && recommendation.length > 0 ? (
+        <div className="rounded-lg border-2 border-indigo-200 bg-indigo-50 p-6 shadow-md">
+          <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-indigo-900">
+            <span>🎯</span>
+            <span>AI 맞춤 서비스 추천</span>
+          </h3>
+          <div className="space-y-3">
+            {recommendation.map((item) => (
+              <div key={item.rank} className="rounded-lg border border-indigo-200 bg-white p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
+                      {item.rank}
+                    </span>
+                    <span className="text-sm font-bold text-gray-900">{item.recommendedProduct}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                      적합도 {item.score}점
+                    </span>
+                    <span className="text-sm font-bold text-indigo-700">
+                      {item.price.toLocaleString()}원
+                    </span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600">{item.reason}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null} */}
+
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
       {/* 인적 정보 */}
       <Card>
         <CardContent className="p-6">
@@ -216,6 +259,7 @@ const InfoTab = ({ customer, onMemoClick }: Props) => {
           </CardContent>
         </Card>
       )}
+    </div>
     </div>
   );
 };

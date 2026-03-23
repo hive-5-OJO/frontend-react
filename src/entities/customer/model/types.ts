@@ -93,6 +93,18 @@ export interface ConsultTimelineItem {
   satisfactionScore?: number;
 }
 
+export interface RecommendItem {
+  memberId: number;
+  rank: number;
+  recommendedProduct: string;
+  price: number;
+  score: string;
+  reason: string;
+  createdAt: string;
+}
+
+export type Recommendation = RecommendItem[];
+
 export interface CustomerFeature {
   memberId: number;
   featureBaseDate: string;
