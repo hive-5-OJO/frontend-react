@@ -126,6 +126,17 @@ export const useCustomerMemo = (memberId: number, enabled = true) => {
 };
 
 /**
+ * 고객 맞춤형 서비스 추천 조회 쿼리
+ */
+export const useCustomerRecommendation = (id: number, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.customer.recommend(id),
+    queryFn: () => customerApi.getRecommendation(id),
+    enabled,
+  });
+};
+
+/**
  * 고객 메모 추가 뮤테이션
  */
 export const useCreateMemo = () => {

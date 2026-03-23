@@ -25,6 +25,7 @@ export const queryKeys = {
     subscriptions: (id: number) => [...queryKeys.customer.all, 'subscriptions', id] as const,
     filter: (params: unknown) => [...queryKeys.customer.all, 'filter', params] as const,
     memo: (id: number) => [...queryKeys.customer.all, 'memo', id] as const,
+    recommend: (id: number) => [...queryKeys.customer.all, 'recommend', id] as const,
   },
 
   // Dashboard

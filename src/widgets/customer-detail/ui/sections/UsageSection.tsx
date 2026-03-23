@@ -17,7 +17,7 @@ const UsageSection = ({ featureData }: Props) => {
           <div className="flex-1">
             <span className="text-sm text-gray-600">당월 총 이용량:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
-              {formatNumber(featureData.usage.totalUsageAmount)}
+              {formatNumber(featureData.usage.totalUsageAmount)} MB
             </span>
           </div>
         </div>
@@ -26,7 +26,7 @@ const UsageSection = ({ featureData }: Props) => {
           <div className="flex-1">
             <span className="text-sm text-gray-600">일 평균 이용량:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
-              {formatNumber(Math.round(featureData.usage.avgDailyUsage))}
+              {formatNumber(Math.round(featureData.usage.avgDailyUsage))} MB
             </span>
           </div>
         </div>
@@ -35,7 +35,7 @@ const UsageSection = ({ featureData }: Props) => {
           <div className="flex-1">
             <span className="text-sm text-gray-600">최대 일일 이용량:</span>
             <span className="ml-2 text-sm font-semibold text-gray-900">
-              {formatNumber(featureData.usage.maxUsageAmount)}
+              {formatNumber(featureData.usage.maxUsageAmount)} MB
             </span>
           </div>
         </div>
