@@ -1,7 +1,7 @@
 import type { Customer } from '@/entities/customer/model/types';
 import { Badge, Card, CardContent } from '@/shared/ui';
 import { CUSTOMER_TYPE_LABELS, type CustomerType } from '@/entities/customer/model/types';
-import { useCustomerMemo } from '@/entities/customer/model/useCustomerQueries';
+import { useCustomerMemo, useCustomerRecommendation } from '@/entities/customer/model/useCustomerQueries';
 import { useAuthStore } from '@/entities/user/model/store';
 import { maskPhone, maskEmail } from '@/shared/utils';
 
@@ -75,7 +75,7 @@ const getSubscriptionStatusLabel = (status: string) => {
 
 const InfoTab = ({ customer, onMemoClick }: Props) => {
   const { data: memo } = useCustomerMemo(customer.id);
-  // const { data: recommendation, isLoading: isLoadingRecommend } = useCustomerRecommendation(customer.id);
+  const { data: recommendation, isLoading: isLoadingRecommend } = useCustomerRecommendation(customer.id);
   const user = useAuthStore((state) => state.user);
   const isMarketing = user?.role === 'MARKETING';
 
@@ -85,7 +85,7 @@ const InfoTab = ({ customer, onMemoClick }: Props) => {
   return (
     <div className="space-y-4 md:space-y-6">
       {/* AI 맞춤 서비스 추천 -> 임시 주석처리*/}
-      {/* {isLoadingRecommend ? (
+      {isLoadingRecommend ? (
         <div className="rounded-lg border-2 border-indigo-200 bg-indigo-50 p-6 shadow-md">
           <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-indigo-900">
             <span>🎯</span>
@@ -123,7 +123,7 @@ const InfoTab = ({ customer, onMemoClick }: Props) => {
             ))}
           </div>
         </div>
-      ) : null} */}
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
       {/* 인적 정보 */}
