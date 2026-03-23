@@ -2,6 +2,8 @@ import type { Customer } from '@/entities/customer/model/types';
 import { Badge, Card, CardContent } from '@/shared/ui';
 import { CUSTOMER_TYPE_LABELS, type CustomerType } from '@/entities/customer/model/types';
 import { useCustomerMemo } from '@/entities/customer/model/useCustomerQueries';
+import { useAuthStore } from '@/entities/user/model/store';
+import { maskPhone, maskEmail } from '@/shared/utils';
 
 interface Props {
   customer: Customer;
@@ -73,6 +75,11 @@ const getSubscriptionStatusLabel = (status: string) => {
 
 const InfoTab = ({ customer, onMemoClick }: Props) => {
   const { data: memo } = useCustomerMemo(customer.id);
+  const user = useAuthStore((state) => state.user);
+  const isMarketing = user?.role === 'MARKETING';
+
+  const displayPhone = isMarketing ? maskPhone(customer.phone) : customer.phone;
+  const displayEmail = isMarketing ? maskEmail(customer.email) : customer.email;
 
   return (
     <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
@@ -115,8 +122,8 @@ const InfoTab = ({ customer, onMemoClick }: Props) => {
           <CardContent className="p-6">
             <h3 className="mb-4 text-lg font-bold text-gray-900">연락처 정보</h3>
             <div className="space-y-3">
-              <InfoRow label="전화번호" value={customer.phone} />
-              <InfoRow label="이메일" value={customer.email} />
+              <InfoRow label="전화번호" value={displayPhone} />
+              <InfoRow label="이메일" value={displayEmail} />
             </div>
           </CardContent>
         </Card>
