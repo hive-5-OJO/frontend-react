@@ -1,7 +1,7 @@
 import type { Customer } from '@/entities/customer/model/types';
 import { Badge, Card, CardContent } from '@/shared/ui';
 import { CUSTOMER_TYPE_LABELS, type CustomerType } from '@/entities/customer/model/types';
-import { useCustomerMemo, useCustomerRecommendation } from '@/entities/customer/model/useCustomerQueries';
+import { useCustomerMemo } from '@/entities/customer/model/useCustomerQueries';
 import { useAuthStore } from '@/entities/user/model/store';
 import { maskPhone, maskEmail } from '@/shared/utils';
 
