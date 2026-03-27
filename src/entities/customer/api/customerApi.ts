@@ -1,6 +1,7 @@
 import axiosInstance from '@/shared/lib/axios/instance';
 import type { Customer, CustomerFeature, ConsultTimelineItem, RFMScore, LTVData, Subscription, Recommendation } from '../model/types';
 import axiosInstancePy from '@/shared/lib/axios/pythonInstance';
+import { getMockCustomerList, getMockCustomerSearch, getMockCustomerFilter } from './mockData';
 
 export interface CustomerListResponse {
   status: string;
@@ -206,14 +207,9 @@ export const customerApi = {
     size?: number;
     sorts?: SortRequest[];
   }): Promise<CustomerListResponse['data']> => {
-    const response = await axiosInstance.post<CustomerListResponse>('/api/customers/list', 
-      params?.sorts || [], {
-      params: {
-        page: params?.page ?? 0,
-        size: params?.size ?? 10,
-      },
-    });
-    return response.data.data;
+    // 목 데이터 사용 (백엔드 없이 동작)
+    await new Promise((r) => setTimeout(r, 300)); // 로딩 시뮬레이션
+    return getMockCustomerList(params?.page ?? 0, params?.size ?? 10);
   },
 
   filter: async (params: {
@@ -223,12 +219,9 @@ export const customerApi = {
     frequency?: string;
     categoryId?: number;
   }): Promise<CustomerListResponse['data']> => {
-    const { page, size, ...body } = params;
-    const response = await axiosInstance.post<CustomerListResponse>(
-      `/api/customers/filter?page=${page ?? 0}&size=${size ?? 10}`,
-      body,
-    );
-    return response.data.data;
+    await new Promise((r) => setTimeout(r, 300));
+    const { page, size, ...filterParams } = params;
+    return getMockCustomerFilter(filterParams, page ?? 0, size ?? 10);
   },
 
   search: async (params: {
@@ -236,14 +229,8 @@ export const customerApi = {
     page?: number;
     size?: number;
   }): Promise<CustomerListResponse['data']> => {
-    const response = await axiosInstance.get<CustomerListResponse>('/api/customers/search', {
-      params: {
-        keyword: params.keyword,
-        page: params.page ?? 0,
-        size: params.size ?? 10,
-      },
-    });
-    return response.data.data;
+    await new Promise((r) => setTimeout(r, 300));
+    return getMockCustomerSearch(params.keyword, params.page ?? 0, params.size ?? 10);
   },
 
   getById: async (id: number): Promise<Customer> => {
