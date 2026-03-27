@@ -261,6 +261,9 @@ const CustomerDetailSlide = ({
         ...customer,
         ...customerDetail,
         // 목록에서 받은 정보 유지
+        name: customer.name,
+        phone: customer.phone || customerDetail.phone,
+        email: customer.email || customerDetail.email,
         service: customer.service,
         period: customer.period,
         consultFrequency: customer.consultFrequency,

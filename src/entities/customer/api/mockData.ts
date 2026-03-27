@@ -56,8 +56,8 @@ const randomEmail = (_name: string, seed: number) => {
   return `${romanized}@${domains[seed % domains.length]}`;
 };
 
-// 100,000명의 목 고객 데이터 생성
-export const mockCustomers: MockCustomerItem[] = Array.from({ length: 100000 }, (_, i) => {
+// 100명의 목 고객 데이터 생성
+export const mockCustomers: MockCustomerItem[] = Array.from({ length: 100 }, (_, i) => {
   const id = 10001 + i;
   const name = NAMES[i % NAMES.length];
   const startDate = randomDate(i);
@@ -177,15 +177,20 @@ const CONSULT_CATEGORIES_DETAIL = [
 
 /**
  * 고객 상세 정보 목 데이터
+ * 목록 데이터와 동일한 고객 정보를 반환
  */
 export const getMockCustomerDetail = (id: number): Customer => {
+  const listItem = mockCustomers.find((c) => c.memberId === id);
   const seed = id % 100;
-  const name = NAMES[seed % NAMES.length];
+  const name = listItem?.name ?? NAMES[seed % NAMES.length];
+  const phone = listItem?.phone ?? randomPhone(id);
+  const email = listItem?.email ?? randomEmail(name, id);
+
   return {
     id,
     name,
-    phone: randomPhone(id),
-    email: randomEmail(name, id),
+    phone,
+    email,
     joinedAt: randomDate(seed),
     gender: seed % 2 === 0 ? 'M' : 'F',
     birthDate: `${1980 + (seed % 25)}-${String((seed % 12) + 1).padStart(2, '0')}-${String((seed % 28) + 1).padStart(2, '0')}`,
