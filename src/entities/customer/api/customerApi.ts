@@ -1,8 +1,16 @@
-// 백엔드 복구 시 주석 해제
-import axiosInstance from '@/shared/lib/axios/instance'; void axiosInstance;
+import axiosInstance from '@/shared/lib/axios/instance';
 import type { Customer, CustomerFeature, ConsultTimelineItem, RFMScore, LTVData, Subscription, Recommendation } from '../model/types';
-import axiosInstancePy from '@/shared/lib/axios/pythonInstance'; void axiosInstancePy;
+import axiosInstancePy from '@/shared/lib/axios/pythonInstance';
 import { getMockCustomerList, getMockCustomerSearch, getMockCustomerFilter, getMockCustomerDetail, getMockCustomerFeatures, getMockConsultTimeline, getMockRFMScore, getMockLTVData, getMockSubscriptions, getMockMemo, createMockMemo, deleteMockMemo, getMockRecommendation } from './mockData';
+
+/**
+ * 목 데이터 사용 여부
+ * .env 파일에서 VITE_USE_MOCK=true 로 설정하면 목 데이터 사용
+ */
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+
+/** 목 데이터 사용 시 로딩 시뮬레이션 */
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export interface CustomerListResponse {
   status: string;
@@ -58,58 +66,28 @@ export interface CustomerFeatureResponse {
   data: {
     memberId: number;
     lifecycle: {
-      lifecycleId: number;
-      memberId: number;
-      featureBaseDate: string;
-      memberLifetimeDays: number;
-      daysSinceLastActivity: number;
-      contractEndDaysLeft: number;
-      isDormantFlag: boolean;
-      isNewCustomerFlag: boolean;
-      isTerminatedFlag: boolean;
-      signupDate: string;
+      lifecycleId: number; memberId: number; featureBaseDate: string;
+      memberLifetimeDays: number; daysSinceLastActivity: number; contractEndDaysLeft: number;
+      isDormantFlag: boolean; isNewCustomerFlag: boolean; isTerminatedFlag: boolean; signupDate: string;
     };
     monetary: {
-      monetaryId: number;
-      memberId: number;
-      featureBaseDate: string;
-      totalRevenue: number;
-      lastPaymentAmount: number;
-      avgMonthlyBill: number;
-      lastPaymentDate: string;
-      paymentCount6m: number;
-      monthlyRevenue: number;
-      paymentDelayCount: number;
-      prevMonthlyRevenue: number;
-      vipPrevMonth: boolean;
-      avgOrderVal: number;
-      purchaseCycle: number;
+      monetaryId: number; memberId: number; featureBaseDate: string;
+      totalRevenue: number; lastPaymentAmount: number; avgMonthlyBill: number;
+      lastPaymentDate: string; paymentCount6m: number; monthlyRevenue: number;
+      paymentDelayCount: number; prevMonthlyRevenue: number; vipPrevMonth: boolean;
+      avgOrderVal: number; purchaseCycle: number;
     };
     usage: {
-      usageId: number;
-      memberId: number;
-      featureBaseDate: string;
-      totalUsageAmount: number;
-      avgDailyUsage: number;
-      maxUsageAmount: number;
-      usagePeakHour: number;
-      premiumServiceCount: number;
-      lastActivityDate: string;
+      usageId: number; memberId: number; featureBaseDate: string;
+      totalUsageAmount: number; avgDailyUsage: number; maxUsageAmount: number;
+      usagePeakHour: number; premiumServiceCount: number; lastActivityDate: string;
       usageActiveDays30d: number;
     };
     consultation: {
-      consultationId: number;
-      memberId: number;
-      featureBaseDate: string;
-      totalConsultCount: number;
-      last7dConsultCount: number;
-      last30dConsultCount: number;
-      avgMonthlyConsultCount: number;
-      lastConsultDate: string;
-      nightConsultCount: number;
-      weekendConsultCount: number;
-      topConsultCategory: string;
-      totalComplaintCount: number;
+      consultationId: number; memberId: number; featureBaseDate: string;
+      totalConsultCount: number; last7dConsultCount: number; last30dConsultCount: number;
+      avgMonthlyConsultCount: number; lastConsultDate: string; nightConsultCount: number;
+      weekendConsultCount: number; topConsultCategory: string; totalComplaintCount: number;
       lastConsultDaysAgo: number;
     };
   };
@@ -121,13 +99,8 @@ export interface ConsultTimelineResponse {
   data: {
     memberId: number;
     timeline: Array<{
-      id: number;
-      date: string;
-      category: string;
-      direction: 'IN' | 'OUT';
-      content: string;
-      promotionName: string | null;
-      satisfactionScore: number;
+      id: number; date: string; category: string; direction: 'IN' | 'OUT';
+      content: string; promotionName: string | null; satisfactionScore: number;
     }>;
   };
 }
@@ -138,15 +111,8 @@ export interface RFMScoreResponse {
   data: {
     memberId: number;
     rfmDetail: {
-      recency: string;
-      frequency: number;
-      monetary: number;
-      rfmScore: number;
-      updatedAt: string;
-      rScore: number;
-      fScore: number;
-      mScore: number;
-      segmentType: string;
+      recency: string; frequency: number; monetary: number; rfmScore: number;
+      updatedAt: string; rScore: number; fScore: number; mScore: number; segmentType: string;
     };
   };
 }
@@ -155,12 +121,8 @@ export interface LTVDataResponse {
   status: string;
   message: string | null;
   data: {
-    member_id: number;
-    avg_value: number;
-    total_revenue: number;
-    frequency: number;
-    lifespan_days: number;
-    LTV: number;
+    member_id: number; avg_value: number; total_revenue: number;
+    frequency: number; lifespan_days: number; LTV: number;
   };
 }
 
@@ -170,16 +132,8 @@ export interface SubscriptionListResponse {
   data: {
     subscriptions: Array<{
       subscribeId: number;
-      product: {
-        planId: number;
-        productName: string;
-        productType: string;
-        price: number;
-      };
-      quantity: number;
-      totalPrice: number;
-      startedAt: string;
-      status: string;
+      product: { planId: number; productName: string; productType: string; price: number; };
+      quantity: number; totalPrice: number; startedAt: string; status: string;
     }>;
   };
 }
@@ -188,13 +142,8 @@ export interface RecommendationResponse {
   status: string;
   message: string | null;
   data: Array<{
-    member_id: number;
-    rank: number;
-    recommended_product: string;
-    price: number;
-    score: string;
-    reason: string;
-    created_at: string;
+    member_id: number; rank: number; recommended_product: string;
+    price: number; score: string; reason: string; created_at: string;
   }>;
 }
 
@@ -209,19 +158,15 @@ export const customerApi = {
     size?: number;
     sorts?: SortRequest[];
   }): Promise<CustomerListResponse['data']> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstance.post<CustomerListResponse>('/api/customers/list',
-    //   params?.sorts || [], {
-    //   params: {
-    //     page: params?.page ?? 0,
-    //     size: params?.size ?? 10,
-    //   },
-    // });
-    // return response.data.data;
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 300));
-    return getMockCustomerList(params?.page ?? 0, params?.size ?? 10);
+    if (USE_MOCK) {
+      await delay(300);
+      return getMockCustomerList(params?.page ?? 0, params?.size ?? 10);
+    }
+    const response = await axiosInstance.post<CustomerListResponse>('/api/customers/list',
+      params?.sorts || [], {
+      params: { page: params?.page ?? 0, size: params?.size ?? 10 },
+    });
+    return response.data.data;
   },
 
   filter: async (params: {
@@ -231,18 +176,16 @@ export const customerApi = {
     frequency?: string;
     categoryId?: number;
   }): Promise<CustomerListResponse['data']> => {
-    // [원본 백엔드 요청]
-    // const { page, size, ...body } = params;
-    // const response = await axiosInstance.post<CustomerListResponse>(
-    //   `/api/customers/filter?page=${page ?? 0}&size=${size ?? 10}`,
-    //   body,
-    // );
-    // return response.data.data;
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 300));
-    const { page, size, ...filterParams } = params;
-    return getMockCustomerFilter(filterParams, page ?? 0, size ?? 10);
+    if (USE_MOCK) {
+      await delay(300);
+      const { page, size, ...filterParams } = params;
+      return getMockCustomerFilter(filterParams, page ?? 0, size ?? 10);
+    }
+    const { page, size, ...body } = params;
+    const response = await axiosInstance.post<CustomerListResponse>(
+      `/api/customers/filter?page=${page ?? 0}&size=${size ?? 10}`, body,
+    );
+    return response.data.data;
   },
 
   search: async (params: {
@@ -250,218 +193,178 @@ export const customerApi = {
     page?: number;
     size?: number;
   }): Promise<CustomerListResponse['data']> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstance.get<CustomerListResponse>('/api/customers/search', {
-    //   params: {
-    //     keyword: params.keyword,
-    //     page: params.page ?? 0,
-    //     size: params.size ?? 10,
-    //   },
-    // });
-    // return response.data.data;
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 300));
-    return getMockCustomerSearch(params.keyword, params.page ?? 0, params.size ?? 10);
+    if (USE_MOCK) {
+      await delay(300);
+      return getMockCustomerSearch(params.keyword, params.page ?? 0, params.size ?? 10);
+    }
+    const response = await axiosInstance.get<CustomerListResponse>('/api/customers/search', {
+      params: { keyword: params.keyword, page: params.page ?? 0, size: params.size ?? 10 },
+    });
+    return response.data.data;
   },
 
   getById: async (id: number): Promise<Customer> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstance.get<CustomerDetailResponse>(`/api/customers/${id}`);
-    // const apiData = response.data.data;
-    // return {
-    //   id: apiData.memberId,
-    //   name: apiData.name,
-    //   phone: apiData.phone,
-    //   email: apiData.email,
-    //   joinedAt: apiData.birthDate,
-    //   gender: apiData.gender,
-    //   birthDate: apiData.birthDate,
-    //   region: apiData.region,
-    //   status: apiData.status,
-    //   consent: apiData.consent,
-    // };
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 200));
-    return getMockCustomerDetail(id);
+    if (USE_MOCK) {
+      await delay(200);
+      return getMockCustomerDetail(id);
+    }
+    const response = await axiosInstance.get<CustomerDetailResponse>(`/api/customers/${id}`);
+    const d = response.data.data;
+    return {
+      id: d.memberId, name: d.name, phone: d.phone, email: d.email,
+      joinedAt: d.birthDate, gender: d.gender, birthDate: d.birthDate,
+      region: d.region, status: d.status, consent: d.consent,
+    };
   },
 
   getFeatures: async (id: number): Promise<CustomerFeature> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstance.get<CustomerFeatureResponse>(`/api/batch/feature/${id}`);
-    // const apiData = response.data.data;
-    // return {
-    //   memberId: apiData.memberId,
-    //   featureBaseDate: apiData.lifecycle.featureBaseDate,
-    //   consultation: {
-    //     totalConsultCount: apiData.consultation.totalConsultCount,
-    //     last7dConsultCount: apiData.consultation.last7dConsultCount,
-    //     last30dConsultCount: apiData.consultation.last30dConsultCount,
-    //     avgMonthlyConsultCount: apiData.consultation.avgMonthlyConsultCount,
-    //     lastConsultDate: apiData.consultation.lastConsultDate,
-    //     nightConsultCount: apiData.consultation.nightConsultCount,
-    //     weekendConsultCount: apiData.consultation.weekendConsultCount,
-    //     topConsultCategory: apiData.consultation.topConsultCategory,
-    //     totalComplaintCount: apiData.consultation.totalComplaintCount,
-    //     lastConsultDaysAgo: apiData.consultation.lastConsultDaysAgo,
-    //   },
-    //   monetary: {
-    //     totalRevenue: apiData.monetary.totalRevenue,
-    //     lastPaymentAmount: apiData.monetary.lastPaymentAmount,
-    //     avgMonthlyBill: apiData.monetary.avgMonthlyBill,
-    //     lastPaymentDate: apiData.monetary.lastPaymentDate,
-    //     paymentCount6m: apiData.monetary.paymentCount6m,
-    //     monthlyRevenue: apiData.monetary.monthlyRevenue,
-    //     paymentDelayCount: apiData.monetary.paymentDelayCount,
-    //     prevMonthlyRevenue: apiData.monetary.prevMonthlyRevenue,
-    //     isVipPrevMonth: apiData.monetary.vipPrevMonth ? 'true' : 'false',
-    //     avgOrderVal: apiData.monetary.avgOrderVal,
-    //     purchaseCycle: apiData.monetary.purchaseCycle,
-    //   },
-    //   lifecycle: {
-    //     memberLifetimeDays: apiData.lifecycle.memberLifetimeDays,
-    //     daysSinceLastActivity: apiData.lifecycle.daysSinceLastActivity,
-    //     contractEndDaysLeft: apiData.lifecycle.contractEndDaysLeft,
-    //     isDormantFlag: apiData.lifecycle.isDormantFlag,
-    //     isNewCustomerFlag: apiData.lifecycle.isNewCustomerFlag,
-    //     isTerminatedFlag: apiData.lifecycle.isTerminatedFlag,
-    //     signupDate: apiData.lifecycle.signupDate,
-    //   },
-    //   usage: {
-    //     totalUsageAmount: apiData.usage.totalUsageAmount,
-    //     avgDailyUsage: apiData.usage.avgDailyUsage,
-    //     maxUsageAmount: apiData.usage.maxUsageAmount,
-    //     usagePeakHour: apiData.usage.usagePeakHour,
-    //     premiumServiceCount: apiData.usage.premiumServiceCount,
-    //     lastActivityDate: apiData.usage.lastActivityDate,
-    //     usageActiveDays30d: apiData.usage.usageActiveDays30d,
-    //   },
-    // };
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 300));
-    return getMockCustomerFeatures(id);
+    if (USE_MOCK) {
+      await delay(300);
+      return getMockCustomerFeatures(id);
+    }
+    const response = await axiosInstance.get<CustomerFeatureResponse>(`/api/batch/feature/${id}`);
+    const d = response.data.data;
+    return {
+      memberId: d.memberId,
+      featureBaseDate: d.lifecycle.featureBaseDate,
+      consultation: {
+        totalConsultCount: d.consultation.totalConsultCount,
+        last7dConsultCount: d.consultation.last7dConsultCount,
+        last30dConsultCount: d.consultation.last30dConsultCount,
+        avgMonthlyConsultCount: d.consultation.avgMonthlyConsultCount,
+        lastConsultDate: d.consultation.lastConsultDate,
+        nightConsultCount: d.consultation.nightConsultCount,
+        weekendConsultCount: d.consultation.weekendConsultCount,
+        topConsultCategory: d.consultation.topConsultCategory,
+        totalComplaintCount: d.consultation.totalComplaintCount,
+        lastConsultDaysAgo: d.consultation.lastConsultDaysAgo,
+      },
+      monetary: {
+        totalRevenue: d.monetary.totalRevenue,
+        lastPaymentAmount: d.monetary.lastPaymentAmount,
+        avgMonthlyBill: d.monetary.avgMonthlyBill,
+        lastPaymentDate: d.monetary.lastPaymentDate,
+        paymentCount6m: d.monetary.paymentCount6m,
+        monthlyRevenue: d.monetary.monthlyRevenue,
+        paymentDelayCount: d.monetary.paymentDelayCount,
+        prevMonthlyRevenue: d.monetary.prevMonthlyRevenue,
+        isVipPrevMonth: d.monetary.vipPrevMonth ? 'true' : 'false',
+        avgOrderVal: d.monetary.avgOrderVal,
+        purchaseCycle: d.monetary.purchaseCycle,
+      },
+      lifecycle: {
+        memberLifetimeDays: d.lifecycle.memberLifetimeDays,
+        daysSinceLastActivity: d.lifecycle.daysSinceLastActivity,
+        contractEndDaysLeft: d.lifecycle.contractEndDaysLeft,
+        isDormantFlag: d.lifecycle.isDormantFlag,
+        isNewCustomerFlag: d.lifecycle.isNewCustomerFlag,
+        isTerminatedFlag: d.lifecycle.isTerminatedFlag,
+        signupDate: d.lifecycle.signupDate,
+      },
+      usage: {
+        totalUsageAmount: d.usage.totalUsageAmount,
+        avgDailyUsage: d.usage.avgDailyUsage,
+        maxUsageAmount: d.usage.maxUsageAmount,
+        usagePeakHour: d.usage.usagePeakHour,
+        premiumServiceCount: d.usage.premiumServiceCount,
+        lastActivityDate: d.usage.lastActivityDate,
+        usageActiveDays30d: d.usage.usageActiveDays30d,
+      },
+    };
   },
 
   getConsultTimeline: async (id: number): Promise<ConsultTimelineItem[]> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstance.get<ConsultTimelineResponse>(`/api/advice/${id}`);
-    // const timeline = response.data.data.timeline;
-    // return timeline.map((item) => ({
-    //   date: item.date,
-    //   category: item.category,
-    //   direction: item.direction,
-    //   content: item.content,
-    //   promotionName: item.promotionName || undefined,
-    //   satisfactionScore: item.satisfactionScore || undefined,
-    // }));
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 250));
-    return getMockConsultTimeline(id);
+    if (USE_MOCK) {
+      await delay(250);
+      return getMockConsultTimeline(id);
+    }
+    const response = await axiosInstance.get<ConsultTimelineResponse>(`/api/advice/${id}`);
+    return response.data.data.timeline.map((item) => ({
+      date: item.date, category: item.category, direction: item.direction,
+      content: item.content,
+      promotionName: item.promotionName || undefined,
+      satisfactionScore: item.satisfactionScore || undefined,
+    }));
   },
 
   getRFMScore: async (id: number): Promise<RFMScore> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstance.get<RFMScoreResponse>(`/api/analysis/rfm/${id}`);
-    // const rfmScore = response.data.data.rfmDetail;
-    // return {
-    //   recency: rfmScore.recency,
-    //   frequency: rfmScore.frequency,
-    //   monetary: rfmScore.monetary,
-    //   score: rfmScore.rfmScore,
-    //   updatedAt: rfmScore.updatedAt,
-    //   rScore: rfmScore.rScore,
-    //   fScore: rfmScore.fScore,
-    //   mScore: rfmScore.mScore,
-    //   segmentType: rfmScore.segmentType,
-    // };
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 300));
-    return getMockRFMScore(id);
+    if (USE_MOCK) {
+      await delay(300);
+      return getMockRFMScore(id);
+    }
+    const response = await axiosInstance.get<RFMScoreResponse>(`/api/analysis/rfm/${id}`);
+    const r = response.data.data.rfmDetail;
+    return {
+      recency: r.recency, frequency: r.frequency, monetary: r.monetary,
+      score: r.rfmScore, updatedAt: r.updatedAt,
+      rScore: r.rScore, fScore: r.fScore, mScore: r.mScore, segmentType: r.segmentType,
+    };
   },
 
   getLTVData: async (id: number): Promise<LTVData> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstancePy.get<LTVDataResponse>(`/api/analysis/ltv/${id}`);
-    // const data = response.data.data;
-    // return {
-    //   memberId: data.member_id,
-    //   avgValue: data.avg_value,
-    //   totalRevenue: data.total_revenue,
-    //   frequency: data.frequency,
-    //   lifespanDays: data.lifespan_days,
-    //   ltv: data.LTV,
-    // };
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 350));
-    return getMockLTVData(id);
+    if (USE_MOCK) {
+      await delay(350);
+      return getMockLTVData(id);
+    }
+    const response = await axiosInstancePy.get<LTVDataResponse>(`/api/analysis/ltv/${id}`);
+    const d = response.data.data;
+    return {
+      memberId: d.member_id, avgValue: d.avg_value, totalRevenue: d.total_revenue,
+      frequency: d.frequency, lifespanDays: d.lifespan_days, ltv: d.LTV,
+    };
   },
 
   getSubscriptions: async (id: number): Promise<Subscription[]> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstance.get<SubscriptionListResponse>(`/api/customers/${id}/subscriptions`);
-    // return response.data.data.subscriptions;
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 200));
-    return getMockSubscriptions(id);
+    if (USE_MOCK) {
+      await delay(200);
+      return getMockSubscriptions(id);
+    }
+    const response = await axiosInstance.get<SubscriptionListResponse>(`/api/customers/${id}/subscriptions`);
+    return response.data.data.subscriptions;
   },
 
   getMemo: async (memberId: number): Promise<{ id: number; adminId: number; memberId: number; content: string } | null> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstance.get<{
-    //   status: string;
-    //   data: { id: number; adminId: number; memberId: number; content: string } | null;
-    // }>(`/api/member-memos/${memberId}`);
-    // return response.data.data;
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 150));
-    return getMockMemo(memberId);
+    if (USE_MOCK) {
+      await delay(150);
+      return getMockMemo(memberId);
+    }
+    const response = await axiosInstance.get<{
+      status: string;
+      data: { id: number; adminId: number; memberId: number; content: string } | null;
+    }>(`/api/member-memos/${memberId}`);
+    return response.data.data;
   },
 
   createMemo: async (memberId: number, content: string): Promise<number> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstance.post<{
-    //   status: string;
-    //   data: number;
-    //   message: string;
-    // }>(`/api/member-memos/${memberId}`, { content });
-    // return response.data.data;
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 200));
-    return createMockMemo(memberId, content);
+    if (USE_MOCK) {
+      await delay(200);
+      return createMockMemo(memberId, content);
+    }
+    const response = await axiosInstance.post<{
+      status: string; data: number; message: string;
+    }>(`/api/member-memos/${memberId}`, { content });
+    return response.data.data;
   },
 
   deleteMemo: async (memberId: number): Promise<void> => {
-    // [원본 백엔드 요청]
-    // await axiosInstance.delete(`/api/member-memos/${memberId}`);
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 200));
-    deleteMockMemo(memberId);
+    if (USE_MOCK) {
+      await delay(200);
+      deleteMockMemo(memberId);
+      return;
+    }
+    await axiosInstance.delete(`/api/member-memos/${memberId}`);
   },
 
   getRecommendation: async (id: number): Promise<Recommendation> => {
-    // [원본 백엔드 요청]
-    // const response = await axiosInstancePy.get<RecommendationResponse>(`/api/analysis/recommend/${id}`);
-    // return response.data.data.map((item) => ({
-    //   memberId: item.member_id,
-    //   rank: item.rank,
-    //   recommendedProduct: item.recommended_product,
-    //   price: item.price,
-    //   score: item.score,
-    //   reason: item.reason,
-    //   createdAt: item.created_at,
-    // }));
-
-    // [목 데이터]
-    await new Promise((r) => setTimeout(r, 400));
-    return getMockRecommendation(id);
+    if (USE_MOCK) {
+      await delay(400);
+      return getMockRecommendation(id);
+    }
+    const response = await axiosInstancePy.get<RecommendationResponse>(`/api/analysis/recommend/${id}`);
+    return response.data.data.map((item) => ({
+      memberId: item.member_id, rank: item.rank,
+      recommendedProduct: item.recommended_product, price: item.price,
+      score: item.score, reason: item.reason, createdAt: item.created_at,
+    }));
   },
 };
