@@ -56,8 +56,8 @@ const randomEmail = (_name: string, seed: number) => {
   return `${romanized}@${domains[seed % domains.length]}`;
 };
 
-// 100명의 목 고객 데이터 생성
-export const mockCustomers: MockCustomerItem[] = Array.from({ length: 100 }, (_, i) => {
+// 100,000명의 목 고객 데이터 생성
+export const mockCustomers: MockCustomerItem[] = Array.from({ length: 100000 }, (_, i) => {
   const id = 10001 + i;
   const name = NAMES[i % NAMES.length];
   const startDate = randomDate(i);
