@@ -81,12 +81,16 @@ const SatisfactionCard = () => {
     responsive: true,
     maintainAspectRatio: false,
     cutout: '65%',
+    layout: {
+      padding: 15,
+    },
     plugins: {
       legend: { display: false },
       tooltip: {
         backgroundColor: 'rgba(0, 0, 0, 0.9)',
         padding: 10,
         cornerRadius: 8,
+        position: 'nearest' as const,
         callbacks: {
           label: (ctx: { label?: string; raw?: unknown }) => {
             const count = ctx.raw as number;
@@ -99,14 +103,14 @@ const SatisfactionCard = () => {
   };
 
   return (
-    <Card className="h-full">
-      <CardContent className="flex h-full flex-col p-5">
+    <Card className="h-full overflow-visible">
+      <CardContent className="flex h-full flex-col overflow-visible p-5">
         <h4 className="mb-1 text-base font-bold text-gray-900">상담 만족도 통계</h4>
         <p className="mb-3 text-xs text-gray-400">총 {data.totalCount.toLocaleString()}건</p>
 
         <div className="flex flex-1 items-center gap-5">
           {/* 도넛 차트 */}
-          <div className="relative flex-shrink-0" style={{ width: '110px', height: '110px' }}>
+          <div className="relative flex-shrink-0 overflow-visible" style={{ width: '140px', height: '140px' }}>
             <Doughnut data={chartData} options={options} plugins={[centerTextPlugin]} />
           </div>
 
