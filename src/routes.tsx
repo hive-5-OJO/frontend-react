@@ -1,19 +1,43 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import LoginPage from '@/pages/auth/LoginPage';
-import GoogleCallbackPage from '@/pages/auth/GoogleCallbackPage';
-import DashboardPage from '@/pages/dashboard/DashboardPage';
-import CustomersPage from '@/pages/customers/CustomersPage';
-import ChannelsPage from '@/pages/channels/ChannelsPage';
-import ChannelDetailPage from '@/pages/channels/ChannelDetailPage';
-import RFMAnalysisPage from '@/pages/analysis/RFMAnalysisPage';
-import CohortAnalysisPage from '@/pages/analysis/CohortAnalysisPage';
-import RegionalAnalysisPage from '@/pages/analysis/RegionalAnalysisPage';
-import AdminManagementPage from '@/pages/admin/AdminManagementPage';
-import NotFoundPage from '@/pages/not-found/NotFoundPage';
-import UIShowcasePage from '@/pages/ui-showcase/UIShowcasePage';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 // import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { ROUTES } from '@/shared/constants/routes';
+
+// 로그인은 초기 진입점이므로 정적 import
+import LoginPage from '@/pages/auth/LoginPage';
+
+// 나머지 페이지는 lazy import → 해당 라우트 접근 시에만 로드
+const GoogleCallbackPage = lazy(() => import('@/pages/auth/GoogleCallbackPage'));
+const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
+const CustomersPage = lazy(() => import('@/pages/customers/CustomersPage'));
+const ChannelsPage = lazy(() => import('@/pages/channels/ChannelsPage'));
+const ChannelDetailPage = lazy(() => import('@/pages/channels/ChannelDetailPage'));
+const RFMAnalysisPage = lazy(() => import('@/pages/analysis/RFMAnalysisPage'));
+const CohortAnalysisPage = lazy(() => import('@/pages/analysis/CohortAnalysisPage'));
+const RegionalAnalysisPage = lazy(() => import('@/pages/analysis/RegionalAnalysisPage'));
+const AdminManagementPage = lazy(() => import('@/pages/admin/AdminManagementPage'));
+const NotFoundPage = lazy(() => import('@/pages/not-found/NotFoundPage'));
+const UIShowcasePage = lazy(() => import('@/pages/ui-showcase/UIShowcasePage'));
+
+/** 페이지 로딩 중 표시되는 폴백 UI */
+const PageLoader = () => (
+  <div className="flex h-screen items-center justify-center">
+    <div className="text-center">
+      <div className="mb-4 inline-block h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+      <p className="text-sm text-gray-500">페이지를 불러오는 중...</p>
+    </div>
+  </div>
+);
+
+/** Suspense + ErrorBoundary 래퍼 */
+const LazyPage = ({ children }: { children: React.ReactNode }) => (
+  <ErrorBoundary>
+    <Suspense fallback={<PageLoader />}>
+      {children}
+    </Suspense>
+  </ErrorBoundary>
+);
 
 export const router = createBrowserRouter([
   {
@@ -26,94 +50,106 @@ export const router = createBrowserRouter([
   },
   {
     path: ROUTES.GOOGLE_CALLBACK,
-    element: <GoogleCallbackPage />,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <GoogleCallbackPage />
+      </Suspense>
+    ),
   },
   {
     path: '/ui',
-    element: <UIShowcasePage />,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <UIShowcasePage />
+      </Suspense>
+    ),
   },
   {
     path: ROUTES.HOME,
     element: (
-      <ErrorBoundary>
+      <LazyPage>
         {/* <ProtectedRoute> */}
           <DashboardPage />
         {/* </ProtectedRoute> */}
-      </ErrorBoundary>
+      </LazyPage>
     ),
   },
   {
     path: ROUTES.CUSTOMERS,
     element: (
-      <ErrorBoundary>
+      <LazyPage>
         {/* <ProtectedRoute> */}
           <CustomersPage />
         {/* </ProtectedRoute> */}
-      </ErrorBoundary>
+      </LazyPage>
     ),
   },
   {
     path: ROUTES.CHANNELS,
     element: (
-      <ErrorBoundary>
+      <LazyPage>
         {/* <ProtectedRoute> */}
           <ChannelsPage />
         {/* </ProtectedRoute> */}
-      </ErrorBoundary>
+      </LazyPage>
     ),
   },
   {
     path: `${ROUTES.CHANNELS}/:id`,
     element: (
-      <ErrorBoundary>
+      <LazyPage>
         {/* <ProtectedRoute> */}
           <ChannelDetailPage />
         {/* </ProtectedRoute> */}
-      </ErrorBoundary>
+      </LazyPage>
     ),
   },
   {
     path: ROUTES.ANALYSIS_RFM,
     element: (
-      <ErrorBoundary>
+      <LazyPage>
         {/* <ProtectedRoute> */}
           <RFMAnalysisPage />
         {/* </ProtectedRoute> */}
-      </ErrorBoundary>
+      </LazyPage>
     ),
   },
   {
     path: ROUTES.ANALYSIS_COHORT,
     element: (
-      <ErrorBoundary>
+      <LazyPage>
         {/* <ProtectedRoute> */}
           <CohortAnalysisPage />
         {/* </ProtectedRoute> */}
-      </ErrorBoundary>
+      </LazyPage>
     ),
   },
   {
     path: ROUTES.ANALYSIS_REGIONAL,
     element: (
-      <ErrorBoundary>
+      <LazyPage>
         {/* <ProtectedRoute> */}
           <RegionalAnalysisPage />
         {/* </ProtectedRoute> */}
-      </ErrorBoundary>
+      </LazyPage>
     ),
   },
   {
     path: ROUTES.ADMIN_MANAGEMENT,
     element: (
-      <ErrorBoundary>
+      <LazyPage>
         {/* <ProtectedRoute requiredRole="ADMIN"> */}
           <AdminManagementPage />
         {/* </ProtectedRoute> */}
-      </ErrorBoundary>
+      </LazyPage>
     ),
   },
   {
     path: '*',
-    element: <NotFoundPage />,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <NotFoundPage />
+      </Suspense>
+    ),
   },
 ]);

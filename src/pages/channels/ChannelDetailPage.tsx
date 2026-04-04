@@ -3,7 +3,9 @@ import { useState } from 'react';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
 import { CustomerDetailSlide } from '@/widgets/customer-detail';
 import { MemoModal } from '@/widgets/customer-detail';
-import { Button, Badge, PageHeader, Checkbox, DeleteConfirmModal, ConfirmModal } from '@/shared/ui';
+import { Button, Badge, PageHeader, Checkbox } from '@/shared/ui';
+import { DeleteConfirmModal } from '@/shared/ui/delete-confirm-modal';
+import { ConfirmModal } from '@/shared/ui/confirm-modal';
 import {
   useChannelList,
   useChannelMembers,

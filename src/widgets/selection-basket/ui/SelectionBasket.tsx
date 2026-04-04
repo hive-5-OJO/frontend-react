@@ -3,7 +3,8 @@ import { useSelectionBasket } from '@/entities/customer/model/selectionBasketSto
 import { useChannelList, useAddChannelMembers } from '@/entities/channel';
 import { channelApi } from '@/entities/channel/api/channelApi';
 import { useCustomerList } from '@/entities/customer/model/useCustomerQueries';
-import { Button, Badge, ConfirmModal } from '@/shared/ui';
+import { Button, Badge } from '@/shared/ui';
+import { ConfirmModal } from '@/shared/ui/confirm-modal';
 import { BulkEmailModal } from '@/widgets/bulk-email-modal';
 import { CreateChannelModal } from '@/widgets/create-channel-modal';
 import { UsersRound, X, Hash } from 'lucide-react';

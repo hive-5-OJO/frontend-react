@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
-import { Card, CardContent, PageHeader, Button, FormSelect, MonthPicker, FilterToggleButton, ConfirmModal } from '@/shared/ui';
+import { Card, CardContent, PageHeader, Button, FormSelect, MonthPicker, FilterToggleButton } from '@/shared/ui';
+import { ConfirmModal } from '@/shared/ui/confirm-modal';
 import { useCohortAnalysis } from '@/entities/analysis';
 import type { SegmentType } from '@/entities/analysis';
 

@@ -6,9 +6,9 @@ import {
   DialogTitle,
   DialogFooter,
   Button,
-  DeleteConfirmModal,
-  ConfirmModal,
 } from '@/shared/ui';
+import { DeleteConfirmModal } from '@/shared/ui/delete-confirm-modal';
+import { ConfirmModal } from '@/shared/ui/confirm-modal';
 import { useCustomerMemo, useCreateMemo, useDeleteMemo } from '@/entities/customer/model/useCustomerQueries';
 
 interface Props {

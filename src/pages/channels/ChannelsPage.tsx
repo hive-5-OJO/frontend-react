@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
-import { Card, CardContent, Badge, Button, PageHeader, DeleteConfirmModal, ConfirmModal } from '@/shared/ui';
+import { Card, CardContent, Badge, Button, PageHeader } from '@/shared/ui';
+import { DeleteConfirmModal } from '@/shared/ui/delete-confirm-modal';
+import { ConfirmModal } from '@/shared/ui/confirm-modal';
 import { useChannelList, useDeleteChannel } from '@/entities/channel';
 import { ROUTES } from '@/shared/constants/routes';
 import { Trash2, Users, ArrowRight } from 'lucide-react';
